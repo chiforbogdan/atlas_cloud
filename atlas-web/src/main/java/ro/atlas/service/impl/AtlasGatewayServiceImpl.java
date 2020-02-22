@@ -14,7 +14,9 @@ import ro.atlas.service.AtlasGatewayService;
 public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasGatewayServiceImpl.class);
+	
 	private @Autowired AtlasGatewayRepository gatewayRepository;
+	private @Autowired AtlasMqttServiceImpl mqttService;
 	
 	@Override
 	public void addGateway(AtlasGatewayAddDto gatewayAddDto) {
@@ -26,7 +28,27 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 		gateway.setPsk(gatewayAddDto.getPsk());
 	
 		/* Add gateway to database */
-		gatewayRepository.save(gateway);
+		gateway = gatewayRepository.save(gateway);
+		
+		/* Subscribe to the gateway topic */
+		mqttService.addSubscribeTopic(gateway.getPsk());
 	}
 
+	@Override
+	public void messageReceived(String psk, byte[] payload) {
+		AtlasGateway gateway = null;
+		
+		try {
+			gateway = gatewayRepository.findByPsk(psk);
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+		}
+		
+		if (gateway == null) {
+			LOG.info("Message received from unknown gateway");
+			return;
+		}
+		
+		LOG.info("Message received for gateway with identity: " + gateway.getIdentity());
+	}
 }

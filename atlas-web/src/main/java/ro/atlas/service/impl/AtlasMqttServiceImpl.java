@@ -1,5 +1,7 @@
 package ro.atlas.service.impl;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
@@ -11,7 +13,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import ro.atlas.service.AtlasGatewayService;
 import ro.atlas.service.AtlasMqttService;
 
 @Component
@@ -20,10 +25,12 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasMqttServiceImpl.class);
 	private static final int ATLAS_MQTT_TIMEOUT_SEC = 60;
 	private MqttClient client;
-	
+	private Set<String> subscribeTopics = new HashSet<>();
 	private String broker = "tcp://127.0.0.1:1883";
-	String clientId;
-	MemoryPersistence persistence = new MemoryPersistence();
+	private String clientId;
+	private MemoryPersistence persistence = new MemoryPersistence();
+	
+	private @Autowired AtlasGatewayService gatewayService;
 	
 	@Override
 	public void start() {
@@ -46,7 +53,6 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 			client.setCallback(this);
 			client.connect(options);
 			
-			client.subscribe("atlas/test1", this);
 		} catch (MqttException e) {
 			e.printStackTrace();
 		}
@@ -55,6 +61,8 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	@Override
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
 		LOG.info("Received message on topic " + topic);
+		
+		gatewayService.messageReceived(topic, message.getPayload());
 	}
 
 	@Override
@@ -65,5 +73,20 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken token) {
 		LOG.info("Message delivery is complete");
+	}
+
+	@Override
+	public void addSubscribeTopic(String topic) {
+		if (!subscribeTopics.add(topic))
+			return;
+		
+		if (client.isConnected()) {
+			LOG.info("Subscribe to gateway topic: " + topic);
+			try {
+				client.subscribe(topic);
+			} catch (MqttException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
