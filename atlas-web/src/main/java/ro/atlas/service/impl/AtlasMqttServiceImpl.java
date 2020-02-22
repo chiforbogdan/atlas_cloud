@@ -1,7 +1,6 @@
 package ro.atlas.service.impl;
 
 import java.util.UUID;
-
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -13,7 +12,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import ro.atlas.service.AtlasMqttService;
 
 @Component
@@ -68,5 +66,4 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	public void deliveryComplete(IMqttDeliveryToken token) {
 		LOG.info("Message delivery is complete");
 	}
-
 }
