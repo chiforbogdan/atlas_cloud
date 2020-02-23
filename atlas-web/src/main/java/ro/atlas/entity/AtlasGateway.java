@@ -1,5 +1,8 @@
 package ro.atlas.entity;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,13 +14,16 @@ public class AtlasGateway {
 	private String id;
 	
 	/* Gateway unique identifier */
-	@Indexed(name = "identity_index_unique", unique = true)
+	@Indexed(unique = true)
 	private String identity;
 	
 	/* Gateway pre-shared key */
-	@Indexed(name = "psk_index_unique", unique = true)
+	@Indexed(unique = true)
 	private String psk;
 
+	/* Client information */
+	private HashMap<String, AtlasClient> clients;
+	
 	public String getIdentity() {
 		return identity;
 	}
@@ -33,6 +39,12 @@ public class AtlasGateway {
 	public void setPsk(String psk) {
 		this.psk = psk;
 	}
-	
-	
+
+	public HashMap<String, AtlasClient> getClients() {
+		return clients;
+	}
+
+	public void setClients(HashMap<String, AtlasClient> clients) {
+		this.clients = clients;
+	}
 }
