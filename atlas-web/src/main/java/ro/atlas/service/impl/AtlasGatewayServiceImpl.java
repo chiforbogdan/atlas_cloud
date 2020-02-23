@@ -30,6 +30,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 	private @Autowired AtlasGatewayRepository gatewayRepository;
 	private @Autowired AtlasMqttServiceImpl mqttService;
 	
+	@Transactional
 	@Override
 	public void addGateway(AtlasGatewayAddDto gatewayAddDto) {
 		LOG.info("Adding gateway info...");
