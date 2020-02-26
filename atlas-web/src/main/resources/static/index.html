@@ -1,0 +1,70 @@
+<!doctype html>
+<html ng-app="atlas">
+<head>
+    <title>ATLAS Gateways</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+    <script src="./controller/gateway_controller.js"></script>
+    <script src="./service/gateway_service.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <link rel="stylesheet" href="./css/app.css">
+</head>
+
+<body>
+
+<div class="generic-container" ng-controller="GatewayController">
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="lead">ATLAS Gateways</span></div>
+        <div class="form-container">
+            <form ng-submit="submit()" name="searchForm" class="form-horizontal">
+
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-2 control-lable" for="identity">Gateway Identity</label>
+                        <div class="col-md-7">
+                            <input type="text" ng-model="gateway.identity" id="identity" name="identity"
+                                   class="title form-control input-sm"
+                                   placeholder="Enter identity of the gateway" required
+                                   ng-minlength="3"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-actions floatRight">
+                        <input type="submit" class="btn btn-primary btn-sm"
+                               ng-disabled="searchForm.$invalid">
+                        <button type="button" ng-click="reset()" class="btn btn-warning btn-sm" ng-disabled="searchForm.$pristine">Reset Form
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading"><span class="lead">List of Gateways </span></div>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Identity</th>
+                    <th>Status</th>
+                    <th>Clients</th>
+                    <th width="20%">
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="g in gateways">
+                    <td><span ng-bind="g.identity"></span></td>
+                    <td><span ng-bind="g.psk"></span></td>
+                    <td><span>..</span></td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

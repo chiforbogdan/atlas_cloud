@@ -28,7 +28,7 @@ public class ApplicationInit implements ApplicationRunner {
         mqttService.start();
         
         /* Subscribe to the each gateway topic */
-        List<AtlasGateway> gateways = gatewayRepository.findAll();    
-		gateways.forEach((gateway) -> mqttService.addSubscribeTopic(gateway.getPsk()));
+        List<AtlasGateway> gateways = gatewayRepository.findAll();
+        gateways.forEach((gateway) -> mqttService.addSubscribeTopic(gateway.getPsk()));
     }
 }

@@ -1,5 +1,8 @@
 package ro.atlas.service;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public interface AtlasMqttService {
 	/**
 	 * Start MQTT service

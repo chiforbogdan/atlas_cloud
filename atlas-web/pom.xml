@@ -59,6 +59,19 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- bootstrap -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>4.0.0-alpha.5</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- angularjs -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>angularjs</artifactId>
+			<version>2.0.0-alpha.22</version>
+		</dependency>
 	</dependencies>
 
 	<build>
