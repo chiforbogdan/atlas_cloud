@@ -14,11 +14,11 @@ public class AtlasGateway {
 	private String id;
 	
 	/* Gateway unique identifier */
-	@Indexed(unique = true)
+	//@Indexed(unique = true)
 	private String identity;
 	
 	/* Gateway pre-shared key */
-	@Indexed(unique = true)
+	//@Indexed(unique = true)
 	private String psk;
 
 	/* Client information */
