@@ -5,11 +5,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 public class AtlasClient {
-	
 	@Id
 	private String id;
 	
-	private String identity;	
+	/* Client device identity */
+	private String identity;
+
+	/* Client device system info */
+	private String registered;
+	private String lastRegisterTime;
+	private String lastKeepAliveTime;
+	private String ipPort;
+	
+	/* Telemetry features */
 	private String sysinfoLoad1;
 	private String sysinfoLoad5;
 	private String sysinfoLoad15;
@@ -25,6 +33,8 @@ public class AtlasClient {
 	private String sysinfoTotalswap;
 	private String sysinfoTotalram;
 	private String sysinfoSharedram;
+	private String packetsPerMinute;
+	private String packetsAvgLength;
 	
 	public String getSysinfoLoad1() {
 		return sysinfoLoad1;
@@ -152,6 +162,18 @@ public class AtlasClient {
 	public void updateInfo(AtlasClient clientInfo) {
 		if (clientInfo == null)
 			return;
+
+		if (clientInfo.getRegistered() != null)
+			this.setRegistered(clientInfo.getRegistered());
+		
+		if (clientInfo.getLastRegisterTime() != null)
+			this.setLastRegisterTime(clientInfo.getLastRegisterTime());
+
+		if (clientInfo.getLastKeepAliveTime() != null)
+			this.setLastKeepAliveTime(clientInfo.getLastKeepAliveTime());
+		
+		if (clientInfo.getIpPort() != null)
+			this.setIpPort(clientInfo.getIpPort());
 		
 		if (clientInfo.getSysinfoLoad1() != null)
 			this.setSysinfoLoad1(clientInfo.getSysinfoLoad1());
@@ -197,6 +219,62 @@ public class AtlasClient {
 		
 		if (clientInfo.getSysinfoSharedram() != null)
 			this.setSysinfoSharedram(clientInfo.getSysinfoSharedram());
+		
+		if (clientInfo.getPacketsPerMinute() != null)
+			this.setPacketsPerMinute(clientInfo.getPacketsPerMinute());
+		
+		if (clientInfo.getPacketsAvgLength() != null)
+			this.setPacketsAvgLength(clientInfo.getPacketsAvgLength());
 
 	}
+
+	public String getLastRegisterTime() {
+		return lastRegisterTime;
+	}
+
+	public void setLastRegisterTime(String lastRegisterTime) {
+		this.lastRegisterTime = lastRegisterTime;
+	}
+
+	public String getLastKeepAliveTime() {
+		return lastKeepAliveTime;
+	}
+
+	public void setLastKeepAliveTime(String lastKeepAliveTime) {
+		this.lastKeepAliveTime = lastKeepAliveTime;
+	}
+
+	public String getIpPort() {
+		return ipPort;
+	}
+
+	public void setIpPort(String ipPort) {
+		this.ipPort = ipPort;
+	}
+
+	public String getPacketsPerMinute() {
+		return packetsPerMinute;
+	}
+
+	public void setPacketsPerMinute(String packetsPerMinute) {
+		this.packetsPerMinute = packetsPerMinute;
+	}
+
+	public String getPacketsAvgLength() {
+		return packetsAvgLength;
+	}
+
+	public void setPacketsAvgLength(String packetsAvgLength) {
+		this.packetsAvgLength = packetsAvgLength;
+	}
+
+	public String getRegistered() {
+		return registered;
+	}
+
+	public void setRegistered(String registered) {
+		this.registered = registered;
+	}
+
+
 }
