@@ -56,7 +56,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         mqttService.addSubscribeTopic(gateway.getPsk());
     }
 
-    @Transactional
     @Override
     public void messageReceived(String psk, byte[] payload) {
         AtlasGateway gateway = null;
@@ -85,18 +84,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             /* Check command type */
             if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_CLIENT_INFO_UPDATE.getCommandType())) {
             	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a device update command");
-            
-                ObjectMapper mapper = new ObjectMapper();
             	String cmdPayload = jsonObject.getString(AtlasCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
-            	
-            	AtlasClient clientInfo = mapper.readValue(cmdPayload.getBytes(), AtlasClient.class);
-                AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
-                if (client == null)
-                    gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
-                else
-                    client.updateInfo(clientInfo);
-
-                gatewayRepository.save(gateway);
+            	updateCommand(gateway, cmdPayload);
             } else if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_REGISTER.getCommandType())) {
             	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a register command");
             	registerNow(gateway);
@@ -106,12 +95,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -121,6 +104,29 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         return gateways;
     }
 
+    @Transactional
+    private void updateCommand(AtlasGateway gateway, String cmdPayload) {
+    	LOG.info("Update device for gateway with identity " + gateway.getIdentity());
+    	
+    	ObjectMapper mapper = new ObjectMapper();
+    	AtlasClient clientInfo = null;
+		
+    	try {
+			clientInfo = mapper.readValue(cmdPayload.getBytes(), AtlasClient.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+        AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
+        if (client == null)
+            gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
+        else
+            client.updateInfo(clientInfo);
+
+        gatewayRepository.save(gateway);
+    }
+    
     @Transactional
 	private void registerNow(AtlasGateway gateway) {
     	LOG.info("Set register state for gateway with identity " + gateway.getIdentity());
@@ -176,6 +182,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 		mqttService.addSubscribeTopic(gateway.getPsk());
 
 		gateway.setRegistered(false);
+		gateway.getClients().forEach((identity, client) -> client.setRegistered("false"));
+		
 		gatewayRepository.save(gateway);
 	}
 	
