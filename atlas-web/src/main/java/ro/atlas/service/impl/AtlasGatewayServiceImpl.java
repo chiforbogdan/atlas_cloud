@@ -30,6 +30,8 @@ import ro.atlas.service.AtlasGatewayService;
 public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AtlasGatewayServiceImpl.class);
+    
+    private static final int ATLAS_KEEPALIVE_COUNTER = 3;
 
     private @Autowired
     AtlasGatewayRepository gatewayRepository;
@@ -124,6 +126,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     	LOG.info("Set register state for gateway with identity " + gateway.getIdentity());
     	
     	gateway.setRegistered(true);
+    	gateway.setKeepaliveCounter(ATLAS_KEEPALIVE_COUNTER);
     	
     	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     	gateway.setLastRegistertTime(dateFormat.format(new Date()));
@@ -137,7 +140,31 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 		
     	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     	gateway.setLastKeepaliveTime(dateFormat.format(new Date()));
+    	gateway.setKeepaliveCounter(ATLAS_KEEPALIVE_COUNTER);
 
     	gatewayRepository.save(gateway);
+	}
+
+    @Transactional
+    private void decrementKeepalive(AtlasGateway gateway ) {
+    	LOG.info("Decrement keep-alive counter for gateway with identity " + gateway.getIdentity());
+    
+    	if (gateway.getKeepaliveCounter() == 0) {
+    		LOG.info("Gateway with identity " + gateway.getIdentity() + " becomes inactive");
+    		gateway.setRegistered(false);
+    	} else
+    		gateway.setKeepaliveCounter(gateway.getKeepaliveCounter() - 1);
+    	
+    	gatewayRepository.save(gateway);
+    }
+    
+	@Override
+	public void keepaliveTask() {
+		LOG.info("Run periodic kee-alive task to detect inactive gateways");
+		
+		List<AtlasGateway> gateways = gatewayRepository.findAll();
+		gateways.forEach((gateway) -> {
+			decrementKeepalive(gateway);
+		});
 	}
 }

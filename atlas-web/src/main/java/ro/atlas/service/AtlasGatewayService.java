@@ -22,6 +22,11 @@ public interface AtlasGatewayService {
 	void messageReceived(String psk, byte[] payload);
 	
 	/**
+	 * Periodic keep-alive task to detect inactive gateways
+	 */
+	void keepaliveTask();
+	
+	/**
 	 * Get a list of gateways
 	 */
 	List<AtlasGateway> getAllGateways();

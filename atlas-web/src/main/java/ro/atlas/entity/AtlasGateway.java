@@ -1,11 +1,8 @@
 package ro.atlas.entity;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -30,6 +27,9 @@ public class AtlasGateway {
 
 	/* Holds the last keep-alive time */
 	private String lastKeepaliveTime;
+	
+	/* Holds the keep-alive counter to detect inactive gateways */
+	private int keepaliveCounter;
 	
 	/* Client information */
 	private HashMap<String, AtlasClient> clients;
@@ -80,5 +80,13 @@ public class AtlasGateway {
 
 	public void setLastKeepaliveTime(String lastKeepaliveTime) {
 		this.lastKeepaliveTime = lastKeepaliveTime;
+	}
+
+	public int getKeepaliveCounter() {
+		return keepaliveCounter;
+	}
+
+	public void setKeepaliveCounter(int keepaliveCounter) {
+		this.keepaliveCounter = keepaliveCounter;
 	}
 }

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
 import ro.atlas.entity.AtlasGateway;
@@ -15,6 +16,7 @@ import ro.atlas.service.AtlasMqttService;
 
 
 @Component
+@EnableScheduling
 public class ApplicationInit implements ApplicationRunner {
 	private static final Logger LOG = LoggerFactory.getLogger(ApplicationInit.class);
  
