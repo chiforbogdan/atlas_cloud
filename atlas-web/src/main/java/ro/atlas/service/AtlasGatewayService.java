@@ -27,6 +27,11 @@ public interface AtlasGatewayService {
 	void keepaliveTask();
 	
 	/**
+	 * Execute initial setup for gateways at application start-up
+	 */
+	void initGateways();
+	
+	/**
 	 * Get a list of gateways
 	 */
 	List<AtlasGateway> getAllGateways();

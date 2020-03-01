@@ -161,10 +161,31 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 	@Override
 	public void keepaliveTask() {
 		LOG.info("Run periodic kee-alive task to detect inactive gateways");
-		
+
 		List<AtlasGateway> gateways = gatewayRepository.findAll();
 		gateways.forEach((gateway) -> {
 			decrementKeepalive(gateway);
+		});
+	}
+
+	@Transactional
+	private void initGateway(AtlasGateway gateway) {
+		LOG.info("Init gateway with identity " + gateway.getIdentity());
+	
+		/* Subscribe to the gateway topic (PSK) */
+		mqttService.addSubscribeTopic(gateway.getPsk());
+
+		gateway.setRegistered(false);
+		gatewayRepository.save(gateway);
+	}
+	
+	@Override
+	public void initGateways() {
+		LOG.info("Init gateways at application start-up");
+
+		List<AtlasGateway> gateways = gatewayRepository.findAll();
+		gateways.forEach((gateway) -> {
+			initGateway(gateway);
 		});
 	}
 }
