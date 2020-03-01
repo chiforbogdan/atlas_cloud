@@ -1,6 +1,9 @@
 package ro.atlas.service.impl;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -74,14 +77,17 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         /* Parse message */
         try {
-            JSONObject jsonObject = new JSONObject(new String(payload));
-            String cmdPayload = jsonObject.getString(AtlasCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
-            ObjectMapper mapper = new ObjectMapper();
+        	JSONObject jsonObject = new JSONObject(new String(payload));
+        	String cmdType = jsonObject.getString(AtlasCommandType.ATLAS_CMD_TYPE_FIELDNAME);
 
             /* Check command type */
-            if (jsonObject.getString(AtlasCommandType.ATLAS_CMD_TYPE_FIELDNAME)
-                    .equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_CLIENT_INFO_UPDATE.getCommandType())) {
-                AtlasClient clientInfo = mapper.readValue(cmdPayload.getBytes(), AtlasClient.class);
+            if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_CLIENT_INFO_UPDATE.getCommandType())) {
+            	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a device update command");
+            
+                ObjectMapper mapper = new ObjectMapper();
+            	String cmdPayload = jsonObject.getString(AtlasCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
+            	
+            	AtlasClient clientInfo = mapper.readValue(cmdPayload.getBytes(), AtlasClient.class);
                 AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
                 if (client == null)
                     gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
@@ -89,6 +95,12 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
                     client.updateInfo(clientInfo);
 
                 gatewayRepository.save(gateway);
+            } else if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_REGISTER.getCommandType())) {
+            	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a register command");
+            	registerNow(gateway);
+            } else if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_KEEPALIVE.getCommandType())) {
+            	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a keep-alive command");
+            	keepaliveNow(gateway);
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
@@ -106,4 +118,26 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         List<AtlasGateway> gateways = gatewayRepository.findAll();
         return gateways;
     }
+
+    @Transactional
+	private void registerNow(AtlasGateway gateway) {
+    	LOG.info("Set register state for gateway with identity " + gateway.getIdentity());
+    	
+    	gateway.setRegistered(true);
+    	
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    	gateway.setLastRegistertTime(dateFormat.format(new Date()));
+    	
+    	gatewayRepository.save(gateway);
+	}
+
+    @Transactional
+	private void keepaliveNow(AtlasGateway gateway) {
+    	LOG.info("Set keep-alive state for gateway with identity " + gateway.getIdentity());
+		
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    	gateway.setLastKeepaliveTime(dateFormat.format(new Date()));
+
+    	gatewayRepository.save(gateway);
+	}
 }

@@ -20,7 +20,7 @@ public interface AtlasGatewayService {
 	 * @param payload Gateway message payload
 	 */
 	void messageReceived(String psk, byte[] payload);
-
+	
 	/**
 	 * Get a list of gateways
 	 */
