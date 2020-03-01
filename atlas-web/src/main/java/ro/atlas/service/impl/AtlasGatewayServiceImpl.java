@@ -105,7 +105,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Transactional
-    private void updateCommand(AtlasGateway gateway, String cmdPayload) {
+    private synchronized void updateCommand(AtlasGateway gateway, String cmdPayload) {
     	LOG.info("Update device for gateway with identity " + gateway.getIdentity());
     	
     	ObjectMapper mapper = new ObjectMapper();
@@ -128,7 +128,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
     
     @Transactional
-	private void registerNow(AtlasGateway gateway) {
+	private synchronized void registerNow(AtlasGateway gateway) {
     	LOG.info("Set register state for gateway with identity " + gateway.getIdentity());
     	
     	gateway.setRegistered(true);
@@ -141,7 +141,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 	}
 
     @Transactional
-	private void keepaliveNow(AtlasGateway gateway) {
+	private synchronized void keepaliveNow(AtlasGateway gateway) {
     	LOG.info("Set keep-alive state for gateway with identity " + gateway.getIdentity());
 		
     	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -165,7 +165,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
     
 	@Override
-	public void keepaliveTask() {
+	public synchronized void keepaliveTask() {
 		LOG.info("Run periodic kee-alive task to detect inactive gateways");
 
 		List<AtlasGateway> gateways = gatewayRepository.findAll();
@@ -188,7 +188,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 	}
 	
 	@Override
-	public void initGateways() {
+	public synchronized void initGateways() {
 		LOG.info("Init gateways at application start-up");
 
 		List<AtlasGateway> gateways = gatewayRepository.findAll();
