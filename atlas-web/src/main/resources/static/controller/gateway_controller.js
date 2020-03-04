@@ -3,6 +3,7 @@ app.controller('GatewayController',[ '$scope', '$interval', 'GatewayService', fu
 
     $scope.gateways = [];
     $scope.gateway = { identity: '', psk: '' };
+    $scope.status = 0; //to do add mongo db status
 
     fetchAllGateways();
 
@@ -23,12 +24,26 @@ app.controller('GatewayController',[ '$scope', '$interval', 'GatewayService', fu
     }
 
     $scope.submit = function() {
+
+        console.log('Saving New Gateway', $scope.gateway);
+
+         $scope.status = 1;
+
+        GatewayService.createGateway($scope.gateway);
+
         $scope.reset();
     };
+
+    $scope.showClients = function(identity){
+         $scope.status = 1;
+    };
+
 
     $scope.reset = function() {
         $scope.gateway = { identity: '', psk: '' };
         $scope.searchForm.$setPristine(); //reset Form
     };
+
+
 
 }]);

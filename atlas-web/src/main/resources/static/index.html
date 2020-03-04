@@ -15,7 +15,7 @@
     <div class="panel panel-default">
         <div class="panel-heading"><span class="lead">ATLAS Gateways</span></div>
         <div class="form-container">
-            <form ng-submit="submit()" name="searchForm" class="form-horizontal">
+            <form ng-submit="submit()" name="addForm" class="form-horizontal">
 
                 <div class="row">
                     <div class="form-group col-md-12">
@@ -23,8 +23,16 @@
                         <div class="col-md-7">
                             <input type="text" ng-model="gateway.identity" id="identity" name="identity"
                                    class="title form-control input-sm"
-                                   placeholder="Enter identity of the gateway" required
+                                   placeholder="Enter the identity of the gateway" required
                                    ng-minlength="3"/>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label class="col-md-2 control-lable" for="psk">PSK</label>
+                        <div class="col-md-7">
+                            <input type="text" ng-model="gateway.psk" id="psk"
+                                   class="form-control input-sm"
+                                   placeholder="Enter the PSK of the gateway" required/>
                         </div>
                     </div>
                 </div>
@@ -32,8 +40,9 @@
                 <div class="row">
                     <div class="form-actions floatRight">
                         <input type="submit" class="btn btn-primary btn-sm"
-                               ng-disabled="searchForm.$invalid">
-                        <button type="button" ng-click="reset()" class="btn btn-warning btn-sm" ng-disabled="searchForm.$pristine">Reset Form
+                               ng-disabled="addForm.$invalid" value="Add Gateway">
+                        <button type="button" ng-click="reset()" class="btn btn-warning btn-sm"
+                                ng-disabled="addForm.$pristine">Reset Form
                         </button>
                     </div>
                 </div>
@@ -54,10 +63,17 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="g in gateways">
+                <tr class="clickable" ng-repeat="g in gateways" onclick="window.location='gateway.html'">
                     <td><span ng-bind="g.identity"></span></td>
                     <td><span ng-bind="g.psk"></span></td>
-                    <td><span>..</span></td>
+                    <td><span class="dot"
+                              ng-style="status === 1 && {'background-color':'green'} || status === 0 && {'background-color':'red'}"></span>
+                    </td>
+                    <td>
+                        <button type="button" ng-click="showClients(g.identity)" class="btn btn-success custom-width">
+                            Show
+                        </button>
+                    </td>
                 </tr>
 
                 </tbody>
