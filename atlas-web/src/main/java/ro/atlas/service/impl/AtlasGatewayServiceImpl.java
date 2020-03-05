@@ -3,6 +3,7 @@ package ro.atlas.service.impl;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,7 @@ import ro.atlas.service.AtlasGatewayService;
 public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AtlasGatewayServiceImpl.class);
-    
+
     private static final int ATLAS_KEEPALIVE_COUNTER = 3;
 
     private @Autowired
@@ -78,20 +79,20 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         /* Parse message */
         try {
-        	JSONObject jsonObject = new JSONObject(new String(payload));
-        	String cmdType = jsonObject.getString(AtlasCommandType.ATLAS_CMD_TYPE_FIELDNAME);
+            JSONObject jsonObject = new JSONObject(new String(payload));
+            String cmdType = jsonObject.getString(AtlasCommandType.ATLAS_CMD_TYPE_FIELDNAME);
 
             /* Check command type */
             if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_CLIENT_INFO_UPDATE.getCommandType())) {
-            	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a device update command");
-            	String cmdPayload = jsonObject.getString(AtlasCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
-            	updateCommand(gateway, cmdPayload);
+                LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a device update command");
+                String cmdPayload = jsonObject.getString(AtlasCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
+                updateCommand(gateway, cmdPayload);
             } else if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_REGISTER.getCommandType())) {
-            	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a register command");
-            	registerNow(gateway);
+                LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a register command");
+                registerNow(gateway);
             } else if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_KEEPALIVE.getCommandType())) {
-            	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a keep-alive command");
-            	keepaliveNow(gateway);
+                LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a keep-alive command");
+                keepaliveNow(gateway);
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
@@ -100,24 +101,28 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     @Override
     public List<AtlasGateway> getAllGateways() {
-        List<AtlasGateway> gateways = gatewayRepository.findAll();
-        return gateways;
+        return gatewayRepository.findAll();
+    }
+
+    @Override
+    public List<AtlasClient> getAllClients(String psk) {
+        return new ArrayList<AtlasClient>(gatewayRepository.findByPsk(psk).getClients().values());
     }
 
     @Transactional
     private void updateCommand(AtlasGateway gateway, String cmdPayload) {
-    	LOG.info("Update device for gateway with identity " + gateway.getIdentity());
-    	
-    	ObjectMapper mapper = new ObjectMapper();
-    	AtlasClient clientInfo = null;
-		
-    	try {
-			clientInfo = mapper.readValue(cmdPayload.getBytes(), AtlasClient.class);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-		
+        LOG.info("Update device for gateway with identity " + gateway.getIdentity());
+
+        ObjectMapper mapper = new ObjectMapper();
+        AtlasClient clientInfo = null;
+
+        try {
+            clientInfo = mapper.readValue(cmdPayload.getBytes(), AtlasClient.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
         AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
         if (client == null)
             gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
@@ -126,74 +131,74 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         gatewayRepository.save(gateway);
     }
-    
-    @Transactional
-	private void registerNow(AtlasGateway gateway) {
-    	LOG.info("Set register state for gateway with identity " + gateway.getIdentity());
-    	
-    	gateway.setRegistered(true);
-    	gateway.setKeepaliveCounter(ATLAS_KEEPALIVE_COUNTER);
-    	
-    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    	gateway.setLastRegistertTime(dateFormat.format(new Date()));
-    	
-    	gatewayRepository.save(gateway);
-	}
 
     @Transactional
-	private void keepaliveNow(AtlasGateway gateway) {
-    	LOG.info("Set keep-alive state for gateway with identity " + gateway.getIdentity());
-		
-    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    	gateway.setLastKeepaliveTime(dateFormat.format(new Date()));
-    	gateway.setKeepaliveCounter(ATLAS_KEEPALIVE_COUNTER);
+    private void registerNow(AtlasGateway gateway) {
+        LOG.info("Set register state for gateway with identity " + gateway.getIdentity());
 
-    	gatewayRepository.save(gateway);
-	}
+        gateway.setRegistered(true);
+        gateway.setKeepaliveCounter(ATLAS_KEEPALIVE_COUNTER);
 
-    @Transactional
-    private void decrementKeepalive(AtlasGateway gateway ) {
-    	LOG.info("Decrement keep-alive counter for gateway with identity " + gateway.getIdentity());
-    
-    	if (gateway.getKeepaliveCounter() == 0) {
-    		LOG.info("Gateway with identity " + gateway.getIdentity() + " becomes inactive");
-    		gateway.setRegistered(false);
-    	} else
-    		gateway.setKeepaliveCounter(gateway.getKeepaliveCounter() - 1);
-    	
-    	gatewayRepository.save(gateway);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        gateway.setLastRegistertTime(dateFormat.format(new Date()));
+
+        gatewayRepository.save(gateway);
     }
-    
-	@Override
-	public synchronized void keepaliveTask() {
-		LOG.info("Run periodic kee-alive task to detect inactive gateways");
 
-		List<AtlasGateway> gateways = gatewayRepository.findAll();
-		gateways.forEach((gateway) -> {
-			decrementKeepalive(gateway);
-		});
-	}
+    @Transactional
+    private void keepaliveNow(AtlasGateway gateway) {
+        LOG.info("Set keep-alive state for gateway with identity " + gateway.getIdentity());
 
-	@Transactional
-	private void initGateway(AtlasGateway gateway) {
-		LOG.info("Init gateway with identity " + gateway.getIdentity());
-	
-		/* Subscribe to the gateway topic (PSK) */
-		mqttService.addSubscribeTopic(gateway.getPsk());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        gateway.setLastKeepaliveTime(dateFormat.format(new Date()));
+        gateway.setKeepaliveCounter(ATLAS_KEEPALIVE_COUNTER);
 
-		gateway.setRegistered(false);
-		gateway.getClients().forEach((identity, client) -> client.setRegistered("false"));
-		
-		gatewayRepository.save(gateway);
-	}
-	
-	@Override
-	public synchronized void initGateways() {
-		LOG.info("Init gateways at application start-up");
+        gatewayRepository.save(gateway);
+    }
 
-		List<AtlasGateway> gateways = gatewayRepository.findAll();
-		gateways.forEach((gateway) -> {
-			initGateway(gateway);
-		});
-	}
+    @Transactional
+    private void decrementKeepalive(AtlasGateway gateway) {
+        LOG.info("Decrement keep-alive counter for gateway with identity " + gateway.getIdentity());
+
+        if (gateway.getKeepaliveCounter() == 0) {
+            LOG.info("Gateway with identity " + gateway.getIdentity() + " becomes inactive");
+            gateway.setRegistered(false);
+        } else
+            gateway.setKeepaliveCounter(gateway.getKeepaliveCounter() - 1);
+
+        gatewayRepository.save(gateway);
+    }
+
+    @Override
+    public synchronized void keepaliveTask() {
+        LOG.info("Run periodic keep-alive task to detect inactive gateways");
+
+        List<AtlasGateway> gateways = gatewayRepository.findAll();
+        gateways.forEach((gateway) -> {
+            decrementKeepalive(gateway);
+        });
+    }
+
+    @Transactional
+    private void initGateway(AtlasGateway gateway) {
+        LOG.info("Init gateway with identity " + gateway.getIdentity());
+
+        /* Subscribe to the gateway topic (PSK) */
+        mqttService.addSubscribeTopic(gateway.getPsk());
+
+        gateway.setRegistered(false);
+        gateway.getClients().forEach((identity, client) -> client.setRegistered("false"));
+
+        gatewayRepository.save(gateway);
+    }
+
+    @Override
+    public synchronized void initGateways() {
+        LOG.info("Init gateways at application start-up");
+
+        List<AtlasGateway> gateways = gatewayRepository.findAll();
+        gateways.forEach((gateway) -> {
+            initGateway(gateway);
+        });
+    }
 }

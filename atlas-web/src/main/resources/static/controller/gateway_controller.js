@@ -1,9 +1,9 @@
 var app = angular.module('atlas', []);
-app.controller('GatewayController',[ '$scope', '$interval', 'GatewayService', function($scope, $interval, GatewayService) {
+app.controller('GatewayController',[ '$scope', '$interval', '$window', 'GatewayService', function($scope, $interval, $window, GatewayService) {
 
     $scope.gateways = [];
     $scope.gateway = { identity: '', psk: '' };
-    $scope.status = 0; //to do add mongo db status
+    $scope.clients = [];
 
     fetchAllGateways();
 
@@ -27,15 +27,18 @@ app.controller('GatewayController',[ '$scope', '$interval', 'GatewayService', fu
 
         console.log('Saving New Gateway', $scope.gateway);
 
-         $scope.status = 1;
+        $scope.status = 1;
 
         GatewayService.createGateway($scope.gateway);
 
         $scope.reset();
     };
 
-    $scope.showClients = function(identity){
-         $scope.status = 1;
+    $scope.showClients = function(gateway) {
+           alert('aaa');
+           $window.location.href = 'gateway.html';
+
+           $scope.clients = fetchAllClients(gateway.psk);
     };
 
 
@@ -43,7 +46,5 @@ app.controller('GatewayController',[ '$scope', '$interval', 'GatewayService', fu
         $scope.gateway = { identity: '', psk: '' };
         $scope.searchForm.$setPristine(); //reset Form
     };
-
-
 
 }]);

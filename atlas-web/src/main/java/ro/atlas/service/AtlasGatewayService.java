@@ -2,6 +2,7 @@ package ro.atlas.service;
 
 import ro.atlas.dto.AtlasGatewayAddDto;
 import org.springframework.stereotype.Service;
+import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
 
 import java.util.List;
@@ -32,7 +33,13 @@ public interface AtlasGatewayService {
 	void initGateways();
 	
 	/**
-	 * Get a list of gateways
+	 * Get the list of all gateways from db
 	 */
 	List<AtlasGateway> getAllGateways();
+
+	/**
+	 * Get all the clients for a gateway with  psk
+	 */
+
+	List<AtlasClient> getAllClients(String psk);
 }

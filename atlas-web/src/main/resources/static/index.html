@@ -57,18 +57,19 @@
                 <thead>
                 <tr>
                     <th>Identity</th>
+                    <th>PSK</th>
                     <th>Status</th>
-                    <th>Clients</th>
                     <th width="20%">
                 </tr>
                 </thead>
                 <tbody>
-                <tr class="clickable" ng-repeat="g in gateways" onclick="window.location='gateway.html'">
+                <tr ng-repeat="g in gateways" ng-click="showClients(g)">
                     <td><span ng-bind="g.identity"></span></td>
                     <td><span ng-bind="g.psk"></span></td>
                     <td><span class="dot"
-                              ng-style="status === 1 && {'background-color':'green'} || status === 0 && {'background-color':'red'}"></span>
+                              ng-style="g.registered === 1 && {'background-color':'green'} || g.registered === 0 && {'background-color':'red'}"></span>
                     </td>
+                    <td><span ng-bind="g.registered"></span></td>
                     <td>
                         <button type="button" ng-click="showClients(g.identity)" class="btn btn-success custom-width">
                             Show

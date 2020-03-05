@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ro.atlas.dto.AtlasGatewayAddDto;
+import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
 import ro.atlas.service.AtlasGatewayService;
 
@@ -50,5 +51,19 @@ public class AtlasWebController {
 
         gatewayService.addGateway(gatewayAddDto);
         System.out.println("Post operation for gateway..." + gatewayAddDto.getPsk());
+    }
+
+    @GetMapping(path = "gateway/clients/{gateway_psk}")
+    public ResponseEntity<List<AtlasClient>> getUser(@PathVariable("gateway_psk") String gateway_psk) {
+        LOG.debug("Fetching clients for gateway with psk: " + gateway_psk);
+
+        System.out.println("List clients for " + gateway_psk);
+        List<AtlasClient> clients = gatewayService.getAllClients(gateway_psk);
+        if (clients.isEmpty()) {
+            LOG.debug("There are no clients for gateway with psk " + gateway_psk);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(clients, HttpStatus.OK);
     }
 }

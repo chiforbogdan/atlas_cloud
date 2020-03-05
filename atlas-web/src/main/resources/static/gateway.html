@@ -1,10 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html ng-app="atlas">
 <head>
-    <title>Show GATEWAY</title>
-    <meta charset="UTF-8">
+    <title>Gateway Detailed Data</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+    <script src="./controller/gateway_controller.js"></script>
+    <script src="./service/gateway_service.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <link rel="stylesheet" href="./css/app.css">
 </head>
+
 <body>
-<p>sugfsgfsfsfhsfsfhskfhskfhsfkhs</p>
+
+<div class="generic-container" ng-controller="GatewayController">
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading"><span class="lead"> List of Clients </span></div>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th> Client Identity</th>
+                    <th> Registered</th>
+                    <th> LastRegisterTime</th>
+                    <th> KernelInfo</th>
+                    <th> Hostname</th>
+                    <th> PacketsPerMinute</th>
+                    <th> PacketsAvgLength</th>
+                    <th width="40%">
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="clickable" ng-repeat="c in clients" onclick="window.location='client.html'">
+                    <td><span ng-bind="c.identity"></span></td>
+                    <td><span class="dot"
+                              ng-style="c.registered === true && {'background-color':'green'} || c.registered === false && {'background-color':'red'}"></span>
+                    </td>
+                    <td><span ng-bind="c.lastRegisterTime"></span></td>
+                    <td><span ng-bind="c.kernelInfo">mere</span></td>
+                    <td><span ng-bind="c.hostname">mere</span></td>
+                    <td><span ng-bind="c.packetsPerMinute">mere</span></td>
+                    <td><span ng-bind="c.packetsAvgLength">mere</span></td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+
