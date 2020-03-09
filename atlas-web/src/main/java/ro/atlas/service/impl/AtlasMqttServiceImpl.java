@@ -76,7 +76,8 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	}
 
 	@Override
-	public void addSubscribeTopic(String topic) {
+	public void
+	addSubscribeTopic(String topic) {
 		if (!subscribeTopics.add(topic))
 			return;
 		

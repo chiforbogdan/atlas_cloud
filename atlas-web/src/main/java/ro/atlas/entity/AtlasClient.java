@@ -17,6 +17,12 @@ public class AtlasClient {
 	private String lastKeepAliveTime;
 	private String ipPort;
 	
+	/* Firewall policy */
+	private String pubSubClientId;
+	private String firewallPolicyQos;
+	private String firewallPolicyPpm;
+	private String firewallPolicyPayloadLen;
+	
 	/* Telemetry features */
 	private String sysinfoLoad1;
 	private String sysinfoLoad5;
@@ -25,16 +31,20 @@ public class AtlasClient {
 	private String sysinfoTotalhigh;
 	private String sysinfoFreeswap;
 	private String sysinfoBufferram;
-	private String kernelInfo;
+	private String kernelInfo;//!!
 	private String sysinfoProcs;
 	private String sysinfoUptime;
-	private String hostname;
+	private String hostname;//!!!
 	private String sysinfoFreeram;
 	private String sysinfoTotalswap;
 	private String sysinfoTotalram;
 	private String sysinfoSharedram;
-	private String packetsPerMinute;
-	private String packetsAvgLength;
+	private String packetsPerMinute;//!!!
+	private String packetsAvgLength;//!!!
+	private String firewallRuleDroppedPkts;
+	private String firewallRulePassedPkts;
+	private String firewallTxDroppedPkts;
+	private String firewallTxPassedPkts;
 	
 	public String getSysinfoLoad1() {
 		return sysinfoLoad1;
@@ -226,6 +236,29 @@ public class AtlasClient {
 		if (clientInfo.getPacketsAvgLength() != null)
 			this.setPacketsAvgLength(clientInfo.getPacketsAvgLength());
 
+		if (clientInfo.getFirewallRuleDroppedPkts() != null)
+			this.setFirewallRuleDroppedPkts(clientInfo.getFirewallRuleDroppedPkts());
+		
+		if (clientInfo.getFirewallRulePassedPkts() != null)
+			this.setFirewallRulePassedPkts(clientInfo.getFirewallRulePassedPkts());	
+
+		if (clientInfo.getFirewallTxDroppedPkts() != null)
+			this.setFirewallTxDroppedPkts(clientInfo.getFirewallTxDroppedPkts());
+		
+		if (clientInfo.getFirewallTxPassedPkts() != null)
+			this.setFirewallTxPassedPkts(clientInfo.getFirewallTxPassedPkts());
+		
+		if (clientInfo.getPubSubClientId() != null)
+			this.setPubSubClientId(clientInfo.getPubSubClientId());
+		
+		if (clientInfo.getFirewallPolicyQos() != null)
+			this.setFirewallPolicyQos(clientInfo.getFirewallPolicyQos());
+
+		if (clientInfo.getFirewallPolicyPpm() != null)
+			this.setFirewallPolicyPpm(clientInfo.getFirewallPolicyPpm());
+
+		if (clientInfo.getFirewallPolicyPayloadLen() != null)
+			this.setFirewallPolicyPayloadLen(clientInfo.getFirewallPolicyPayloadLen());
 	}
 
 	public String getLastRegisterTime() {
@@ -274,6 +307,70 @@ public class AtlasClient {
 
 	public void setRegistered(String registered) {
 		this.registered = registered;
+	}
+
+	public String getFirewallRuleDroppedPkts() {
+		return firewallRuleDroppedPkts;
+	}
+
+	public void setFirewallRuleDroppedPkts(String firewallRuleDroppedPkts) {
+		this.firewallRuleDroppedPkts = firewallRuleDroppedPkts;
+	}
+
+	public String getFirewallRulePassedPkts() {
+		return firewallRulePassedPkts;
+	}
+
+	public void setFirewallRulePassedPkts(String firewallRulePassedPkts) {
+		this.firewallRulePassedPkts = firewallRulePassedPkts;
+	}
+
+	public String getFirewallTxDroppedPkts() {
+		return firewallTxDroppedPkts;
+	}
+
+	public void setFirewallTxDroppedPkts(String firewallTxDroppedPkts) {
+		this.firewallTxDroppedPkts = firewallTxDroppedPkts;
+	}
+
+	public String getFirewallTxPassedPkts() {
+		return firewallTxPassedPkts;
+	}
+
+	public void setFirewallTxPassedPkts(String firewallTxPassedPkts) {
+		this.firewallTxPassedPkts = firewallTxPassedPkts;
+	}
+
+	public String getPubSubClientId() {
+		return pubSubClientId;
+	}
+
+	public void setPubSubClientId(String pubSubClientId) {
+		this.pubSubClientId = pubSubClientId;
+	}
+
+	public String getFirewallPolicyQos() {
+		return firewallPolicyQos;
+	}
+
+	public void setFirewallPolicyQos(String firewallPolicyQos) {
+		this.firewallPolicyQos = firewallPolicyQos;
+	}
+
+	public String getFirewallPolicyPpm() {
+		return firewallPolicyPpm;
+	}
+
+	public void setFirewallPolicyPpm(String firewallPolicyPpm) {
+		this.firewallPolicyPpm = firewallPolicyPpm;
+	}
+
+	public String getFirewallPolicyPayloadLen() {
+		return firewallPolicyPayloadLen;
+	}
+
+	public void setFirewallPolicyPayloadLen(String firewallPolicyPayloadLen) {
+		this.firewallPolicyPayloadLen = firewallPolicyPayloadLen;
 	}
 
 

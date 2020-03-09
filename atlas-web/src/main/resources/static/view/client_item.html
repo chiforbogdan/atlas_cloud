@@ -1,0 +1,106 @@
+<div class="generic-container">
+    <div class="panel panel-default">
+        <div class="panel-heading"><span class="lead"> Client Telemetry </span></div>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th> Client Telemetry Indicator</th>
+                    <th> Value</th>
+                    <th width="70%">
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th> Client Identity</th>
+                    <td><span ng-bind="client_identity"></span></td>
+                </tr>
+                <tr>
+                    <th> Registered</th>
+                    <td><span ng-bind="client.registered"></span></td>
+                </tr>
+                <tr>
+                    <th> LastRegisterTime</th>
+                    <td><span ng-bind="client.lastRegisterTime"></span></td>
+                </tr>
+                <tr>
+                    <th> LastKeepAliveTime</th>
+                    <td><span ng-bind="client.lastKeepAliveTime"></span></td>
+                </tr>
+                <tr>
+                    <th> IpPort</th>
+                    <td><span ng-bind="client.ipPort"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoLoad1</th>
+                    <td><span ng-bind="client.sysinfoLoad1"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoLoad5</th>
+                    <td><span ng-bind="client.sysinfoLoad5"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoLoad15</th>
+                    <td><span ng-bind="client.sysinfoLoad15"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoFreehigh</th>
+                    <td><span ng-bind="client.sysinfoFreehigh"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoTotalhigh</th>
+                    <td><span ng-bind="client.sysinfoTotalhigh"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoFreeswap</th>
+                    <td><span ng-bind="client.sysinfoFreeswap"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoBufferram</th>
+                    <td><span ng-bind="client.sysinfoBufferram"></span></td>
+                </tr>
+                <tr>
+                    <th> KernelInfo</th>
+                    <td><span ng-bind="client.kernelInfo"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoProcs</th>
+                    <td><span ng-bind="client.sysinfoProcs"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoUptime</th>
+                    <td><span ng-bind="client.sysinfoUptime"></span></td>
+                </tr>
+                <tr>
+                    <th> Hostname</th>
+                    <td><span ng-bind="client.hostname"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoFreeram</th>
+                    <td><span ng-bind="client.sysinfoFreeram"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoTotalswap</th>
+                    <td><span ng-bind="client.sysinfoTotalswap"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoTotalram</th>
+                    <td><span ng-bind="client.sysinfoTotalram"></span></td>
+                </tr>
+                <tr>
+                    <th> SysinfoSharedram</th>
+                    <td><span ng-bind="client.sysinfoSharedram"></span></td>
+                </tr>
+                <tr>
+                    <th> PacketsPerMinute</th>
+                    <td><span ng-bind="client.packetsPerMinute"></span></td>
+                </tr>
+                <tr>
+                    <th> PacketsAvgLength</th>
+                    <td><span ng-bind="client.packetsAvgLength"></span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
