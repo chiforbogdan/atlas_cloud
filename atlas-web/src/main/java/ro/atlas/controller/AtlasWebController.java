@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,20 +51,32 @@ public class AtlasWebController {
         LOG.info("Add gateway with identity: " + gatewayAddDto.getIdentity() + " and psk: " + gatewayAddDto.getPsk());
 
         gatewayService.addGateway(gatewayAddDto);
-        System.out.println("Post operation for gateway..." + gatewayAddDto.getPsk());
     }
 
     @GetMapping(path = "gateway/clients/{gateway_psk}")
-    public ResponseEntity<List<AtlasClient>> getUser(@PathVariable("gateway_psk") String gateway_psk) {
+    public ResponseEntity<List<AtlasClient>> getGatewayClientsList(@PathVariable("gateway_psk") String gateway_psk) {
         LOG.debug("Fetching clients for gateway with psk: " + gateway_psk);
 
-        System.out.println("List clients for " + gateway_psk);
         List<AtlasClient> clients = gatewayService.getAllClients(gateway_psk);
-        if (clients.isEmpty()) {
+        if (clients == null) {
             LOG.debug("There are no clients for gateway with psk " + gateway_psk);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
+
+    @GetMapping(path = "gateway/client/{gateway_psk}/{client_identity}")
+    public ResponseEntity<AtlasClient> getClientDetails(@PathVariable("gateway_psk") String gateway_psk, @PathVariable("client_identity") String client_identity) {
+        LOG.debug("Fetching details for client with identity: " + client_identity);
+
+        AtlasClient client = gatewayService.getClient(gateway_psk, client_identity);
+        if (client == null) {
+            LOG.debug("There are no client with identity " + client_identity + " within gateway with psk " + gateway_psk);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(client, HttpStatus.OK);
+    }
+
 }

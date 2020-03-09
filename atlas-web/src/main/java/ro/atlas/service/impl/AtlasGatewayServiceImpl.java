@@ -101,12 +101,43 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     @Override
     public List<AtlasGateway> getAllGateways() {
-        return gatewayRepository.findAll();
+        List<AtlasGateway> gateways = null;
+        try {
+            gateways = gatewayRepository.findAll();
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+
+        return gateways;
     }
 
     @Override
     public List<AtlasClient> getAllClients(String psk) {
-        return new ArrayList<AtlasClient>(gatewayRepository.findByPsk(psk).getClients().values());
+        HashMap<String, AtlasClient> clients = null;
+        try {
+            clients = gatewayRepository.findByPsk(psk).getClients();
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+
+        if (clients.isEmpty())
+            return null;
+
+        return new ArrayList<AtlasClient>(clients.values());
+    }
+
+    @Override
+    public AtlasClient getClient(String psk, String identity) {
+        AtlasGateway gateway = null;
+        try {
+            gateway = gatewayRepository.findByPsk(psk);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+        if (gateway == null)
+            return null;
+
+        return gateway.getClients().get(identity);
     }
 
     @Transactional
