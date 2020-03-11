@@ -46,6 +46,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         /* Create initial gateway state */
         AtlasGateway gateway = new AtlasGateway();
+        gateway.setAlias(gatewayAddDto.getAlias());
         gateway.setIdentity(gatewayAddDto.getIdentity());
         gateway.setPsk(gatewayAddDto.getPsk());
         gateway.setClients(new HashMap<>());

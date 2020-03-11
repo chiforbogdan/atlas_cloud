@@ -2,17 +2,22 @@
 
 atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', 'GatewayService', function($scope, $interval, $route, GatewayService) {
 
-    $scope.clients = [];
-    $scope.gateway_psk = $route.current.params.id;
-    $scope.client = '';
+    $scope.clients = []; //all the clients of the selected gw
+    $scope.gateway_psk = $route.current.params.id; //the selected gw's psk
 
     fetchAllClients($scope.gateway_psk);
 
-   // TO DO!! WebSOCKET -->now fetch only one time
-   /* $interval(function() {
+    /*
+    * Get updates of clients data by polling //to do WebSocket
+    */
+     var fetchAllClientsInterval = fetchAllClientsInterval = $interval(function() {
             fetchAllClients($scope.gateway_psk)
-         }, 2000)*/
+         }, 2000);
 
+    /*
+    * Fetch the clients using the GatewayService
+    * @param psk selected gw's psk
+    */
     function fetchAllClients(psk){
         GatewayService.fetchAllClients(psk)
              .then(
@@ -24,5 +29,13 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', 'Gat
                 }
          );
     }
+    /*
+    * On destruction event of the controller, cancel the $interval service that makes the polling
+    */
+   $scope.$on('$destroy', function() {
+        if(angular.isDefined(fetchAllClientsInterval)) {
+             $interval.cancel(fetchAllClientsInterval);
+        }
+   });
 
 }]);
