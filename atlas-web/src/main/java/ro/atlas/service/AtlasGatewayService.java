@@ -19,10 +19,10 @@ public interface AtlasGatewayService {
     /**
      * Callback for handling gateway message
      *
-     * @param psk     Gateway pre-shared key
+     * @param topic     Publish-subscribe topic on which the message was received
      * @param payload Gateway message payload
      */
-    void messageReceived(String psk, byte[] payload);
+    void messageReceived(String topic, byte[] payload);
 
     /**
      * Periodic keep-alive task to detect inactive gateways
@@ -50,4 +50,10 @@ public interface AtlasGatewayService {
      * @param identity client identity
      */
     AtlasClient getClient(String psk, String identity);
+    
+    /**
+     * Request a full device sync for a gateway
+     * @param gatewayIdentity Gateway identity
+     */
+    void reqFullDeviceSync(String gatewayIdentity);
 }

@@ -6,6 +6,7 @@ import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
 
 public interface AtlasGatewayRepository extends MongoRepository <AtlasGateway, String> {
+	AtlasGateway findByIdentity(String identity);
 	AtlasGateway findByPsk(String psk);
 	AtlasClient findClientByIdentity(String identity);
 }
