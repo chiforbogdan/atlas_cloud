@@ -23,6 +23,9 @@ public class AtlasClient {
 	private String firewallPolicyPpm;
 	private String firewallPolicyPayloadLen;
 	
+	/* Reputation values */
+	private String systemReputation;
+	
 	/* Telemetry features */
 	private String sysinfoLoad1;
 	private String sysinfoLoad5;
@@ -259,6 +262,9 @@ public class AtlasClient {
 
 		if (clientInfo.getFirewallPolicyPayloadLen() != null)
 			this.setFirewallPolicyPayloadLen(clientInfo.getFirewallPolicyPayloadLen());
+		
+		if (clientInfo.getSystemReputation() != null)
+			this.setSystemReputation(clientInfo.getSystemReputation());
 	}
 
 	public String getLastRegisterTime() {
@@ -371,6 +377,14 @@ public class AtlasClient {
 
 	public void setFirewallPolicyPayloadLen(String firewallPolicyPayloadLen) {
 		this.firewallPolicyPayloadLen = firewallPolicyPayloadLen;
+	}
+
+	public String getSystemReputation() {
+		return systemReputation;
+	}
+
+	public void setSystemReputation(String systemReputation) {
+		this.systemReputation = systemReputation;
 	}
 
 

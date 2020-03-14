@@ -62,7 +62,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway = gatewayRepository.save(gateway);
 
         /* Subscribe to the gateway topic */
-        mqttService.addSubscribeTopic(gateway.getPsk());
+        mqttService.addSubscribeTopic(gateway.getPsk() +  ATLAS_TO_CLOUD_TOPIC);
     }
 
     @Override
