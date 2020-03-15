@@ -77,6 +77,13 @@ public class AtlasWebController {
 
         return new ResponseEntity<>(client, HttpStatus.OK);
     }
+    
+    @GetMapping(path = "gateway/force-sync/{gateway_identity}")
+    public void forceSync(@PathVariable("gateway_identity") String gatewayIdentity) {
+        LOG.info("Force sync for gateway with identity " + gatewayIdentity);
+
+        gatewayService.reqFullDeviceSync(gatewayIdentity);
+    }
 
     @DeleteMapping(path = "gateways/{gateway_identity}")
     public ResponseEntity<AtlasGateway> deleteGateway(@PathVariable("gateway_identity") String gateway_identity) {

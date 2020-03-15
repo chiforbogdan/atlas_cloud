@@ -13,8 +13,10 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ro.atlas.commands.AtlasCommand;
 import ro.atlas.commands.AtlasCommandType;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.entity.AtlasClient;
@@ -28,7 +30,12 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AtlasGatewayServiceImpl.class);
 
+    /* Keep-alive counter value */
     private static final int ATLAS_KEEPALIVE_COUNTER = 3;
+    
+    /* Publish-subscribe topic suffix which allows full-duplex communication with the gateway */
+    private static final String ATLAS_TO_GATEWAY_TOPIC = "-to-gateway";
+    private static final String ATLAS_TO_CLOUD_TOPIC = "-to-cloud";
 
     private @Autowired
     AtlasGatewayRepository gatewayRepository;
@@ -51,16 +58,24 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway = gatewayRepository.save(gateway);
 
         /* Subscribe to the gateway topic */
-        mqttService.addSubscribeTopic(gateway.getPsk());
+        mqttService.addSubscribeTopic(gateway.getPsk() +  ATLAS_TO_CLOUD_TOPIC);
     }
 
     @Override
-    public synchronized void messageReceived(String psk, byte[] payload) {
+    public synchronized void messageReceived(String topic, byte[] payload) {
         AtlasGateway gateway = null;
 
         if (payload == null || payload.length == 0)
             return;
 
+        /* Remove trailing full-duplex communication suffix */
+        if (!topic.endsWith(ATLAS_TO_CLOUD_TOPIC)) {
+        	LOG.error("Message received on invalid topic: " + topic);
+        	return;
+        }
+        
+        String psk = topic.substring(0, topic.lastIndexOf(ATLAS_TO_CLOUD_TOPIC));
+        
         try {
             gateway = gatewayRepository.findByPsk(psk);
         } catch (Exception e) {
@@ -80,7 +95,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             String cmdType = jsonObject.getString(AtlasCommandType.ATLAS_CMD_TYPE_FIELDNAME);
 
             /* Check command type */
-            if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_CLIENT_INFO_UPDATE.getCommandType())) {
+            if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_CLIENT_INFO_UPDATE.getCommandType())) {
                 LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a device update command");
                 String cmdPayload = jsonObject.getString(AtlasCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
                 updateCommand(gateway, cmdPayload);
@@ -229,12 +244,27 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         LOG.info("Init gateway with identity " + gateway.getIdentity());
 
         /* Subscribe to the gateway topic (PSK) */
-        mqttService.addSubscribeTopic(gateway.getPsk());
+        mqttService.addSubscribeTopic(gateway.getPsk() + ATLAS_TO_CLOUD_TOPIC);
 
+        /* Mark the gateway and the clients as offline */
         gateway.setRegistered(false);
         gateway.getClients().forEach((identity, client) -> client.setRegistered("false"));
-
+        
         gatewayRepository.save(gateway);
+        
+        /* Request a registration from gateway */
+    	AtlasCommand cmd = new AtlasCommand();
+		cmd.setCommandType(AtlasCommandType.ATLAS_CMD_GATEWAY_REGISTER_REQUEST);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonCmd = mapper.writeValueAsString(cmd);
+			mqttService.publish(gateway.getPsk() + ATLAS_TO_GATEWAY_TOPIC, jsonCmd);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+        
+        /* Request a full device sync from the gateway */
+        reqFullDeviceSync(gateway.getIdentity());
     }
 
     @Override
@@ -246,4 +276,29 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             initGateway(gateway);
         });
     }
+
+	@Override
+	public void reqFullDeviceSync(String gatewayIdentity) {
+		 AtlasGateway gateway = null;
+
+		try {
+			gateway = gatewayRepository.findByIdentity(gatewayIdentity);
+		} catch (Exception e) {
+			LOG.error(e.getMessage());
+		}
+		if (gateway == null) {
+			LOG.error("Cannot find gateway find identity " + gatewayIdentity);
+			return;
+		}
+		
+		AtlasCommand cmd = new AtlasCommand();
+		cmd.setCommandType(AtlasCommandType.ATLAS_CMD_GATEWAY_GET_ALL_DEVICES);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonCmd = mapper.writeValueAsString(cmd);
+			mqttService.publish(gateway.getPsk() + ATLAS_TO_GATEWAY_TOPIC, jsonCmd);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	}
 }

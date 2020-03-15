@@ -17,4 +17,5 @@ public interface AtlasGatewayRepository extends MongoRepository<AtlasGateway, St
 
     @Query(value = "{}", fields = "{clients : 0}")
     List<AtlasGateway> findAllExcludeClients();
+
 }
