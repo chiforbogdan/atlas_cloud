@@ -31,16 +31,16 @@ public class AtlasClient {
 	private String sysinfoTotalhigh;
 	private String sysinfoFreeswap;
 	private String sysinfoBufferram;
-	private String kernelInfo;//!!
+	private String kernelInfo;
 	private String sysinfoProcs;
 	private String sysinfoUptime;
-	private String hostname;//!!!
+	private String hostname;
 	private String sysinfoFreeram;
 	private String sysinfoTotalswap;
 	private String sysinfoTotalram;
 	private String sysinfoSharedram;
-	private String packetsPerMinute;//!!!
-	private String packetsAvgLength;//!!!
+	private String packetsPerMinute;
+	private String packetsAvgLength;
 	private String firewallRuleDroppedPkts;
 	private String firewallRulePassedPkts;
 	private String firewallTxDroppedPkts;

@@ -40,14 +40,29 @@ public interface AtlasGatewayService {
     List<AtlasGateway> getAllGateways();
 
     /**
-     * Get all the clients for a gateway with psk
+     * Get gateway from db
+     * @param gw_identity gateway identity
+     * @return AtlasGateway
      */
-    List<AtlasClient> getAllClients(String psk);
+    AtlasGateway getGateway(String gw_identity);
+
+    /**
+     * Get all the clients of a gateway
+     * @param gw_identity gateway identity
+     * @return list of clients
+     */
+    List<AtlasClient> getAllClients(String gw_identity);
 
     /**
      * Get client details
-     * @param psk gateway psk
-     * @param identity client identity
+     * @param gw_identity gateway psk
+     * @param cl_identity client identity
      */
-    AtlasClient getClient(String psk, String identity);
+    AtlasClient getClient(String gw_identity, String cl_identity);
+
+    /**
+     * Delete gateway from db
+     * @param gw gateway to be deleted
+     */
+    void deleteGateway(AtlasGateway gw);
 }

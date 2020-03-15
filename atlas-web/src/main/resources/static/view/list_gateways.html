@@ -1,92 +1,95 @@
-<div class="generic-container">
-    <div class="panel panel-default">
-        <div class="panel-heading"><span class="lead">ATLAS Gateways</span></div>
-        <div class="form-container">
-            <form ng-submit="submit()" name="addForm" class="form-horizontal">
-
-                <div class="row">
-                    <div class="form-group col-md-12">
-                        <label class="col-md-2 control-lable" for="alias">Gateway Alias</label>
-                        <div class="col-md-7">
+<section class="py-5">
+    <div class="generic-container mx-auto">
+        <div class="card">
+            <div class="card-header"><span class="lead">ATLAS Gateways</span></div>
+            <div class="form-container card-body">
+                <form ng-submit="submit()" name="addForm">
+                    <div class="form-group row">
+                        <label for="alias" class="col-sm-2 col-form-label">Gateway Alias</label>
+                        <div class="col-sm-7">
                             <input type="text" ng-model="gateway.alias" id="alias" name="alias"
-                                   class="title form-control input-sm"
+                                   class="form-control form-control-sm"
                                    placeholder="Enter the alias of the gateway" required
                                    ng-minlength="3"/>
                         </div>
                     </div>
-                    <div class="form-group col-md-12">
-                        <label class="col-md-2 control-lable" for="identity">Gateway Identity</label>
-                        <div class="col-md-7">
+                    <div class="form-group row">
+                        <label for="identity" class="col-sm-2 col-form-label">Gateway Identity</label>
+                        <div class="col-sm-7">
                             <input type="text" ng-model="gateway.identity" id="identity" name="identity"
-                                   class="title form-control input-sm"
-                                   placeholder="Enter the identity of the gateway" required
+                                   class="form-control form-control-sm" placeholder="Enter the identity of the gateway"
+                                   required
                                    ng-minlength="3"/>
                         </div>
                     </div>
-                    <div class="form-group col-md-12">
-                        <label class="col-md-2 control-lable" for="psk">PSK</label>
-                        <div class="col-md-7">
-                            <input type="text" ng-model="gateway.psk" id="psk"
-                                   class="form-control input-sm"
-                                   placeholder="Enter the PSK of the gateway" required/>
+                    <div class="form-group row">
+                        <label for="psk" class="col-sm-2 col-form-label">Gateway PSK</label>
+                        <div class="col-sm-7">
+                            <input type="text" ng-model="gateway.psk" id="psk" name="psk"
+                                   class="form-control form-control-sm" placeholder="Enter the PSK of the gateway"
+                                   required/>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="form-actions floatRight">
-                        <input type="submit" class="btn btn-primary btn-sm"
-                               ng-disabled="addForm.$invalid" value="Add Gateway">
-                        <button type="button" ng-click="reset()" class="btn btn-warning btn-sm"
-                                ng-disabled="addForm.$pristine">Reset Form
-                        </button>
+                    <div class="row justify-content-end">
+                        <div class="col-3">
+                            <input type="submit" class="btn btn-success btn-sm"
+                                   ng-disabled="addForm.$invalid" value="Add">
+                            <button type="button" ng-click="reset()" class="btn btn-dark btn-sm"
+                                    ng-disabled="addForm.$pristine">Reset
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
+        </div>
+        <div class="mt-4 card">
+            <div class="card-header"><span class="lead">List of Gateways </span></div>
+            <div class="table-container">
+                <table class="table table-sm table-hover">
+                    <thead>
+                    <tr>
+                        <th width="20%">Alias</th>
+                        <th width="30%">Identity</th>
+                        <th width="30%">PSK</th>
+                        <th width="10%">Status</th>
+                        <th width="5%">
+                        <th width="5%">
+                    </tr>
+                    </thead>
+                    <tbody ng-repeat="g in gateways" ng-controller="RowCtrl" ng-switch on="isSelected()">
+                    <tr>
+                        <td><a href="#!/gateway/{{g.identity}}/{{g.alias}}"><span ng-bind="g.alias"></span></a></td>
+                        <td><span ng-bind="g.identity"></span></a></td>
+                        <td><span ng-bind="g.psk"></span></td>
+                        <td><span class="dot"
+                                  ng-style="g.registered === true && {'background-color':'green'} || g.registered === false && {'background-color':'red'}"></span>
+                        </td>
+                        <td>
+                            <button type="button" ng-click="remove(g.identity)"
+                                    class="btn"><i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button ng-if="isSelected()" ng-click="toggleRow()" type="button" class="btn"
+                                    style="background-color:white">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                            <button ng-if="!isSelected()" ng-click="toggleRow()" type="button" class="btn"
+                                    style="background-color:white">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr ng-switch-when="true">
+                        <td></td>
+                        <td><span> <b>LastRegisteredTime:</b> {{g.lastRegistertTime}}</span></td>
+                        <td><span> <b>LastKeepAliveTime:</b> {{g.lastKeepaliveTime}}</span></td>
+                        <td><span> <b>KeepAliveCounter:</b>  {{g.keepaliveCounter}}</span></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading"><span class="lead">List of Gateways </span></div>
-        <div class="table-container">
-            <table class="table table-condensed table-hover">
-                <thead>
-                <tr>
-                    <th width="15%">Alias</th>
-                    <th width="30%">Identity</th>
-                    <th width="30%">PSK</th>
-                    <th width="15%">Status</th>
-                    <th width="10%">
-                </tr>
-                </thead>
-                <tbody ng-repeat="g in gateways" ng-controller="RowCtrl" ng-switch on="isSelected()">
-                <tr>
-                    <td><a href="#!/gateway/{{g.psk}}"><span ng-bind="g.alias"></span></a></td>
-                    <td><a href="#!/gateway/{{g.psk}}"><span ng-bind="g.identity"></span></td>
-                    <td><span ng-bind="g.psk"></span></td>
-                    <td><span class="dot"
-                              ng-style="g.registered === true && {'background-color':'green'} || g.registered === false && {'background-color':'red'}"></span>
-                    </td>
-                    <td>
-                        <button ng-if="isSelected()" ng-click="toggleRow()" type="button" class="btn"
-                                style="background-color:white">
-                            <span class="glyphicon glyphicon-chevron-up"></span>
-                        </button>
-                        <button ng-if="!isSelected()" ng-click="toggleRow()" type="button" class="btn"
-                                style="background-color:white">
-                            <span class="glyphicon glyphicon-chevron-down"></span>
-                        </button>
-                    </td>
-                </tr>
-                <tr ng-switch-when="true">
-                    <td></td>
-                    <td><span> <b>LastRegisteredTime:</b> {{g.lastRegistertTime}}</span></td>
-                    <td><span> <b>LastKeepAliveTime:</b> {{g.lastKeepaliveTime}}</span></td>
-                    <td><span> <b>KeepAliveCounter:</b>  {{g.keepaliveCounter}}</span></td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+</section>

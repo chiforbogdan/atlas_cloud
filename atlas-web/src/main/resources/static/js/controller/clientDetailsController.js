@@ -2,25 +2,25 @@
 
 atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route', 'GatewayService', function($scope, $interval, $route, GatewayService) {
 
-    $scope.gateway_psk = $route.current.params.id1; //selected gw's psk
-    $scope.client_identity = $route.current.params.id2; //selected client's identity
+    $scope.gw_identity = $route.current.params.id1; //selected gw's psk
+    $scope.cl_identity = $route.current.params.id2; //selected client's identity
     $scope.client = ''; //fetched client
 
 
-    fetchClientDetails($scope.gateway_psk, $scope.client_identity);
+    fetchClientDetails($scope.gw_identity, $scope.cl_identity);
 
     /*
     * Get updates of gw data by polling //to do WebSocket
     */
-    var fetchClientDetailsInterval = $interval(function() { fetchClientDetails($scope.gateway_psk, $scope.client_identity) }, 2000);
+    var fetchClientDetailsInterval = $interval(function() { fetchClientDetails($scope.gw_identity, $scope.cl_identity) }, 2000);
 
     /*
     * Fetch the client details
-    * @param psk selected gw's psk
-    * @param client selected client's identity
+    * @param gw_identity selected gw's identity
+    * @param cl_identity selected client's identity
     */
-    function fetchClientDetails(psk, client){
-        GatewayService.fetchClientDetails(psk, client)
+    function fetchClientDetails(gw_identity, cl_identity){
+        GatewayService.fetchClientDetails(gw_identity, cl_identity)
              .then(
                 function (d) {
                      $scope.client = d;

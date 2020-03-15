@@ -1,6 +1,6 @@
 'use strict'
 
-atlas_app.controller('GatewayController',[ '$scope', '$interval', 'GatewayService', function($scope, $interval, GatewayService) {
+atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', 'GatewayService', function($scope, $interval, $uibModal, GatewayService) {
 
     $scope.gateways = []; //all the gateways
     $scope.gateway = { alias: '', identity: '', psk: '' }; //the gw from form
@@ -30,6 +30,24 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', 'GatewayServic
     };
 
     /*
+    * Delete gateway
+    */
+    $scope.remove = function(gw_identity){
+        $uibModal.open({
+          templateUrl: 'view/modal.html',
+          controller: function ($scope, $uibModalInstance) {
+            $scope.ok = function () {
+              GatewayService.deleteGateway(gw_identity);
+              $uibModalInstance.close();
+            };
+
+            $scope.cancel = function () {
+              $uibModalInstance.dismiss('cancel');
+            };
+          }
+        })
+    };
+    /*
     * Fetch the all the gateways using the GatewayService
     */
     function fetchAllGateways() {
@@ -54,7 +72,6 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', 'GatewayServic
     });
 
 }]);
-
 atlas_app.controller('RowCtrl', function ($scope) {
 
      $scope.toggleRow = function () {

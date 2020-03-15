@@ -3,10 +3,7 @@ package ro.atlas.service.impl;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +13,6 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ro.atlas.commands.AtlasCommandType;
@@ -26,6 +21,7 @@ import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
 import ro.atlas.repository.AtlasGatewayRepository;
 import ro.atlas.service.AtlasGatewayService;
+
 
 @Component
 public class AtlasGatewayServiceImpl implements AtlasGatewayService {
@@ -104,7 +100,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     public List<AtlasGateway> getAllGateways() {
         List<AtlasGateway> gateways = null;
         try {
-            gateways = gatewayRepository.findAll();
+            gateways = gatewayRepository.findAllExcludeClients();
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
@@ -113,10 +109,22 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Override
-    public List<AtlasClient> getAllClients(String psk) {
+    public AtlasGateway getGateway(String gw_identity) {
+        AtlasGateway gateway = null;
+        try {
+            gateway = gatewayRepository.findByIdentity(gw_identity);
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+
+        return gateway;
+    }
+
+    @Override
+    public List<AtlasClient> getAllClients(String identity) {
         HashMap<String, AtlasClient> clients = null;
         try {
-            clients = gatewayRepository.findByPsk(psk).getClients();
+            clients = gatewayRepository.findByIdentity(identity).getClients();
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
@@ -128,17 +136,22 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Override
-    public AtlasClient getClient(String psk, String identity) {
+    public AtlasClient getClient(String gw_identity, String cl_identity) {
         AtlasGateway gateway = null;
         try {
-            gateway = gatewayRepository.findByPsk(psk);
+            gateway = gatewayRepository.findByIdentity(gw_identity);
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
         if (gateway == null)
             return null;
 
-        return gateway.getClients().get(identity);
+        return gateway.getClients().get(cl_identity);
+    }
+
+    @Override
+    public void deleteGateway(AtlasGateway gw) {
+        gatewayRepository.delete(gw);
     }
 
     @Transactional
