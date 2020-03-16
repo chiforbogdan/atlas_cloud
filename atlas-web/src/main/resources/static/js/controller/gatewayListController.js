@@ -62,6 +62,19 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '
             );
     }
 
+    var expanded_hash_map = {}; //memorize the state of the row
+
+    /*
+    * Expand row | Shrink row
+    */
+     $scope.toggleRow = function (i) {
+          expanded_hash_map[i] = !expanded_hash_map[i];
+     };
+
+     $scope.isSelected = function (i) {
+         return  expanded_hash_map[i];
+     };
+
     /*
     * On destruction event of the controller, cancel the $interval service that makes the polling
     */
@@ -72,13 +85,3 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '
     });
 
 }]);
-atlas_app.controller('RowCtrl', function ($scope) {
-
-     $scope.toggleRow = function () {
-          $scope.selected = !$scope.selected;
-     };
-
-     $scope.isSelected = function (i) {
-         return $scope.selected;
-     };
-});

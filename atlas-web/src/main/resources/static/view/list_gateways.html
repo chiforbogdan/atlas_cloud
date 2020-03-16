@@ -1,5 +1,5 @@
 <section class="py-5">
-    <div class="generic-container mx-auto">
+    <div class="container generic-container mx-auto w-70">
         <div class="card">
             <div class="card-header"><span class="lead">ATLAS Gateways</span></div>
             <div class="form-container card-body">
@@ -56,10 +56,10 @@
                         <th width="5%">
                     </tr>
                     </thead>
-                    <tbody ng-repeat="g in gateways" ng-controller="RowCtrl" ng-switch on="isSelected()">
+                    <tbody ng-repeat="g in gateways" ng-switch on="isSelected($index)">
                     <tr>
                         <td><a href="#!/gateway/{{g.identity}}/{{g.alias}}"><span ng-bind="g.alias"></span></a></td>
-                        <td><span ng-bind="g.identity"></span></a></td>
+                        <td><span ng-bind="g.identity"></span></td>
                         <td><span ng-bind="g.psk"></span></td>
                         <td><span class="dot"
                                   ng-style="g.registered === true && {'background-color':'green'} || g.registered === false && {'background-color':'red'}"></span>
@@ -70,11 +70,11 @@
                             </button>
                         </td>
                         <td>
-                            <button ng-if="isSelected()" ng-click="toggleRow()" type="button" class="btn"
+                            <button ng-if="isSelected($index)" ng-click="toggleRow($index)" type="button" class="btn"
                                     style="background-color:white">
                                 <i class="fas fa-chevron-up"></i>
                             </button>
-                            <button ng-if="!isSelected()" ng-click="toggleRow()" type="button" class="btn"
+                            <button ng-if="!isSelected($index)" ng-click="toggleRow($index)" type="button" class="btn"
                                     style="background-color:white">
                                 <i class="fas fa-chevron-down"></i>
                             </button>
