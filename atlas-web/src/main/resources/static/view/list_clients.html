@@ -15,6 +15,7 @@
                         <th> Client Identity</th>
                         <th> Hostname</th>
                         <th> PubSubClientId</th>
+                        <th> LocalIpAddress</th>
                         <th> LastRegisterTime</th>
                         <th width="10%"> Status</th>
                         <th width="5%"></th>
@@ -26,6 +27,7 @@
                         <td><a href="#!/client/{{gw_identity}}/{{c.identity}}"><span ng-bind="c.identity"></span></a>
                         <td><span ng-bind="c.hostname"></span></td>
                         <th><span ng-bind="c.pubSubClientId"></span></th>
+                        <th><span style="font-weight:normal">{{c.ipPort.split(':')[0]}}</span></th>
                         <td><span ng-bind="c.lastRegisterTime"></span></td>
                         <td><span class="dot"
                                   ng-style="c.registered === 'true' && {'background-color':'green'} || c.registered === 'false' && {'background-color':'red'}"></span>
