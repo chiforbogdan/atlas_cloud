@@ -8,7 +8,7 @@ import ro.atlas.entity.AtlasGateway;
 
 import java.util.List;
 
-public interface AtlasGatewayRepository extends MongoRepository<AtlasGateway, String>{
+public interface AtlasGatewayRepository extends MongoRepository<AtlasGateway, String> {
     AtlasGateway findByPsk(String psk);
 
     AtlasGateway findByIdentity(String identity);

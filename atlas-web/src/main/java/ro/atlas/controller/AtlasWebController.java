@@ -77,7 +77,7 @@ public class AtlasWebController {
 
         return new ResponseEntity<>(client, HttpStatus.OK);
     }
-    
+
     @GetMapping(path = "gateway/force-sync/{gateway_identity}")
     public void forceSync(@PathVariable("gateway_identity") String gatewayIdentity) {
         LOG.info("Force sync for gateway with identity " + gatewayIdentity);
@@ -98,4 +98,19 @@ public class AtlasWebController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping(path = "gateway/client/{gateway_identity}/{client_identity}")
+    public ResponseEntity<AtlasClient> deleteGateway(@PathVariable("gateway_identity") String gateway_identity, @PathVariable("client_identity") String client_identity) {
+        LOG.debug("Deleting client with identity: " + client_identity + " from database!");
+
+        AtlasGateway gw = gatewayService.getGateway(gateway_identity);
+        if (gw == null) {
+            LOG.debug("Unable to delete gateway. Gateway with identity " + gateway_identity + " not found!");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        gatewayService.deleteClient(gw, client_identity);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

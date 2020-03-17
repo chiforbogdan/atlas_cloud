@@ -31,9 +31,9 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
          );
     }
 
-    /*
-    * On destruction event of the controller, cancel the $interval service that makes the polling
-    */
+   /*
+   * On destruction event of the controller, cancel the $interval service that makes the polling
+   */
    $scope.$on('$destroy', function() {
         if(angular.isDefined(fetchClientDetailsInterval)) {
              $interval.cancel(fetchClientDetailsInterval);

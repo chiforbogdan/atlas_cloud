@@ -64,10 +64,15 @@ public interface AtlasGatewayService {
      * Delete gateway from db
      * @param gw gateway to be deleted
      */
-
     void deleteGateway(AtlasGateway gw);
 
-    
+    /**
+     * Delete client from db
+     * @param gateway
+     * @param cl_identity
+     */
+    void deleteClient(AtlasGateway gateway, String cl_identity);
+
     /**
      * Request a full device sync for a gateway
      * @param gatewayIdentity Gateway identity

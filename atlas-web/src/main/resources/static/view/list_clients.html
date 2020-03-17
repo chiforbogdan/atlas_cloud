@@ -2,33 +2,39 @@
     <div class="container generic-container mx-auto w-70">
         <div class="card">
 
-            <div class="card-header"><span class="lead"> Clients List for Gateway {{gw_alias}} </span></div>
+            <div class="card-header">
+                <span class="lead"> Clients List for Gateway {{gw_alias}} </span>
+                <button type="button" ng-click="forceSync(gw_identity)"
+                        class="btn float-right"><i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
             <div class="table-container">
                 <table class="table table-sm table-hover">
                     <thead>
                     <tr>
                         <th> Client Identity</th>
-                        <th> Registered</th>
-                        <th> LastRegisterTime</th>
-                        <th> KernelInfo</th>
                         <th> Hostname</th>
-                        <th> PacketsPerMinute</th>
-                        <th> PacketsAvgLength</th>
-                        <th width="20%">
+                        <th> PubSubClientId</th>
+                        <th> LastRegisterTime</th>
+                        <th width="10%"> Status</th>
+                        <th width="5%"></th>
+                        <th width="1%"></th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr ng-repeat="c in clients">
                         <td><a href="#!/client/{{gw_identity}}/{{c.identity}}"><span ng-bind="c.identity"></span></a>
-                        </td>
+                        <td><span ng-bind="c.hostname"></span></td>
+                        <th><span ng-bind="c.pubSubClientId"></span></th>
+                        <td><span ng-bind="c.lastRegisterTime"></span></td>
                         <td><span class="dot"
                                   ng-style="c.registered === 'true' && {'background-color':'green'} || c.registered === 'false' && {'background-color':'red'}"></span>
                         </td>
-                        <td><span ng-bind="c.lastRegisterTime"></span></td>
-                        <td><span ng-bind="c.kernelInfo"></span></td>
-                        <td><span ng-bind="c.hostname"></span></td>
-                        <td><span ng-bind="c.packetsPerMinute"></span></td>
-                        <td><span ng-bind="c.packetsAvgLength"></span></td>
+                        <td>
+                            <button type="button" ng-click="remove(gw_identity, c.identity)"
+                                    class="btn"><i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
