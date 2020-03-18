@@ -29,9 +29,11 @@ atlas_app.config(function($routeProvider){
                 });
 });
 
-atlas_app.controller('MainController',[ '$scope', function($scope) {
+atlas_app.controller('MainController',[ '$scope', '$location', function($scope, $location) {
 
     $scope.selected = false;
+
+    init();
 
     $scope.showNav = function(){
         $scope.selected = true;
@@ -40,4 +42,9 @@ atlas_app.controller('MainController',[ '$scope', function($scope) {
     $scope.hideNav = function(){
         $scope.selected = false;
     };
+
+    function init() {
+      $scope.path = $location.url();
+      $scope.selected = $scope.path.includes('gateway') || $scope.path.includes('client');
+    }
 }]);
