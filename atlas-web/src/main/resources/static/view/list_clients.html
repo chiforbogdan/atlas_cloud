@@ -14,7 +14,7 @@
                     <tr>
                         <th> Client Identity</th>
                         <th> Hostname</th>
-                        <th> Publish-subscribe ID</th>
+                        <th> System reputation</th>
                         <th> Local IP Address</th>
                         <th> Last Register Time</th>
                         <th width="10%"> Status</th>
@@ -26,7 +26,7 @@
                     <tr ng-repeat="c in clients">
                         <td><a href="#!/client/{{gw_identity}}/{{c.identity}}"><span ng-bind="c.identity"></span></a>
                         <td><span ng-bind="c.hostname"></span></td>
-                        <th><span ng-bind="c.pubSubClientId"></span></th>
+                        <th><span ng-bind="c.systemReputation"></span></th>
                         <th><span style="font-weight:normal">{{c.ipPort.split(':')[0]}}</span></th>
                         <td><span ng-bind="c.lastRegisterTime"></span></td>
                         <td><span class="dot"
