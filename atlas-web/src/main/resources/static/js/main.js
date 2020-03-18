@@ -12,6 +12,10 @@ atlas_app.config(function($routeProvider){
                     templateUrl : "view/list_gateways.html",
                     controller  : 'GatewayController'
                 })
+                .when('/management' , {
+                    templateUrl : "view/management_gateway.html",
+                    controller  : 'GatewayController'
+                })
                 .when('/gateway/:id1/:id2' , {
                     templateUrl : "view/list_clients.html",
                     controller  : 'ClientsController'
@@ -24,3 +28,16 @@ atlas_app.config(function($routeProvider){
                         redirectTo: '/'
                 });
 });
+
+atlas_app.controller('MainController',[ '$scope', function($scope) {
+
+    $scope.selected = false;
+
+    $scope.showNav = function(){
+        $scope.selected = true;
+    };
+
+    $scope.hideNav = function(){
+        $scope.selected = false;
+    };
+}]);
