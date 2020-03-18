@@ -1,30 +1,23 @@
 <header class="py-5 bg-image-full" style="background-image: url('../img/bkg5.png');">
     <img class="img-fluid d-block mx-auto mt-5" src="../img/logo_white.png">
     <div class="header-text">
-        <h2 class="text-center mt-3">Framework de securitate <br> bazat pe reputație pentru IoT </h2>
+        <h2 class="text-center mt-3">IoT security platform</h2>
     </div>
 </header>
 
 <section class="py-5">
     <div class="container">
         <div class="container jumbotron">
-            <h1>Despre ATLAS</h1>
-            <p class="lead">Framework de securitate bazat pe reputație pentru Internet of Things (IoT)</p>
-            <p class="text-justify">
-                Framework-ul de securitate propus urmează paradigma gateway-centric de dezvoltare a sistemelor IoT și
-                oferă
-                o serie de funcționalități ce au ca scop îmbunătățirea securității sistemelor IoT și încrederea
-                utilizatorilor
-                în acestea, fără a afecta însă performanța lor. De cele mai multe ori, majoritatea scenariilor de
-                utilizare
-                a unui sistem IoT pot fi identificate ca
-                părți componente ale unor scenarii complexe, precum Smart-City sau Smart-Home.
-                <br>Acest lucru se poate observa și prin creșterea recentă a dispozitivelor care pot fi integrate în
-                unul dintre aceste scenarii, recunoscute ca având un impact major asupra calității vieții cetățenilor și
-                ca
-                fiind unele dintre cel mai bune exemple de utilitate a sistemelor IoT în societate. Framework-ul IoT de
-                securitate propus a fost conceput pentru a facilita integrarea sa în cadrul acestor
-                scenarii, oferind o serie de funcționalități specifice fiecăruia dintre cele două scenarii cheie.</p>
+            <h1>About</h1>
+            <p class="lead">
+                ATLAS consists in a 3-tier IoT security platform which offers the following modules: <br/>
+                <ul class="lead">
+                 	<li>A lightweight software client which runs on the IoT device</li>
+                 	<li>A gateway software which runs on the network edge and manages all the clients from the network</li>
+                 	<li>A cloud platform which allows managing the gateways and the clients</li>
+                </ul>
+                 
+            </p>
         </div>
         <div class="row">
             <div class="col-md-6 mb-5">
@@ -32,23 +25,7 @@
                     <img class="card-img-top" src="../img/SmartCity.jpg" alt="">
                     <div class="card-body">
                         <h4 class="card-title">Smart-City</h4>
-                        <p class="card-text text-justify">In ceea ce privește scenariul Smart-City, framework-ul oferă
-                            administratorilor o interfață web minimală, la nivelul
-                            gateway-ului, prin care administratorii pot configura relația de încredere dintre gateway și
-                            componenta
-                            Cloud (după acest pas, această componentă va deveni una latentă, funcționalitățile sale
-                            fiind preluate de
-                            aplicația web de administrare de la nivelul componentei Cloud), precum și dintre gateway și
-                            dispozitivele
-                            terminale. Agenții de securitate de la nivelul nodurilor IoT terminale vor gestiona aceste
-                            relații de
-                            încredere pe toată durata de utilizare a dispozitivului și vor avea capacitatea de a păstra
-                            elemente
-                            specifice de securitate, precum identitatea dispozitivului sau cheile criptografice aferente
-                            acestuia. Se
-                            poate observa că, în cazul scenariului Smart-City, sunt atinse toate nivelurile componente
-                            ale sistemului
-                            IoT.</p>
+                        <p class="card-text text-justify">ATLAS provides security management for a fleet of IoT devices and enables a reputation based Sensing-as-a-service platform.</p>
                     </div>
                 </div>
             </div>
@@ -57,35 +34,19 @@
                     <img class="card-img-top" src="../img/SmartHome.jpg" alt="">
                     <div class="card-body">
                         <h4 class="card-title">Smart-Home</h4>
-                        <p class="card-text text-justify">Scenariul Smart-Home, însă, limitează posibilitatea implementării similare
-                            a tuturor
-                            funcționalităților, datorită lipsei (în cele mai multe dintre cazuri) a entității gateway
-                            centrale, prin
-                            conectarea dispozitivelor inteligente direct la componenta Cloud. Framework-ul ține cont de
-                            aceste aspecte,
-                            astfel că va muta o parte dintre serviciile esențiale la nivelul componentei Cloud. De
-                            asemenea, fiind un
-                            scenariu în care datele transmise vor fi informațiile personale ale utilizatorilor, aceștia
-                            vor fi implicați
-                            mai mult în procesul de evaluare și autorizare a comenzilor, lucru realizat prin intermediul
-                            unei aplicații
-                            instalate la nivelul smartphone-ului utilizatorului. Astfel, utilizatorii finali vor avea un
-                            control sporit
-                            asupra deciziilor luate de sistem și vor avea posibilitatea filtrării, cu o granularitate
-                            ridicată, a
-                            serviciilor care vor avea acces la datele personale. </p>
+                        <p class="card-text text-justify">ATLAS offers the capability to inspect the IoT device telemetry values and supports the CoAP lightweight protocol for the communication between the IoT device and the gateway.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="container jumbotron">
-            <p class="text-justify"> Indiferent de scenariile prezentate, framework-ul
-                introduce o serie de elemente unitare, prin care se asigură un nivel de securitate sporit și un bun
-                control
-                asupra elementelor componente: asigurarea validității datelor prin calcularea reputației dispozitivelor,
-                asigurarea integrității nodurilor terminale prin atestarea la distanță a acestora sau filtrarea
-                pachetelor
-                de date cu posibilitatea de reconfigurare automată a acesteia, în funcție de performanța nodurilor.</p>
+            <p class="lead"> On the IoT data plane layer ATLAS provides an API which can be integrated with a user application which can:
+            	<ul class="lead">
+            		<li>Install a firewall rule on the gateway side</li>
+            		<li>Send packet statistics to the gateway and cloud</li>
+            		<li>Get the device with the most trusted reputation within a category and provide reputation feedback</li>
+            	</ul>
+            </p>
         </div>
     </div>
 </section>
