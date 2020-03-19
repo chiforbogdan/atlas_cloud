@@ -31,13 +31,19 @@
                         </div>
                     </div>
                     <div class="row justify-content-end">
-                        <div class="col-3">
+                        <div class="col-3" ng-if="!alertSuccessAdd && !alertFailureAdd">
                             <input type="submit" class="btn btn-success btn-sm"
-                                   ng-disabled="addForm.$invalid" value="Add">
+                                   ng-disabled="addForm.$invalid" value="Add gateway">
                             <button type="button" ng-click="reset()" class="btn btn-dark btn-sm"
                                     ng-disabled="addForm.$pristine">Reset
                             </button>
                         </div>
+                    </div>
+                    <div class="alert alert-success" ng-show="alertSuccessAdd">
+                        <strong>Success!</strong> The gateway was added successfully!
+                    </div>
+                    <div class="alert alert-danger" ng-show="alertFailureAdd">
+                        <strong>Failure!</strong> The gateway was not added!
                     </div>
                 </form>
             </div>

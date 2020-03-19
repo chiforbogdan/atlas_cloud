@@ -45,6 +45,6 @@ atlas_app.controller('MainController',[ '$scope', '$location', function($scope, 
 
     function init() {
       $scope.path = $location.url();
-      $scope.selected = $scope.path.includes('gateway') || $scope.path.includes('client');
+      $scope.selected = $scope.path.includes('gateway') || $scope.path.includes('client') || $scope.path.includes('management');
     }
 }]);

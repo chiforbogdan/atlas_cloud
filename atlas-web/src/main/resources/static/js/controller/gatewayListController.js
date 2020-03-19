@@ -1,9 +1,11 @@
 'use strict'
 
-atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', 'GatewayService', function($scope, $interval, $uibModal, GatewayService) {
+atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '$timeout', 'GatewayService', function($scope, $interval, $uibModal, $timeout, GatewayService) {
 
     $scope.gateways = []; //all the gateways
     $scope.gateway = { alias: '', identity: '', psk: '' }; //the gw from form
+    $scope.alertSuccessAdd = false; //Hide|Show success add gateway message
+    $scope.alertFailureAdd = false; ////Hide|Show failure add gateway message
 
     fetchAllGateways();
 
@@ -16,9 +18,25 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '
     * Add a new gateway submit function
     */
     $scope.submit = function() {
-        console.log('Saving New Gateway', $scope.gateway);
-        GatewayService.createGateway($scope.gateway);
-        $scope.reset();
+        GatewayService.createGateway($scope.gateway)
+            .then(
+               function (d) {
+                  $scope.alertSuccessAdd = true;
+                  $scope.alertFailureAdd = false;
+                  $timeout(function() {
+                       $scope.alertSuccessAdd = false;
+                       $scope.reset();
+                  }, 2000)
+                },
+               function (errResponse) {
+                  console.error('Error while adding gateway!');
+                  $scope.alertSuccessAdd = false;
+                  $scope.alertFailureAdd = true;
+                  $timeout(function() {
+                      $scope.alertFailureAdd = false;
+                   }, 2000)
+                }
+            );
     };
 
     /*
@@ -34,8 +52,8 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '
     */
     $scope.remove = function(gw_identity){
         $uibModal.open({
-          templateUrl: 'view/modal.html',
-          controller: function ($scope, $uibModalInstance) {
+            templateUrl: 'view/modal.html',
+            controller: function ($scope, $uibModalInstance) {
             $scope.ok = function () {
               GatewayService.deleteGateway(gw_identity);
               $uibModalInstance.close();
