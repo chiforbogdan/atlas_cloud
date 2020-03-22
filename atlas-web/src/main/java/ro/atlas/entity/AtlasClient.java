@@ -25,6 +25,7 @@ public class AtlasClient {
 	
 	/* Reputation values */
 	private String systemReputation;
+	private String temperatureReputation;
 	
 	/* Telemetry features */
 	private String sysinfoLoad1;
@@ -265,6 +266,9 @@ public class AtlasClient {
 		
 		if (clientInfo.getSystemReputation() != null)
 			this.setSystemReputation(clientInfo.getSystemReputation());
+		
+		if (clientInfo.getTemperatureReputation() != null)
+			this.setTemperatureReputation(clientInfo.getTemperatureReputation());
 	}
 
 	public String getLastRegisterTime() {
@@ -385,6 +389,14 @@ public class AtlasClient {
 
 	public void setSystemReputation(String systemReputation) {
 		this.systemReputation = systemReputation;
+	}
+
+	public String getTemperatureReputation() {
+		return temperatureReputation;
+	}
+
+	public void setTemperatureReputation(String dataReputation) {
+		this.temperatureReputation = dataReputation;
 	}
 
 
