@@ -1,20 +1,59 @@
 'use strict'
 
-atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', 'GatewayService', function($scope, $interval, $route, GatewayService) {
+atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$uibModal', '$timeout', 'GatewayService', function($scope, $interval, $route, $uibModal, $timeout, GatewayService) {
 
-    $scope.clients = [];
-    $scope.gateway_psk = $route.current.params.id;
-    $scope.client = '';
+    $scope.clients = []; //all the clients of the selected gw
+    $scope.gw_identity = $route.current.params.id1; //the selected gw's identity
+    $scope.gw_alias = $route.current.params.id2; //he selected gw's alias
+    $scope.alertSyncDisplayed = false; //Hide|Show force-sync message
 
-    fetchAllClients($scope.gateway_psk);
+    fetchAllClients($scope.gw_identity);
 
-   // TO DO!! WebSOCKET -->now fetch only one time
-   /* $interval(function() {
-            fetchAllClients($scope.gateway_psk)
-         }, 2000)*/
+    /*
+    * Get updates of clients data by polling //to do WebSocket
+    */
+     var fetchAllClientsInterval = $interval(function() {
+            fetchAllClients($scope.gw_identity)
+         }, 2000);
 
-    function fetchAllClients(psk){
-        GatewayService.fetchAllClients(psk)
+    /*
+    * Delete client
+    */
+    $scope.remove = function(gw_identity, cl_identity){
+        $uibModal.open({
+          templateUrl: 'view/modal.html',
+          controller: function ($scope, $uibModalInstance) {
+            $scope.ok = function () {
+              GatewayService.deleteClient(gw_identity, cl_identity);
+              $uibModalInstance.close();
+            };
+
+            $scope.cancel = function () {
+              $uibModalInstance.dismiss('cancel');
+            };
+          }
+        })
+    };
+
+    /*
+    * Force-Sync gateway clients
+    */
+    $scope.forceSync = function(gw_identity){
+        GatewayService.forceSync(gw_identity);
+
+        $scope.alertSyncDisplayed = true;
+        $timeout(function() {
+             $scope.alertSyncDisplayed  = false;
+           }, 2000)
+
+    };
+
+    /*
+    * Fetch the clients using the GatewayService
+    * @param gw_identity selected gw's identity
+    */
+    function fetchAllClients(gw_identity){
+        GatewayService.fetchAllClients(gw_identity)
              .then(
                 function (d) {
                      $scope.clients = d;
@@ -24,5 +63,14 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', 'Gat
                 }
          );
     }
+
+    /*
+    * On destruction event of the controller, cancel the $interval service that makes the polling
+    */
+   $scope.$on('$destroy', function() {
+        if(angular.isDefined(fetchAllClientsInterval)) {
+             $interval.cancel(fetchAllClientsInterval);
+        }
+   });
 
 }]);

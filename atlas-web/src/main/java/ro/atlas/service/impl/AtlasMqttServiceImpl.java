@@ -3,6 +3,7 @@ package ro.atlas.service.impl;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -10,6 +11,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasMqttServiceImpl.class);
 	private static final int ATLAS_MQTT_TIMEOUT_SEC = 60;
+	private static final int ATLAS_MQTT_QOS_2 = 2;
 	private MqttClient client;
 	private Set<String> subscribeTopics = new HashSet<>();
 	private String broker = "tcp://127.0.0.1:1883";
@@ -88,6 +91,17 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 			} catch (MqttException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	@Override
+	public void publish(String topic, String message) {
+		try {
+			client.publish(topic, message.getBytes(), ATLAS_MQTT_QOS_2, false);
+		} catch (MqttPersistenceException e) {
+			e.printStackTrace();
+		} catch (MqttException e) {
+			e.printStackTrace();
 		}
 	}
 }

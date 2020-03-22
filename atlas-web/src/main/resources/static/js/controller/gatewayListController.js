@@ -1,52 +1,105 @@
 'use strict'
 
-atlas_app.controller('GatewayController',[ '$scope', '$interval', '$window', 'GatewayService', function($scope, $interval, $window, GatewayService) {
+atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '$timeout', 'GatewayService', function($scope, $interval, $uibModal, $timeout, GatewayService) {
 
-    $scope.gateways = [];
-    $scope.gateway = { identity: '', psk: '' };
+    $scope.gateways = []; //all the gateways
+    $scope.gateway = { alias: '', identity: '', psk: '' }; //the gw from form
+    $scope.alertSuccessAdd = false; //Hide|Show success add gateway message
+    $scope.alertFailureAdd = false; ////Hide|Show failure add gateway message
 
     fetchAllGateways();
 
-    // TO DO!! WebSOCKET -->now fetch only one time
-     /*$interval(function() {
-            fetchAllGateways()
-         }, 2000)*/
+    /*
+    * Get updates of gw data by polling //to do WebSocket
+    */
+    var fetchAllGatewaysInterval = $interval(function() { fetchAllGateways() }, 2000);
 
+    /*
+    * Add a new gateway submit function
+    */
     $scope.submit = function() {
-
-        console.log('Saving New Gateway', $scope.gateway);
-
-        GatewayService.createGateway($scope.gateway);
-
-        $scope.reset();
+        GatewayService.createGateway($scope.gateway)
+            .then(
+               function (d) {
+                  $scope.alertSuccessAdd = true;
+                  $scope.alertFailureAdd = false;
+                  $timeout(function() {
+                       $scope.alertSuccessAdd = false;
+                       $scope.reset();
+                  }, 2000)
+                },
+               function (errResponse) {
+                  console.error('Error while adding gateway!');
+                  $scope.alertSuccessAdd = false;
+                  $scope.alertFailureAdd = true;
+                  $timeout(function() {
+                      $scope.alertFailureAdd = false;
+                   }, 2000)
+                }
+            );
     };
 
+    /*
+    * Reset the form input text boxes
+    */
     $scope.reset = function() {
-        $scope.gateway = { identity: '', psk: '' };
+        $scope.gateway = { alias: '', identity: '', psk: '' };
         $scope.searchForm.$setPristine(); //reset Form
     };
 
-     function fetchAllGateways() {
-         GatewayService.fetchAllGateways()
-             .then(
-                function (d) {
-                     $scope.gateways = d;
-                },
-                function (errResponse) {
-                     console.error('Error while fetching gateways!');
-                }
-             );
-     }
+    /*
+    * Delete gateway
+    */
+    $scope.remove = function(gw_identity){
+        $uibModal.open({
+            templateUrl: 'view/modal.html',
+            controller: function ($scope, $uibModalInstance) {
+            $scope.ok = function () {
+              GatewayService.deleteGateway(gw_identity);
+              $uibModalInstance.close();
+            };
 
-}]);
+            $scope.cancel = function () {
+              $uibModalInstance.dismiss('cancel');
+            };
+          }
+        })
+    };
+    /*
+    * Fetch the all the gateways using the GatewayService
+    */
+    function fetchAllGateways() {
+        GatewayService.fetchAllGateways()
+            .then(
+               function (d) {
+                    $scope.gateways = d;
+               },
+               function (errResponse) {
+                    console.error('Error while fetching gateways!');
+               }
+            );
+    }
 
-atlas_app.controller('RowCtrl', function ($scope) {
+    var expanded_hash_map = {}; //memorize the state of the row
 
-     $scope.toggleRow = function () {
-          $scope.selected = !$scope.selected;
+    /*
+    * Expand row | Shrink row
+    */
+     $scope.toggleRow = function (i) {
+          expanded_hash_map[i] = !expanded_hash_map[i];
      };
 
      $scope.isSelected = function (i) {
-         return $scope.selected;
+         return  expanded_hash_map[i];
      };
-});
+
+    /*
+    * On destruction event of the controller, cancel the $interval service that makes the polling
+    */
+    $scope.$on('$destroy', function() {
+        if(angular.isDefined(fetchAllGatewaysInterval)) {
+             $interval.cancel(fetchAllGatewaysInterval);
+        }
+    });
+
+}]);

@@ -19,10 +19,10 @@ public interface AtlasGatewayService {
     /**
      * Callback for handling gateway message
      *
-     * @param psk     Gateway pre-shared key
+     * @param topic     Publish-subscribe topic on which the message was received
      * @param payload Gateway message payload
      */
-    void messageReceived(String psk, byte[] payload);
+    void messageReceived(String topic, byte[] payload);
 
     /**
      * Periodic keep-alive task to detect inactive gateways
@@ -40,14 +40,43 @@ public interface AtlasGatewayService {
     List<AtlasGateway> getAllGateways();
 
     /**
-     * Get all the clients for a gateway with psk
+     * Get gateway from db
+     * @param gw_identity gateway identity
+     * @return AtlasGateway
      */
-    List<AtlasClient> getAllClients(String psk);
+    AtlasGateway getGateway(String gw_identity);
+
+    /**
+     * Get all the clients of a gateway
+     * @param gw_identity gateway identity
+     * @return list of clients
+     */
+    List<AtlasClient> getAllClients(String gw_identity);
 
     /**
      * Get client details
-     * @param psk gateway psk
-     * @param identity client identity
+     * @param gw_identity gateway psk
+     * @param cl_identity client identity
      */
-    AtlasClient getClient(String psk, String identity);
+    AtlasClient getClient(String gw_identity, String cl_identity);
+
+    /**
+     * Delete gateway from db
+     * @param gw gateway to be deleted
+     */
+    void deleteGateway(AtlasGateway gw);
+
+    /**
+     * Delete client from db
+     * @param gateway
+     * @param cl_identity
+     */
+    void deleteClient(AtlasGateway gateway, String cl_identity);
+
+    /**
+     * Request a full device sync for a gateway
+     * @param gatewayIdentity Gateway identity
+     */
+    void reqFullDeviceSync(String gatewayIdentity);
+
 }

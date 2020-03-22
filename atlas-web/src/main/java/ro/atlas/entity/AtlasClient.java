@@ -23,6 +23,10 @@ public class AtlasClient {
 	private String firewallPolicyPpm;
 	private String firewallPolicyPayloadLen;
 	
+	/* Reputation values */
+	private String systemReputation;
+	private String temperatureReputation;
+	
 	/* Telemetry features */
 	private String sysinfoLoad1;
 	private String sysinfoLoad5;
@@ -31,16 +35,16 @@ public class AtlasClient {
 	private String sysinfoTotalhigh;
 	private String sysinfoFreeswap;
 	private String sysinfoBufferram;
-	private String kernelInfo;//!!
+	private String kernelInfo;
 	private String sysinfoProcs;
 	private String sysinfoUptime;
-	private String hostname;//!!!
+	private String hostname;
 	private String sysinfoFreeram;
 	private String sysinfoTotalswap;
 	private String sysinfoTotalram;
 	private String sysinfoSharedram;
-	private String packetsPerMinute;//!!!
-	private String packetsAvgLength;//!!!
+	private String packetsPerMinute;
+	private String packetsAvgLength;
 	private String firewallRuleDroppedPkts;
 	private String firewallRulePassedPkts;
 	private String firewallTxDroppedPkts;
@@ -259,6 +263,12 @@ public class AtlasClient {
 
 		if (clientInfo.getFirewallPolicyPayloadLen() != null)
 			this.setFirewallPolicyPayloadLen(clientInfo.getFirewallPolicyPayloadLen());
+		
+		if (clientInfo.getSystemReputation() != null)
+			this.setSystemReputation(clientInfo.getSystemReputation());
+		
+		if (clientInfo.getTemperatureReputation() != null)
+			this.setTemperatureReputation(clientInfo.getTemperatureReputation());
 	}
 
 	public String getLastRegisterTime() {
@@ -371,6 +381,22 @@ public class AtlasClient {
 
 	public void setFirewallPolicyPayloadLen(String firewallPolicyPayloadLen) {
 		this.firewallPolicyPayloadLen = firewallPolicyPayloadLen;
+	}
+
+	public String getSystemReputation() {
+		return systemReputation;
+	}
+
+	public void setSystemReputation(String systemReputation) {
+		this.systemReputation = systemReputation;
+	}
+
+	public String getTemperatureReputation() {
+		return temperatureReputation;
+	}
+
+	public void setTemperatureReputation(String dataReputation) {
+		this.temperatureReputation = dataReputation;
 	}
 
 

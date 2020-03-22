@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,30 +52,65 @@ public class AtlasWebController {
         gatewayService.addGateway(gatewayAddDto);
     }
 
-    @GetMapping(path = "gateway/clients/{gateway_psk}")
-    public ResponseEntity<List<AtlasClient>> getGatewayClientsList(@PathVariable("gateway_psk") String gateway_psk) {
-        LOG.debug("Fetching clients for gateway with psk: " + gateway_psk);
+    @GetMapping(path = "gateway/clients/{gateway_identity}")
+    public ResponseEntity<List<AtlasClient>> getGatewayClientsList(@PathVariable("gateway_identity") String gateway_identity) {
+        LOG.debug("Fetching clients for gateway with identity: " + gateway_identity);
 
-        List<AtlasClient> clients = gatewayService.getAllClients(gateway_psk);
+        List<AtlasClient> clients = gatewayService.getAllClients(gateway_identity);
         if (clients == null) {
-            LOG.debug("There are no clients for gateway with psk " + gateway_psk);
+            LOG.debug("There are no clients for gateway with identity " + gateway_identity);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
 
-    @GetMapping(path = "gateway/client/{gateway_psk}/{client_identity}")
-    public ResponseEntity<AtlasClient> getClientDetails(@PathVariable("gateway_psk") String gateway_psk, @PathVariable("client_identity") String client_identity) {
+    @GetMapping(path = "gateway/client/{gateway_identity}/{client_identity}")
+    public ResponseEntity<AtlasClient> getClientDetails(@PathVariable("gateway_identity") String gateway_identity, @PathVariable("client_identity") String client_identity) {
         LOG.debug("Fetching details for client with identity: " + client_identity);
 
-        AtlasClient client = gatewayService.getClient(gateway_psk, client_identity);
+        AtlasClient client = gatewayService.getClient(gateway_identity, client_identity);
         if (client == null) {
-            LOG.debug("There are no client with identity " + client_identity + " within gateway with psk " + gateway_psk);
+            LOG.debug("There are no client with identity " + client_identity + " within gateway with identity " + gateway_identity);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         return new ResponseEntity<>(client, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "gateway/force-sync/{gateway_identity}")
+    public void forceSync(@PathVariable("gateway_identity") String gatewayIdentity) {
+        LOG.info("Force sync for gateway with identity " + gatewayIdentity);
+
+        gatewayService.reqFullDeviceSync(gatewayIdentity);
+    }
+
+    @DeleteMapping(path = "gateways/{gateway_identity}")
+    public ResponseEntity<AtlasGateway> deleteGateway(@PathVariable("gateway_identity") String gateway_identity) {
+        LOG.debug("Deleting gateway with identity: " + gateway_identity + " from database!");
+
+        AtlasGateway gw = gatewayService.getGateway(gateway_identity);
+        if (gw == null) {
+            LOG.debug("Unable to delete gateway. Gateway with identity " + gateway_identity + " not found!");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        gatewayService.deleteGateway(gw);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping(path = "gateway/client/{gateway_identity}/{client_identity}")
+    public ResponseEntity<AtlasClient> deleteGateway(@PathVariable("gateway_identity") String gateway_identity, @PathVariable("client_identity") String client_identity) {
+        LOG.debug("Deleting client with identity: " + client_identity + " from database!");
+
+        AtlasGateway gw = gatewayService.getGateway(gateway_identity);
+        if (gw == null) {
+            LOG.debug("Unable to delete gateway. Gateway with identity " + gateway_identity + " not found!");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        gatewayService.deleteClient(gw, client_identity);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

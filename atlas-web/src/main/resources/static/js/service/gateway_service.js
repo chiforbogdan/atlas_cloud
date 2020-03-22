@@ -2,14 +2,17 @@
 
 atlas_app.factory('GatewayService', ['$http', '$q', function ($http, $q) {
 
-    var REST_SERVICE_URI = 'http://localhost:10000/atlas/gateways';
+    var REST_SERVICE_URI = 'http://localhost:10000/atlas/gateways/';
     var REST_SERVICE_URI_GATEWAY = 'http://localhost:10000/atlas/gateway/';
 
     var factory = {
         fetchAllGateways: fetchAllGateways,
         createGateway: createGateway,
         fetchAllClients: fetchAllClients,
-        fetchClientDetails: fetchClientDetails
+        fetchClientDetails: fetchClientDetails,
+        deleteGateway: deleteGateway,
+        deleteClient: deleteClient,
+        forceSync: forceSync
     };
 
     return factory;
@@ -29,9 +32,9 @@ atlas_app.factory('GatewayService', ['$http', '$q', function ($http, $q) {
         return deferred.promise;
     }
 
-    function fetchAllClients(psk) {
+    function fetchAllClients(gw_identity) {
          var deferred = $q.defer();
-         $http.get(REST_SERVICE_URI_GATEWAY + 'clients/' + psk)
+         $http.get(REST_SERVICE_URI_GATEWAY + 'clients/' + gw_identity)
              .then(
                  function (response) {
                      deferred.resolve(response.data);
@@ -44,9 +47,9 @@ atlas_app.factory('GatewayService', ['$http', '$q', function ($http, $q) {
          return deferred.promise;
     }
 
-    function fetchClientDetails(psk, client_identity) {
+    function fetchClientDetails(gw_identity, client_identity) {
          var deferred = $q.defer();
-         $http.get(REST_SERVICE_URI_GATEWAY + 'client/' + psk + '/' + client_identity)
+         $http.get(REST_SERVICE_URI_GATEWAY + 'client/' + gw_identity + '/' + client_identity)
              .then(
                  function (response) {
                      deferred.resolve(response.data);
@@ -68,6 +71,51 @@ atlas_app.factory('GatewayService', ['$http', '$q', function ($http, $q) {
                 },
                 function (errResponse) {
                     console.error('Error while creating Gateway');
+                    deferred.reject(errResponse);
+                }
+            );
+        return deferred.promise;
+    }
+
+    function deleteGateway(gw_identity) {
+        var deferred = $q.defer();
+        $http.delete(REST_SERVICE_URI + gw_identity)
+            .then(
+                function (response) {
+                    deferred.resolve(response.data);
+                },
+                function (errResponse) {
+                    console.error('Error while deleting gateway!');
+                    deferred.reject(errResponse);
+                }
+            );
+        return deferred.promise;
+    }
+
+    function deleteClient(gw_identity, cl_identity) {
+        var deferred = $q.defer();
+        $http.delete(REST_SERVICE_URI_GATEWAY + 'client/' + gw_identity + '/' + cl_identity)
+            .then(
+                function (response) {
+                    deferred.resolve(response.data);
+                },
+                function (errResponse) {
+                    console.error('Error while deleting client!');
+                    deferred.reject(errResponse);
+                }
+            );
+        return deferred.promise;
+    }
+
+    function forceSync(gw_identity) {
+        var deferred = $q.defer();
+        $http.get(REST_SERVICE_URI_GATEWAY + 'force-sync/' + gw_identity)
+            .then(
+                function (response) {
+                    deferred.resolve(response.data);
+                },
+                function (errResponse) {
+                    console.error('Error while farce-sync!');
                     deferred.reject(errResponse);
                 }
             );

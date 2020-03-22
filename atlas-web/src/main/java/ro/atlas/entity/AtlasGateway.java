@@ -7,86 +7,93 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 public class AtlasGateway {
-	/* Document id */
-	@Id
-	private String id;
-	
-	/* Gateway unique identifier */
-	//@Indexed(unique = true)
-	private String identity;
-	
-	/* Gateway pre-shared key */
-	//@Indexed(unique = true)
-	private String psk;
-	
-	/* Indicates if the gateway is registered */
-	private boolean registered;
+    /* Document id */
+    @Id
+    private String id;
 
-	/* Holds the last registration time */
-	private String lastRegistertTime;
+    /* Gateway unique identifier */
+    //@Indexed(unique = true)
+    private String identity;
 
-	/* Holds the last keep-alive time */
-	private String lastKeepaliveTime;
-	
-	/* Holds the keep-alive counter to detect inactive gateways */
-	private int keepaliveCounter;
-	
-	/* Client information */
-	private HashMap<String, AtlasClient> clients;
-	
-	public String getIdentity() {
-		return identity;
-	}
+    /* Gateway pre-shared key */
+    //@Indexed(unique = true)
+    private String psk;
 
-	public void setIdentity(String identity) {
-		this.identity = identity;
-	}
+    /* Gateway's alias */
+    private String alias;
 
-	public String getPsk() {
-		return psk;
-	}
+    /* Indicates if the gateway is registered */
+    private boolean registered;
 
-	public void setPsk(String psk) {
-		this.psk = psk;
-	}
+    /* Holds the last registration time */
+    private String lastRegistertTime;
 
-	public HashMap<String, AtlasClient> getClients() {
-		return clients;
-	}
+    /* Holds the last keep-alive time */
+    private String lastKeepaliveTime;
 
-	public void setClients(HashMap<String, AtlasClient> clients) {
-		this.clients = clients;
-	}
+    /* Holds the keep-alive counter to detect inactive gateways */
+    private int keepaliveCounter;
 
-	public boolean isRegistered() {
-		return registered;
-	}
+    /* Client information */
+    private HashMap<String, AtlasClient> clients;
 
-	public void setRegistered(boolean registered) {
-		this.registered = registered;
-	}
+    public String getIdentity() {
+        return identity;
+    }
 
-	public String getLastRegistertTime() {
-		return lastRegistertTime;
-	}
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
 
-	public void setLastRegistertTime(String lastRegistertTime) {
-		this.lastRegistertTime = lastRegistertTime;
-	}
+    public String getPsk() {
+        return psk;
+    }
 
-	public String getLastKeepaliveTime() {
-		return lastKeepaliveTime;
-	}
+    public void setPsk(String psk) {
+        this.psk = psk;
+    }
 
-	public void setLastKeepaliveTime(String lastKeepaliveTime) {
-		this.lastKeepaliveTime = lastKeepaliveTime;
-	}
+    public HashMap<String, AtlasClient> getClients() {
+        return clients;
+    }
 
-	public int getKeepaliveCounter() {
-		return keepaliveCounter;
-	}
+    public void setClients(HashMap<String, AtlasClient> clients) {
+        this.clients = clients;
+    }
 
-	public void setKeepaliveCounter(int keepaliveCounter) {
-		this.keepaliveCounter = keepaliveCounter;
-	}
+    public boolean isRegistered() {
+        return registered;
+    }
+
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
+    }
+
+    public String getLastRegistertTime() {
+        return lastRegistertTime;
+    }
+
+    public void setLastRegistertTime(String lastRegistertTime) {
+        this.lastRegistertTime = lastRegistertTime;
+    }
+
+    public String getLastKeepaliveTime() {
+        return lastKeepaliveTime;
+    }
+
+    public void setLastKeepaliveTime(String lastKeepaliveTime) {
+        this.lastKeepaliveTime = lastKeepaliveTime;
+    }
+
+    public int getKeepaliveCounter() {
+        return keepaliveCounter;
+    }
+
+    public void setKeepaliveCounter(int keepaliveCounter) {
+        this.keepaliveCounter = keepaliveCounter;
+    }
+
+    public String getAlias() { return alias; }
+
+    public void setAlias(String alias) { this.alias = alias; }
 }
