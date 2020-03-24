@@ -8,10 +8,11 @@
         <version>2.2.4.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
-    <artifactId>cloud</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>cloud</name>
+    <groupId>ro.atlas</groupId>
+    <artifactId>atlas-cloud</artifactId>
+    <packaging>war</packaging>
+    <version>1.0</version>
+    <name>atlas-cloud</name>
     <description>ATLAS IoT security cloud</description>
 
     <properties>

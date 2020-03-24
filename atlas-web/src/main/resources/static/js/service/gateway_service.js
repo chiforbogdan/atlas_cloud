@@ -1,9 +1,9 @@
 'use strict'
 
-atlas_app.factory('GatewayService', ['$http', '$q', function ($http, $q) {
+atlas_app.factory('GatewayService', ['$http', '$q', '$location', function ($http, $q, $location) {
 
-    var REST_SERVICE_URI = 'http://localhost:10000/atlas/gateways/';
-    var REST_SERVICE_URI_GATEWAY = 'http://localhost:10000/atlas/gateway/';
+    var REST_SERVICE_URI = $location.protocol() + '://' +  $location.host() + ':' + $location.port() + '/atlas/gateways/';
+    var REST_SERVICE_URI_GATEWAY = $location.protocol() + '://' +  $location.host() + ':' + $location.port() +  '/atlas/gateway/';
 
     var factory = {
         fetchAllGateways: fetchAllGateways,
