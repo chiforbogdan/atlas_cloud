@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ro.atlas.properties.AtlasProperties;
 import ro.atlas.service.AtlasGatewayService;
 import ro.atlas.service.AtlasMqttService;
 
@@ -25,15 +26,13 @@ import ro.atlas.service.AtlasMqttService;
 public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListener, MqttCallback {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasMqttServiceImpl.class);
-	private static final int ATLAS_MQTT_TIMEOUT_SEC = 60;
-	private static final int ATLAS_MQTT_QOS_2 = 2;
 	private MqttClient client;
 	private Set<String> subscribeTopics = new HashSet<>();
-	private String broker = "tcp://127.0.0.1:1883";
 	private String clientId;
 	private MemoryPersistence persistence = new MemoryPersistence();
 	
 	private @Autowired AtlasGatewayService gatewayService;
+	private @Autowired AtlasProperties properties;
 	
 	@Override
 	public void start() {
@@ -46,13 +45,13 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 		MqttConnectOptions options = new MqttConnectOptions();
 		options.setAutomaticReconnect(true);
 		options.setCleanSession(true);
-		options.setConnectionTimeout(ATLAS_MQTT_TIMEOUT_SEC);
+		options.setConnectionTimeout(properties.getMqttTimeout());
 		
 		/* Create MQTT client */
 		try {
-			LOG.info("Connecting to broker: "+ broker + " with client id " + clientId);
+			LOG.info("Connecting to broker: "+ properties.getBroker() + " with client id " + clientId);
 			
-			client = new MqttClient(broker, clientId, persistence);
+			client = new MqttClient(properties.getBroker(), clientId, persistence);
 			client.setCallback(this);
 			client.connect(options);
 			
@@ -97,7 +96,7 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	@Override
 	public void publish(String topic, String message) {
 		try {
-			client.publish(topic, message.getBytes(), ATLAS_MQTT_QOS_2, false);
+			client.publish(topic, message.getBytes(), properties.getMqttQos(), false);
 		} catch (MqttPersistenceException e) {
 			e.printStackTrace();
 		} catch (MqttException e) {

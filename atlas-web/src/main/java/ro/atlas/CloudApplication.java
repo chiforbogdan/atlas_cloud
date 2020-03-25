@@ -2,15 +2,18 @@ package ro.atlas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import ro.atlas.properties.AtlasProperties;
 
 @ComponentScan(basePackages = {"ro.atlas"})
 @EnableMongoRepositories(basePackages = {"ro.atlas.repository"})
+@EnableConfigurationProperties({
+	AtlasProperties.class
+})
 @SpringBootApplication
 public class CloudApplication extends SpringBootServletInitializer {
 	

@@ -14,7 +14,7 @@ public class CronServiceImpl implements CronService {
 	private static final Logger LOG = LoggerFactory.getLogger(CronServiceImpl.class);
 	private @Autowired AtlasGatewayService gatewayService;
 	
-	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRateString = "${atlas-cloud.keepalive-task-interval-min}")
 	@Override
 	public void keepaliveTask() {
 		LOG.info("Run keep-alive task for gateways");

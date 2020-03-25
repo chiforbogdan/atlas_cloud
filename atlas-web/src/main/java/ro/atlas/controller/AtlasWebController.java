@@ -24,7 +24,6 @@ public class AtlasWebController {
     private @Autowired
     AtlasGatewayService gatewayService;
 
-    @CrossOrigin("http://localhost:8080/")
     @GetMapping(path = "/probe")
     public String probeSaveFileController() {
         LOG.debug("Atlas controller is alive");

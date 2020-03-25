@@ -21,6 +21,7 @@ import ro.atlas.commands.AtlasCommandType;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
+import ro.atlas.properties.AtlasProperties;
 import ro.atlas.repository.AtlasGatewayRepository;
 import ro.atlas.service.AtlasGatewayService;
 
@@ -30,17 +31,13 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AtlasGatewayServiceImpl.class);
 
-    /* Keep-alive counter value */
-    private static final int ATLAS_KEEPALIVE_COUNTER = 3;
-
     /* Publish-subscribe topic suffix which allows full-duplex communication with the gateway */
     private static final String ATLAS_TO_GATEWAY_TOPIC = "-to-gateway";
     private static final String ATLAS_TO_CLOUD_TOPIC = "-to-cloud";
 
-    private @Autowired
-    AtlasGatewayRepository gatewayRepository;
-    private @Autowired
-    AtlasMqttServiceImpl mqttService;
+	private @Autowired AtlasGatewayRepository gatewayRepository;
+	private @Autowired AtlasMqttServiceImpl mqttService;
+	private @Autowired AtlasProperties properties;
 
     @Transactional
     @Override
@@ -203,7 +200,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         LOG.info("Set register state for gateway with identity " + gateway.getIdentity());
 
         gateway.setRegistered(true);
-        gateway.setKeepaliveCounter(ATLAS_KEEPALIVE_COUNTER);
+        gateway.setKeepaliveCounter(properties.getKeepaliveCounter());
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         gateway.setLastRegistertTime(dateFormat.format(new Date()));
@@ -217,7 +214,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         gateway.setLastKeepaliveTime(dateFormat.format(new Date()));
-        gateway.setKeepaliveCounter(ATLAS_KEEPALIVE_COUNTER);
+        gateway.setKeepaliveCounter(properties.getKeepaliveCounter());
 
         gatewayRepository.save(gateway);
     }
