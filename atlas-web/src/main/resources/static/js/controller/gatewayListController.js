@@ -50,21 +50,31 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '
     /*
     * Delete gateway
     */
-    $scope.remove = function(gw_identity){
-        $uibModal.open({
-            templateUrl: 'view/modal.html',
-            controller: function ($scope, $uibModalInstance) {
-            $scope.ok = function () {
-              GatewayService.deleteGateway(gw_identity);
-              $uibModalInstance.close();
-            };
 
-            $scope.cancel = function () {
-              $uibModalInstance.dismiss('cancel');
-            };
-          }
-        })
+    $scope.remove = function(gw_identity, index){
+        var modalInstance = $uibModal.open({
+            templateUrl: 'view/modal.html',
+            controller: function ($scope, $uibModalInstance, gateways) {
+                $scope.ok = function () {
+                   gateways.splice(index,1); //delete gateway from selected index
+                   GatewayService.deleteGateway(gw_identity);
+                   $uibModalInstance.close();
+                };
+                $scope.cancel = function () {
+                   $uibModalInstance.dismiss('cancel');
+                };
+            },
+            resolve: {
+                gateways: function() {
+                   return $scope.gateways;
+                }
+            }
+        });
+
+        modalInstance.result.then(function(){
+            fetchAllGateways();},function(data){});
     };
+
     /*
     * Fetch the all the gateways using the GatewayService
     */

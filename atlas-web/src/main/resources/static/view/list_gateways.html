@@ -23,7 +23,7 @@
                                   ng-style="g.registered === true && {'background-color':'green'} || g.registered === false && {'background-color':'red'}"></span>
                         </td>
                         <td>
-                            <button type="button" ng-click="remove(g.identity)"
+                            <button type="button" ng-click="remove(g.identity, $index)"
                                     class="btn"><i class="fas fa-trash-alt"></i>
                             </button>
                         </td>

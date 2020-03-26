@@ -19,20 +19,29 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$ui
     /*
     * Delete client
     */
-    $scope.remove = function(gw_identity, cl_identity){
-        $uibModal.open({
-          templateUrl: 'view/modal.html',
-          controller: function ($scope, $uibModalInstance) {
-            $scope.ok = function () {
-              GatewayService.deleteClient(gw_identity, cl_identity);
-              $uibModalInstance.close();
-            };
+    $scope.remove = function(gw_identity, cl_identity, index){
+        var modalInstance = $uibModal.open({
+            templateUrl: 'view/modal.html',
+            controller: function ($scope, $uibModalInstance, clients) {
+              clients.splice(index,1);
+              $scope.ok = function () {
+                GatewayService.deleteClient(gw_identity, cl_identity);
+                $uibModalInstance.close();
+              };
 
-            $scope.cancel = function () {
-              $uibModalInstance.dismiss('cancel');
-            };
-          }
-        })
+              $scope.cancel = function () {
+                $uibModalInstance.dismiss('cancel');
+              };
+            },
+            resolve: {
+              clients: function() {
+                 return $scope.clients;
+              }
+            }
+        });
+
+        modalInstance.result.then(function(){
+            fetchAllClients($scope.gw_identity);},function(data){});
     };
 
     /*
