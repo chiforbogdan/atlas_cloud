@@ -35,9 +35,12 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     private static final String ATLAS_TO_GATEWAY_TOPIC = "-to-gateway";
     private static final String ATLAS_TO_CLOUD_TOPIC = "-to-cloud";
 
-	private @Autowired AtlasGatewayRepository gatewayRepository;
-	private @Autowired AtlasMqttServiceImpl mqttService;
-	private @Autowired AtlasProperties properties;
+    private @Autowired
+    AtlasGatewayRepository gatewayRepository;
+    private @Autowired
+    AtlasMqttServiceImpl mqttService;
+    private @Autowired
+    AtlasProperties properties;
 
     @Transactional
     @Override
@@ -271,7 +274,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         }
 
         /* Request a full device sync from the gateway */
-        reqFullDeviceSync(gateway.getIdentity());
+        reqFullDeviceSync(gateway);
     }
 
     @Override
@@ -285,19 +288,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Override
-    public void reqFullDeviceSync(String gatewayIdentity) {
-        AtlasGateway gateway = null;
-
-        try {
-            gateway = gatewayRepository.findByIdentity(gatewayIdentity);
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
-        if (gateway == null) {
-            LOG.error("Cannot find gateway find identity " + gatewayIdentity);
-            return;
-        }
-
+    public void reqFullDeviceSync(AtlasGateway gateway) {
         AtlasCommand cmd = new AtlasCommand();
         cmd.setCommandType(AtlasCommandType.ATLAS_CMD_GATEWAY_GET_ALL_DEVICES);
         ObjectMapper mapper = new ObjectMapper();
