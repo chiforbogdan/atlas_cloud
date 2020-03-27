@@ -5,7 +5,8 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$ui
     $scope.clients = []; //all the clients of the selected gw
     $scope.gw_identity = $route.current.params.id1; //the selected gw's identity
     $scope.gw_alias = $route.current.params.id2; //he selected gw's alias
-    $scope.alertSyncDisplayed = false; //Hide|Show force-sync message
+    $scope.alertSyncDisplayed = false; //Hide|Show force-sync success message
+    $scope.alertSyncFailure = false; //Hide|Show force-sync failure message
 
     fetchAllClients($scope.gw_identity);
 
@@ -48,13 +49,21 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$ui
     * Force-Sync gateway clients
     */
     $scope.forceSync = function(gw_identity){
-        GatewayService.forceSync(gw_identity);
-
-        $scope.alertSyncDisplayed = true;
-        $timeout(function() {
-             $scope.alertSyncDisplayed  = false;
-           }, 2000)
-
+        GatewayService.forceSync(gw_identity)
+        .then(
+            function () {
+               $scope.alertSyncDisplayed = true;
+               $timeout(function() {
+                  $scope.alertSyncDisplayed = false;
+                }, 2000)
+            },
+            function (errResponse) {
+               $scope.alertSyncFailure = true;
+               $timeout(function() {
+                   $scope.alertSyncFailure = false;
+               }, 2000)
+            }
+         );
     };
 
     /*

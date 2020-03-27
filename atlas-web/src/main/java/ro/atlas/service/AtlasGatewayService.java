@@ -68,15 +68,15 @@ public interface AtlasGatewayService {
 
     /**
      * Delete client from db
-     * @param gateway
-     * @param cl_identity
+     * @param gateway Gateway
+     * @param cl_identity Client identity
      */
     void deleteClient(AtlasGateway gateway, String cl_identity);
 
     /**
      * Request a full device sync for a gateway
-     * @param gatewayIdentity Gateway identity
+     * @param gateway Gateway
      */
-    void reqFullDeviceSync(String gatewayIdentity);
+    void reqFullDeviceSync(AtlasGateway gateway);
 
 }

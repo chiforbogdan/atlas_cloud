@@ -16,6 +16,7 @@ import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
 import ro.atlas.service.AtlasGatewayService;
+//import sun.rmi.runtime.Log;
 
 @RestController
 @RequestMapping("/atlas")
@@ -78,10 +79,22 @@ public class AtlasWebController {
     }
 
     @GetMapping(path = "gateway/force-sync/{gateway_identity}")
-    public void forceSync(@PathVariable("gateway_identity") String gatewayIdentity) {
+    public ResponseEntity forceSync(@PathVariable("gateway_identity") String gatewayIdentity) {
         LOG.info("Force sync for gateway with identity " + gatewayIdentity);
 
-        gatewayService.reqFullDeviceSync(gatewayIdentity);
+        AtlasGateway gateway = gatewayService.getGateway(gatewayIdentity);
+        if (gateway == null) {
+            LOG.debug("Gateway with identity " + gatewayIdentity + " not found!");
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        if (!gateway.isRegistered()) {
+            LOG.debug("Gateway with identity " + gatewayIdentity + " is not online");
+            return new ResponseEntity(HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        gatewayService.reqFullDeviceSync(gateway);
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @DeleteMapping(path = "gateways/{gateway_identity}")
