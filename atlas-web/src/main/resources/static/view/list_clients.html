@@ -36,7 +36,9 @@
                         <th><span style="font-weight:normal">{{c.ipPort.split(':')[0]}}</span></th>
                         <td><span ng-bind="c.lastRegisterTime"></span></td>
                         <td><span class="dot"
-                                  ng-style="c.registered === 'true' && {'background-color':'green'} || c.registered === 'false' && {'background-color':'red'}"></span>
+                                  ng-style="c.registered === 'true' && {'background-color':'green'} || c.registered === 'false' && {'background-color':'red'}"
+                                  data-toggle="tooltip" title="Last keep-alive time: {{c.lastKeepAliveTime}}">
+							</span>
                         </td>
                         <td>
                             <button type="button" ng-click="remove(gw_identity, c.identity, $index)"
