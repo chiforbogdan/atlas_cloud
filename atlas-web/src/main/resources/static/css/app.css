@@ -131,3 +131,6 @@ body {
       font-weight: bold;
       text-transform: uppercase;
 }
+.ng-cloak {
+    display: none !important;
+}

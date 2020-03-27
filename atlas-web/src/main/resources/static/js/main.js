@@ -29,11 +29,9 @@ atlas_app.config(function($routeProvider){
                 });
 });
 
-atlas_app.controller('MainController',[ '$scope', '$location', function($scope, $location) {
+atlas_app.controller('MainController',[ '$scope', '$location', '$rootScope', function($scope, $location, $rootScope) {
 
     $scope.selected = false;
-
-    init();
 
     $scope.showNav = function(){
         $scope.selected = true;
@@ -43,8 +41,8 @@ atlas_app.controller('MainController',[ '$scope', '$location', function($scope, 
         $scope.selected = false;
     };
 
-    function init() {
-      $scope.path = $location.url();
-      $scope.selected = $scope.path.includes('gateway') || $scope.path.includes('client') || $scope.path.includes('management');
-    }
+    $rootScope.$on('$routeChangeStart', function () {
+       $scope.path = $location.url();
+       $scope.selected = !angular.equals($scope.path,"/");
+    });
 }]);
