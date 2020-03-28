@@ -1,5 +1,5 @@
 <section class="py-5">
-    <div class="container generic-container mx-auto w-70">
+    <div class="container generic-container mx-auto w-150">
         <div class="card">
             <div class="card-header"><span class="lead"> Telemetry </span></div>
             <div class="table-container">
@@ -8,7 +8,7 @@
                     <tr>
                         <th> Telemetry</th>
                         <th> Value</th>
-                        <th width="70%">
+                        <th width="50%">
                     </tr>
                     </thead>
                     <tbody>
@@ -21,115 +21,115 @@
                         <td><span ng-bind="client.registered"></span></td>
                     </tr>
                     <tr>
-                        <th>LastRegisterTime</th>
+                        <th>Last register time</th>
                         <td><span ng-bind="client.lastRegisterTime"></span></td>
                     </tr>
                     <tr>
-                        <th>LastKeepAliveTime</th>
+                        <th>Last keep-alive time</th>
                         <td><span ng-bind="client.lastKeepAliveTime"></span></td>
                     </tr>
-                    <tr>
-                        <th>IpPort</th>
-                        <td><span ng-bind="client.ipPort"></span></td>
-                    </tr>
-                    <tr>
-                        <th>PubSubClientId</th>
-                        <td><span ng-bind="client.pubSubClientId"></span></td>
-                    </tr>
-                    <tr>
-                        <th>FirewallPolicyQos</th>
-                        <td><span ng-bind="client.firewallPolicyQos"></span></td>
-                    </tr>
-                    <tr>
-                        <th>FirewallPolicyPpm</th>
-                        <td><span ng-bind="client.firewallPolicyPpm"></span></td>
-                    </tr>
-                    <tr>
-                        <th>FirewallPolicyPayloadLen</th>
-                        <td><span ng-bind="client.firewallPolicyPayloadLen"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoLoad1</th>
-                        <td><span ng-bind="client.sysinfoLoad1"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoLoad5</th>
-                        <td><span ng-bind="client.sysinfoLoad5"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoLoad15</th>
-                        <td><span ng-bind="client.sysinfoLoad15"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoFreehigh</th>
-                        <td><span ng-bind="client.sysinfoFreehigh"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoTotalhigh</th>
-                        <td><span ng-bind="client.sysinfoTotalhigh"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoFreeswap</th>
-                        <td><span ng-bind="client.sysinfoFreeswap"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoBufferram</th>
-                        <td><span ng-bind="client.sysinfoBufferram"></span></td>
-                    </tr>
-                    <tr>
-                        <th>KernelInfo</th>
-                        <td><span ng-bind="client.kernelInfo"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoProcs</th>
-                        <td><span ng-bind="client.sysinfoProcs"></span></td>
-                    </tr>
-                    <tr>
-                        <th>SysinfoUptime</th>
-                        <td><span ng-bind="client.sysinfoUptime"></span></td>
-                    </tr>
-                    <tr>
+					<tr>
                         <th> Hostname</th>
                         <td><span ng-bind="client.hostname"></span></td>
                     </tr>
-                    <tr>
-                        <th>SysinfoFreeram</th>
-                        <td><span ng-bind="client.sysinfoFreeram"></span></td>
+					<tr>
+                        <th>Kernel information</th>
+                        <td><span ng-bind="client.kernelInfo"></span></td>
                     </tr>
                     <tr>
-                        <th>SysinfoTotalswap</th>
-                        <td><span ng-bind="client.sysinfoTotalswap"></span></td>
+                        <th>Local IP and port</th>
+                        <td><span ng-bind="client.ipPort"></span></td>
                     </tr>
                     <tr>
-                        <th>SysinfoTotalram</th>
+                        <th>Publish-subscribe client ID</th>
+                        <td><span ng-bind="client.pubSubClientId"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Firewall policy QoS</th>
+                        <td><span ng-bind="client.firewallPolicyQos"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Firewall policy packets-per-minute</th>
+                        <td><span ng-bind="client.firewallPolicyPpm"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Firewall policy maximum payload length</th>
+                        <td><span ng-bind="client.firewallPolicyPayloadLen"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo uptime</th>
+                        <td><span ng-bind="client.sysinfoUptime"></span></td>
+                    </tr>
+					<tr>
+                        <th>Sysinfo number of processes</th>
+                        <td><span ng-bind="client.sysinfoProcs"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo load average <br/>(1 minute)</th>
+                        <td><span ng-bind="client.sysinfoLoad1"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo load average <br/>(5 minutes)</th>
+                        <td><span ng-bind="client.sysinfoLoad5"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo load average <br/>(15 minutes)</th>
+                        <td><span ng-bind="client.sysinfoLoad15"></span></td>
+                    </tr>
+					<tr>
+                        <th>Sysinfo total usable main memory size (KB)</th>
                         <td><span ng-bind="client.sysinfoTotalram"></span></td>
                     </tr>
                     <tr>
-                        <th>SysinfoSharedram</th>
+                        <th>Sysinfo available high memory size</th>
+                        <td><span ng-bind="client.sysinfoFreehigh"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo total high memory size</th>
+                        <td><span ng-bind="client.sysinfoTotalhigh"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo memory used by buffers (KB)</th>
+                        <td><span ng-bind="client.sysinfoBufferram"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo available memory size (KB)</th>
+                        <td><span ng-bind="client.sysinfoFreeram"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo total swap space size (KB)</th>
+                        <td><span ng-bind="client.sysinfoTotalswap"></span></td>
+                    </tr>
+					<tr>
+                        <th>Sysinfo free swap space (KB)</th>
+                        <td><span ng-bind="client.sysinfoFreeswap"></span></td>
+                    </tr>
+                    <tr>
+                        <th>Sysinfo amount of shared memory (KB)</th>
                         <td><span ng-bind="client.sysinfoSharedram"></span></td>
                     </tr>
                     <tr>
-                        <th>PacketsPerMinute</th>
+                        <th>Data plane packets-per-minute</th>
                         <td><span ng-bind="client.packetsPerMinute"></span></td>
                     </tr>
                     <tr>
-                        <th>PacketsAvgLength</th>
+                        <th>Data plane packets average length</th>
                         <td><span ng-bind="client.packetsAvgLength"></span></td>
                     </tr>
                     <tr>
-                        <th>FirewallRuleDroppedPkts</th>
+                        <th>Ingress dropped packets</th>
                         <td><span ng-bind="client.firewallRuleDroppedPkts"></span></td>
                     </tr>
                     <tr>
-                        <th>FirewallRulePassedPkts</th>
+                        <th>Ingress passed packets</th>
                         <td><span ng-bind="client.firewallRulePassedPkts"></span></td>
                     </tr>
                     <tr>
-                        <th>FirewallTxDroppedPkts</th>
+                        <th>Egress dropped packets</th>
                         <td><span ng-bind="client.firewallTxDroppedPkts"></span></td>
                     </tr>
                     <tr>
-                        <th>FirewallTxPassedPkts</th>
+                        <th>Egress passed packets</th>
                         <td><span ng-bind="client.firewallTxPassedPkts"></span></td>
                     </tr>
 					<tr>

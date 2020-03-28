@@ -2,11 +2,31 @@
 
 atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route', 'GatewayService', function($scope, $interval, $route, GatewayService) {
 
+	const MEMORY_SIZE_1KB = 1024;
+	const SYSTEM_LOAD_SCALE = 65536;
     $scope.gw_identity = $route.current.params.id1; //selected gw's psk
     $scope.cl_identity = $route.current.params.id2; //selected client's identity
     $scope.client = ''; //fetched client
 
+    function convertSecondsToTime(seconds) {
+    	var numDays = Math.floor(seconds / 86400);
+    	var numHours = Math.floor((seconds % 86400) / 3600);
+    	var numMinutes = Math.floor(((seconds % 86400) % 3600) / 60);
+    	var numSeconds = ((seconds % 86400) % 3600) % 60;
 
+    	var friendlyTime = "";
+    	if (numDays)
+    		friendlyTime += numDays + " days ";
+    	if (numHours)
+    		friendlyTime += numHours + " hours ";
+    	if (numMinutes)
+    		friendlyTime += numMinutes + " minutes ";
+    	if (numSeconds)
+    		friendlyTime += numSeconds + " seconds ";
+    	
+    	return friendlyTime;
+    }
+    
     fetchClientDetails($scope.gw_identity, $scope.cl_identity);
 
     /*
@@ -24,6 +44,42 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
              .then(
                 function (d) {
                      $scope.client = d;
+                     
+                     /* Scale memory size to KB */
+                     if (!isNaN($scope.client.sysinfoBufferram)) {
+                    	 $scope.client.sysinfoBufferram /= MEMORY_SIZE_1KB;
+                     }
+                     if (!isNaN($scope.client.sysinfoFreeram)) {
+                    	 $scope.client.sysinfoFreeram /= MEMORY_SIZE_1KB;
+                     }
+                     if (!isNaN($scope.client.sysinfoTotalswap)) {
+                    	 $scope.client.sysinfoTotalswap /= MEMORY_SIZE_1KB;
+                     }
+                     if (!isNaN($scope.client.sysinfoFreeswap)) {
+                    	 $scope.client.sysinfoFreeswap /= MEMORY_SIZE_1KB;
+                     }
+                     if (!isNaN($scope.client.sysinfoTotalram)) {
+                    	 $scope.client.sysinfoTotalram /= MEMORY_SIZE_1KB;
+                     }
+                     if (!isNaN($scope.client.sysinfoSharedram)) {
+                    	 $scope.client.sysinfoSharedram /= MEMORY_SIZE_1KB;
+                     }
+                     
+                     /* Scale system load average */
+                     if (!isNaN($scope.client.sysinfoLoad1)) {
+                    	 $scope.client.sysinfoLoad1 /= SYSTEM_LOAD_SCALE;
+                     }
+                     if (!isNaN($scope.client.sysinfoLoad5)) {
+                    	 $scope.client.sysinfoLoad5 /= SYSTEM_LOAD_SCALE;
+                     }
+                     if (!isNaN($scope.client.sysinfoLoad15)) {
+                    	 $scope.client.sysinfoLoad15 /= SYSTEM_LOAD_SCALE;
+                     }
+                     
+                     /* Convert uptime from seconds to friendly display time */
+                     if (!isNaN($scope.client.sysinfoUptime)) {
+                    	 $scope.client.sysinfoUptime = convertSecondsToTime($scope.client.sysinfoUptime);
+                     }
                 },
                 function (errResponse) {
                      console.error('Error while fetching client details!');
