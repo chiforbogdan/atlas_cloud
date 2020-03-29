@@ -3,6 +3,7 @@ package ro.atlas.entity;
 import java.util.HashMap;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -12,14 +13,15 @@ public class AtlasGateway {
     private String id;
 
     /* Gateway unique identifier */
-    //@Indexed(unique = true)
+    @Indexed(unique = true)
     private String identity;
 
     /* Gateway pre-shared key */
-    //@Indexed(unique = true)
+    @Indexed(unique = true)
     private String psk;
 
     /* Gateway's alias */
+    @Indexed(unique = true)
     private String alias;
 
     /* Indicates if the gateway is registered */
