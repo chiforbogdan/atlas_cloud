@@ -5,11 +5,15 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.mongodb.ErrorCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,10 @@ import ro.atlas.commands.AtlasCommandType;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
+import ro.atlas.exception.ClientNotFoundException;
+import ro.atlas.exception.GatewayDuplicateKeyException;
+import ro.atlas.exception.GatewayNotFoundException;
+import ro.atlas.exception.GatewayNotRegisteredException;
 import ro.atlas.properties.AtlasProperties;
 import ro.atlas.repository.AtlasGatewayRepository;
 import ro.atlas.service.AtlasGatewayService;
@@ -54,11 +62,20 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setPsk(gatewayAddDto.getPsk());
         gateway.setClients(new HashMap<>());
 
-        /* Add gateway to database */
-        gateway = gatewayRepository.save(gateway);
+        try {
+            /* Add gateway to database */
+            gateway = gatewayRepository.save(gateway);
 
-        /* Subscribe to the gateway topic */
-        mqttService.addSubscribeTopic(gateway.getPsk() + ATLAS_TO_CLOUD_TOPIC);
+            /* Subscribe to the gateway topic */
+            mqttService.addSubscribeTopic(gateway.getPsk() + ATLAS_TO_CLOUD_TOPIC);
+
+        } catch (DuplicateKeyException e) {
+            LOG.error(e.getMessage());
+            throw new GatewayDuplicateKeyException(Objects.requireNonNull(e.getMessage()));
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+            System.out.println(ErrorCategory.DUPLICATE_KEY);
+        }
     }
 
     @Override
@@ -130,6 +147,12 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             gateway = gatewayRepository.findByIdentity(gw_identity);
         } catch (Exception e) {
             LOG.error(e.getMessage());
+            throw new GatewayNotFoundException(gw_identity);
+        }
+
+        if (gateway == null) {
+            LOG.debug("Gateway with identity " + gw_identity + " not found!");
+            throw new GatewayNotFoundException(gw_identity);
         }
 
         return gateway;
@@ -139,12 +162,14 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     public List<AtlasClient> getAllClients(String identity) {
         HashMap<String, AtlasClient> clients = null;
         try {
-            clients = gatewayRepository.findByIdentity(identity).getClients();
+            clients = getGateway(identity).getClients();
+        } catch (GatewayNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
 
-        if (clients.isEmpty())
+        if (clients == null)
             return null;
 
         return new ArrayList<AtlasClient>(clients.values());
@@ -152,16 +177,15 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     @Override
     public AtlasClient getClient(String gw_identity, String cl_identity) {
-        AtlasGateway gateway = null;
-        try {
-            gateway = gatewayRepository.findByIdentity(gw_identity);
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
-        if (gateway == null)
-            return null;
+        AtlasGateway gateway = getGateway(gw_identity);
 
-        return gateway.getClients().get(cl_identity);
+        AtlasClient client = gateway.getClients().get(cl_identity);
+        if (client == null) {
+            LOG.debug("There are no client with identity " + cl_identity + " within gateway with identity " + gw_identity);
+            throw new ClientNotFoundException(cl_identity);
+        }
+
+        return client;
     }
 
     @Override
@@ -274,7 +298,11 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         }
 
         /* Request a full device sync from the gateway */
-        reqFullDeviceSync(gateway);
+        try {
+            reqFullDeviceSync(gateway);
+        } catch (GatewayNotRegisteredException e) {
+            LOG.debug(e.getMessage());
+        }
     }
 
     @Override
@@ -289,6 +317,11 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     @Override
     public void reqFullDeviceSync(AtlasGateway gateway) {
+        if (!gateway.isRegistered()) {
+            LOG.debug("Gateway with identity " + gateway.getIdentity() + " is not online");
+            throw new GatewayNotRegisteredException(gateway.getIdentity());
+        }
+
         AtlasCommand cmd = new AtlasCommand();
         cmd.setCommandType(AtlasCommandType.ATLAS_CMD_GATEWAY_GET_ALL_DEVICES);
         ObjectMapper mapper = new ObjectMapper();
