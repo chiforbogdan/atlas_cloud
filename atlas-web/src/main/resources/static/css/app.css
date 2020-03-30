@@ -134,3 +134,10 @@ body {
 .ng-cloak {
     display: none !important;
 }
+select {
+    padding: 0px;
+    margin: 0px;
+    font-weight: bold;
+    border: none;
+    background-color: white;
+}
