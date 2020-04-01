@@ -23,7 +23,7 @@
                         <th width="15%">
                             <select ng-model="selectedOption">
                                 <option value="">System Reputation</option>
-                                <option value="temp">Temperature Reputation</option>
+                                <option value="temperatureReputation">Temperature Reputation</option>
                             </select>
                         </th>
                         <th width="15%"> Local IP Address</th>
@@ -37,7 +37,7 @@
                     <tr ng-repeat="c in clients">
                         <td><a href="#!/client/{{gw_identity}}/{{c.identity}}"><span ng-bind="c.identity"></span></a>
                         <td><span ng-bind="c.hostname"></span></td>
-                        <td class="pl-5"><span ng-bind="selectedOption == 'temp' ? c.temperatureReputation : c.systemReputation" ></span></td>
+                        <td class="pl-5"><span ng-bind="selectedOption == 'temperatureReputation' ? c.temperatureReputation : c.systemReputation" ></span></td>
                         <td><span style="font-weight:normal">{{c.ipPort.split(':')[0]}}</span></td>
                         <td><span ng-bind="c.lastRegisterTime"></span></td>
                         <td><span class="dot"
