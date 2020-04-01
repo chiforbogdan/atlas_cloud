@@ -1,11 +1,12 @@
 package ro.atlas.service;
 
-import ro.atlas.dto.AtlasGatewayAddDto;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
+
+import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
-
-import java.util.List;
 
 @Service
 public interface AtlasGatewayService {
@@ -19,7 +20,7 @@ public interface AtlasGatewayService {
     /**
      * Callback for handling gateway message
      *
-     * @param topic     Publish-subscribe topic on which the message was received
+     * @param topic   Publish-subscribe topic on which the message was received
      * @param payload Gateway message payload
      */
     void messageReceived(String topic, byte[] payload);
@@ -41,6 +42,7 @@ public interface AtlasGatewayService {
 
     /**
      * Get gateway from db
+     *
      * @param gw_identity gateway identity
      * @return AtlasGateway
      */
@@ -48,6 +50,7 @@ public interface AtlasGatewayService {
 
     /**
      * Get all the clients of a gateway
+     *
      * @param gw_identity gateway identity
      * @return list of clients
      */
@@ -55,6 +58,7 @@ public interface AtlasGatewayService {
 
     /**
      * Get client details
+     *
      * @param gw_identity gateway psk
      * @param cl_identity client identity
      */
@@ -62,19 +66,22 @@ public interface AtlasGatewayService {
 
     /**
      * Delete gateway from db
+     *
      * @param gw gateway to be deleted
      */
     void deleteGateway(AtlasGateway gw);
 
     /**
      * Delete client from db
-     * @param gateway Gateway
+     *
+     * @param gateway     Gateway
      * @param cl_identity Client identity
      */
     void deleteClient(AtlasGateway gateway, String cl_identity);
 
     /**
      * Request a full device sync for a gateway
+     *
      * @param gateway Gateway
      */
     void reqFullDeviceSync(AtlasGateway gateway);

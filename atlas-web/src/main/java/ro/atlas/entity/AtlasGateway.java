@@ -95,7 +95,11 @@ public class AtlasGateway {
         this.keepaliveCounter = keepaliveCounter;
     }
 
-    public String getAlias() { return alias; }
+    public String getAlias() {
+        return alias;
+    }
 
-    public void setAlias(String alias) { this.alias = alias; }
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 }

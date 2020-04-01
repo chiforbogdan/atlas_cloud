@@ -32,6 +32,10 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '
                   console.error('Error while adding gateway!');
                   $scope.alertSuccessAdd = false;
                   $scope.alertFailureAdd = true;
+
+                  $scope.duplicateValue = errResponse.data.DuplicateValue;
+                  $scope.duplicateKey = errResponse.data.DuplicateKey;
+
                   $timeout(function() {
                       $scope.alertFailureAdd = false;
                    }, 2000)
@@ -44,6 +48,7 @@ atlas_app.controller('GatewayController',[ '$scope', '$interval', '$uibModal', '
     */
     $scope.reset = function() {
         $scope.gateway = { alias: '', identity: '', psk: '' };
+        $scope.duplicateKey = '';
         $scope.searchForm.$setPristine(); //reset Form
     };
 

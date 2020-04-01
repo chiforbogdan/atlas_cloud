@@ -35,6 +35,7 @@ public class AtlasWebController {
     @GetMapping(path = "/gateways")
     public ResponseEntity<List<AtlasGateway>> listAllGateways() {
         LOG.debug("List all gateways GET request");
+
         List<AtlasGateway> gateways = gatewayService.getAllGateways();
         if (gateways.isEmpty()) {
             LOG.debug("There are no gateways");
@@ -45,10 +46,12 @@ public class AtlasWebController {
     }
 
     @PostMapping(path = "gateway/add")
-    public void addGateway(@RequestBody AtlasGatewayAddDto gatewayAddDto) {
+    public ResponseEntity<?> addGateway(@RequestBody AtlasGatewayAddDto gatewayAddDto) {
         LOG.info("Add gateway with identity: " + gatewayAddDto.getIdentity() + " and psk: " + gatewayAddDto.getPsk());
 
         gatewayService.addGateway(gatewayAddDto);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping(path = "gateway/clients/{gateway_identity}")
@@ -69,10 +72,6 @@ public class AtlasWebController {
         LOG.debug("Fetching details for client with identity: " + client_identity);
 
         AtlasClient client = gatewayService.getClient(gateway_identity, client_identity);
-        if (client == null) {
-            LOG.debug("There are no client with identity " + client_identity + " within gateway with identity " + gateway_identity);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
 
         return new ResponseEntity<>(client, HttpStatus.OK);
     }
@@ -82,15 +81,6 @@ public class AtlasWebController {
         LOG.info("Force sync for gateway with identity " + gatewayIdentity);
 
         AtlasGateway gateway = gatewayService.getGateway(gatewayIdentity);
-        if (gateway == null) {
-            LOG.debug("Gateway with identity " + gatewayIdentity + " not found!");
-            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-        }
-        if (!gateway.isRegistered()) {
-            LOG.debug("Gateway with identity " + gatewayIdentity + " is not online");
-            return new ResponseEntity<Void>(HttpStatus.METHOD_NOT_ALLOWED);
-        }
-
         gatewayService.reqFullDeviceSync(gateway);
 
         return new ResponseEntity<Void>(HttpStatus.OK);
@@ -101,10 +91,6 @@ public class AtlasWebController {
         LOG.debug("Deleting gateway with identity: " + gateway_identity + " from database!");
 
         AtlasGateway gw = gatewayService.getGateway(gateway_identity);
-        if (gw == null) {
-            LOG.debug("Unable to delete gateway. Gateway with identity " + gateway_identity + " not found!");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         gatewayService.deleteGateway(gw);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -115,10 +101,6 @@ public class AtlasWebController {
         LOG.debug("Deleting client with identity: " + client_identity + " from database!");
 
         AtlasGateway gw = gatewayService.getGateway(gateway_identity);
-        if (gw == null) {
-            LOG.debug("Unable to delete gateway. Gateway with identity " + gateway_identity + " not found!");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         gatewayService.deleteClient(gw, client_identity);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
