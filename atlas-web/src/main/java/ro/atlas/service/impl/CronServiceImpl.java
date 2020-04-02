@@ -11,15 +11,25 @@ import ro.atlas.service.CronService;
 
 @Component
 public class CronServiceImpl implements CronService {
-	private static final Logger LOG = LoggerFactory.getLogger(CronServiceImpl.class);
-	private @Autowired AtlasGatewayService gatewayService;
-	
-	@Scheduled(fixedRateString = "${atlas-cloud.keepalive-task-interval-min}")
-	@Override
-	public void keepaliveTask() {
-		LOG.info("Run keep-alive task for gateways");
-		
-		gatewayService.keepaliveTask();
-	}
+    private static final Logger LOG = LoggerFactory.getLogger(CronServiceImpl.class);
+    private @Autowired
+    AtlasGatewayService gatewayService;
+
+    @Scheduled(fixedRateString = "${atlas-cloud.keepalive-task-interval-min}")
+    @Override
+    public void keepaliveTask() {
+        LOG.info("Run keep-alive task for gateways");
+
+        gatewayService.keepaliveTask();
+    }
+
+    @Scheduled(fixedRateString = "${atlas-cloud.reputation-history-update-min}")
+    @Override
+    public void updateReputationSamplesTask() {
+        LOG.info("Update reputation samples for clients");
+
+        gatewayService.updateReputationSamples();
+    }
+
 
 }

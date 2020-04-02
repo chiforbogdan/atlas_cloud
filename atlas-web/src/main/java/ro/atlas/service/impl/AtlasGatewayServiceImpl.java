@@ -212,9 +212,13 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         }
 
         AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
-        if (client == null)
+        if (client == null) {
+            clientInfo.setTemperatureReputationSamples(new HashMap<>());
+            clientInfo.setSystemReputationSamples(new HashMap<>());
+            clientInfo.setLastSampleIndex(0);
+
             gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
-        else
+        } else
             client.updateInfo(clientInfo);
 
         gatewayRepository.save(gateway);
@@ -330,4 +334,49 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             e.printStackTrace();
         }
     }
+
+    private void updateClientsReputationSamples(AtlasGateway gateway) {
+        HashMap<String, AtlasClient> clients = gateway.getClients();
+
+        System.out.println("${atlas-cloud.reputation-max-samples}");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+        for (Map.Entry<String, AtlasClient> entry : clients.entrySet()) {
+
+            HashMap<String, String> systemReputationSamples = entry.getValue().getSystemReputationSamples();
+            HashMap<String, String> temperatureReputationSamples = entry.getValue().getTemperatureReputationSamples();
+
+            if (systemReputationSamples.size() == Integer.parseInt("${atlas-cloud.reputation-max-samples}") + 1) {
+                /* Remove the first element from hash map <-> LIFO*/
+                systemReputationSamples.remove(systemReputationSamples.keySet().stream().findFirst().get());
+            }
+            /* Add new sample */
+            systemReputationSamples.put(dateFormat.format(new Date()), entry.getValue().getSystemReputation());
+
+            if (temperatureReputationSamples.size() == Integer.parseInt("${atlas-cloud.reputation-max-samples}")) {
+                /* Remove the first element from hash map <->LIFO */
+                temperatureReputationSamples.remove(temperatureReputationSamples.keySet().stream().findFirst().get() + 1);
+            }
+            /* Add new sample */
+            temperatureReputationSamples.put(dateFormat.format(new Date()), entry.getValue().getTemperatureReputation());
+        }
+
+        gatewayRepository.save(gateway);
+    }
+
+    @Override
+    public void updateReputationSamples() {
+        List<AtlasGateway> gateways = null;
+        try {
+            gateways = gatewayRepository.findAll();
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+
+        Objects.requireNonNull(gateways).forEach((gateway) -> {
+            updateClientsReputationSamples(gateway);
+        });
+
+    }
+
 }
