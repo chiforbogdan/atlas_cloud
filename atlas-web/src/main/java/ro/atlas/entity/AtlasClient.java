@@ -55,7 +55,6 @@ public class AtlasClient {
     /* Reputation samples */
     private HashMap<String, String> systemReputationSamples;
     private HashMap<String, String> temperatureReputationSamples;
-    private int lastSampleIndex;
 
     public String getSysinfoLoad1() {
         return sysinfoLoad1;
@@ -427,11 +426,4 @@ public class AtlasClient {
         this.temperatureReputationSamples = temperatureReputationSamples;
     }
 
-	public int getLastSampleIndex() {
-		return lastSampleIndex;
-	}
-
-	public void setLastSampleIndex(int lastSampleIndex) {
-		this.lastSampleIndex = lastSampleIndex;
-	}
 }
