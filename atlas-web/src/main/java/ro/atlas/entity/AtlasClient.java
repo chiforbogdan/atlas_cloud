@@ -31,8 +31,6 @@ public class AtlasClient {
 	private String sysinfoLoad1;
 	private String sysinfoLoad5;
 	private String sysinfoLoad15;
-	private String sysinfoFreehigh;
-	private String sysinfoTotalhigh;
 	private String sysinfoFreeswap;
 	private String sysinfoBufferram;
 	private String kernelInfo;
@@ -73,21 +71,6 @@ public class AtlasClient {
 		this.sysinfoLoad15 = sysinfoLoad15;
 	}
 	
-	public String getSysinfoFreehigh() {
-		return sysinfoFreehigh;
-	}
-	
-	public void setSysinfoFreehigh(String sysinfoFreehigh) {
-		this.sysinfoFreehigh = sysinfoFreehigh;
-	}
-	
-	public String getSysinfoTotalhigh() {
-		return sysinfoTotalhigh;
-	}
-	
-	public void setSysinfoTotalhigh(String sysinfoTotalhigh) {
-		this.sysinfoTotalhigh = sysinfoTotalhigh;
-	}
 	public String getSysinfoFreeswap() {
 		return sysinfoFreeswap;
 	}
@@ -197,12 +180,6 @@ public class AtlasClient {
 		
 		if (clientInfo.getSysinfoLoad15() != null)
 			this.setSysinfoLoad15(clientInfo.getSysinfoLoad15());
-		
-		if (clientInfo.getSysinfoFreehigh() != null)
-			this.setSysinfoFreehigh(clientInfo.getSysinfoFreehigh());
-		
-		if (clientInfo.getSysinfoTotalhigh() != null)
-			this.setSysinfoTotalhigh(clientInfo.getSysinfoTotalhigh());
 		
 		if (clientInfo.getSysinfoFreeswap() != null)
 			this.setSysinfoFreeswap(clientInfo.getSysinfoFreeswap());
