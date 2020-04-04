@@ -5,15 +5,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.mongodb.ErrorCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +29,6 @@ import ro.atlas.exception.GatewayNotRegisteredException;
 import ro.atlas.properties.AtlasProperties;
 import ro.atlas.repository.AtlasGatewayRepository;
 import ro.atlas.service.AtlasGatewayService;
-
 
 @Component
 public class AtlasGatewayServiceImpl implements AtlasGatewayService {
@@ -213,9 +209,9 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
         if (client == null) {
-            clientInfo.setTemperatureReputationSamples(new HashMap<>());
-            clientInfo.setSystemReputationSamples(new HashMap<>());
-            clientInfo.setLastSampleIndex(0);
+            /* If the client is new, set empty queues */
+            clientInfo.setTemperatureReputationHistory(new LinkedHashMap<>());
+            clientInfo.setSystemReputationHistory(new LinkedHashMap<>());
 
             gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
         } else
@@ -337,28 +333,26 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     private void updateClientsReputationSamples(AtlasGateway gateway) {
         HashMap<String, AtlasClient> clients = gateway.getClients();
-
-        System.out.println("${atlas-cloud.reputation-max-samples}");
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
         for (Map.Entry<String, AtlasClient> entry : clients.entrySet()) {
 
-            HashMap<String, String> systemReputationSamples = entry.getValue().getSystemReputationSamples();
-            HashMap<String, String> temperatureReputationSamples = entry.getValue().getTemperatureReputationSamples();
+            LinkedHashMap<String, String> systemReputationHistory = entry.getValue().getSystemReputationHistory();
+            LinkedHashMap<String, String> temperatureReputationHistory = entry.getValue().getTemperatureReputationHistory();
 
-            if (systemReputationSamples.size() == Integer.parseInt("${atlas-cloud.reputation-max-samples}") + 1) {
-                /* Remove the first element from hash map <-> LIFO*/
-                systemReputationSamples.remove(systemReputationSamples.keySet().stream().findFirst().get());
+            if (systemReputationHistory.size() == properties.getReputationMaxSamples()) {
+                /* Remove the first element from queue */
+                systemReputationHistory.remove(systemReputationHistory.entrySet().iterator().next().getKey());
             }
             /* Add new sample */
-            systemReputationSamples.put(dateFormat.format(new Date()), entry.getValue().getSystemReputation());
+            systemReputationHistory.put(dateFormat.format(new Date()), entry.getValue().getSystemReputation());
 
-            if (temperatureReputationSamples.size() == Integer.parseInt("${atlas-cloud.reputation-max-samples}")) {
-                /* Remove the first element from hash map <->LIFO */
-                temperatureReputationSamples.remove(temperatureReputationSamples.keySet().stream().findFirst().get() + 1);
+            if (temperatureReputationHistory.size() == properties.getReputationMaxSamples()) {
+                /* Remove the first element */
+                temperatureReputationHistory.remove(temperatureReputationHistory.entrySet().iterator().next().getKey());
             }
             /* Add new sample */
-            temperatureReputationSamples.put(dateFormat.format(new Date()), entry.getValue().getTemperatureReputation());
+            temperatureReputationHistory.put(dateFormat.format(new Date()), entry.getValue().getTemperatureReputation());
         }
 
         gatewayRepository.save(gateway);
@@ -376,7 +370,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         Objects.requireNonNull(gateways).forEach((gateway) -> {
             updateClientsReputationSamples(gateway);
         });
-
     }
 
 }

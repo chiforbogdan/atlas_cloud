@@ -3,7 +3,7 @@ package ro.atlas.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 @Document
 public class AtlasClient {
@@ -53,8 +53,8 @@ public class AtlasClient {
     private String firewallTxPassedPkts;
 
     /* Reputation samples */
-    private HashMap<String, String> systemReputationSamples;
-    private HashMap<String, String> temperatureReputationSamples;
+    private LinkedHashMap<String, String> systemReputationHistory;
+    private LinkedHashMap<String, String> temperatureReputationHistory;
 
     public String getSysinfoLoad1() {
         return sysinfoLoad1;
@@ -410,20 +410,20 @@ public class AtlasClient {
         this.temperatureReputation = dataReputation;
     }
 
-    public HashMap<String, String> getSystemReputationSamples() {
-        return systemReputationSamples;
+    public LinkedHashMap<String, String>  getSystemReputationHistory() {
+        return systemReputationHistory;
     }
 
-    public HashMap<String, String> getTemperatureReputationSamples() {
-        return temperatureReputationSamples;
+    public LinkedHashMap<String, String> getTemperatureReputationHistory() {
+        return temperatureReputationHistory;
     }
 
-    public void setSystemReputationSamples(HashMap<String, String> systemReputationSamples) {
-        this.systemReputationSamples = systemReputationSamples;
+    public void setSystemReputationHistory(LinkedHashMap<String, String>  systemReputationHistory) {
+        this.systemReputationHistory = systemReputationHistory;
     }
 
-    public void setTemperatureReputationSamples(HashMap<String, String> temperatureReputationSamples) {
-        this.temperatureReputationSamples = temperatureReputationSamples;
+    public void setTemperatureReputationHistory(LinkedHashMap<String, String>  temperatureReputationHistory) {
+        this.temperatureReputationHistory = temperatureReputationHistory;
     }
 
 }

@@ -15,7 +15,10 @@ public class AtlasProperties {
 
 	/* Cloud MQTT QoS */
 	private int mqttQos;
-	
+
+	/* The max number of samples in reputation history list */
+	private int reputationMaxSamples;
+
 	public String getBroker() {
 		return broker;
 	}
@@ -46,5 +49,13 @@ public class AtlasProperties {
 
 	public void setMqttQos(int mqttQos) {
 		this.mqttQos = mqttQos;
+	}
+
+	public int getReputationMaxSamples() {
+		return reputationMaxSamples;
+	}
+
+	public void setReputationMaxSamples(int reputationMaxSamples) {
+		this.reputationMaxSamples = reputationMaxSamples;
 	}
 }
