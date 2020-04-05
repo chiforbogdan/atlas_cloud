@@ -230,7 +230,10 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         gateway.setLastRegistertTime(dateFormat.format(new Date()));
 
-        gatewayRepository.save(gateway);
+        gateway = gatewayRepository.save(gateway);
+        
+        /* When gateway is registered also simulate a keep-alive command */
+        keepaliveNow(gateway);
     }
 
     @Transactional
