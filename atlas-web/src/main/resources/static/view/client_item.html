@@ -4,7 +4,8 @@
             <div class="col-lg-4">
                 <div class="container generic-container mx-auto">
                     <div class="card">
-                        <div class="card-header"><span class="lead"><i class="fas fa-info-circle mr-1"></i> Telemetry </span>
+                        <div class="card-header"><span class="lead"><i
+                                class="fas fa-info-circle mr-1"></i> Telemetry </span>
                         </div>
                         <div class="table-container overflow-auto">
                             <table class="table table-sm table-hover">
@@ -148,7 +149,14 @@
                         <div class="card-header"><span class="lead"><i class="fas fa-chart-area mr-1"></i>Firewall data analysis</span>
                         </div>
                         <div class="card-body mx-auto w-100" ng-controller="ChartsController">
-                            <div zingchart id="chart-firewall" zc-json="myJson2" zc-width="100%" zc-height="100%"></div>
+                            <select ng-model="selectedDirection">
+                                <option value="">Ingress</option>
+                                <option value="egress">Egress</option>
+                            </select>
+                            <div ng-show="selectedDirection != 'egress'" zingchart id="chart-firewall-ingress"
+                                 zc-json="json_ingress" zc-width="100%" zc-height="100%"></div>
+                            <div ng-show="selectedDirection == 'egress'" zingchart id="chart-firewall-egress"
+                                 zc-json="json_reputation" zc-width="100%" zc-height="100%"></div>
                         </div>
                     </div>
                 </div>
@@ -158,7 +166,7 @@
                         <div class="card-header"><span class="lead"><i class="fas fa-chart-area mr-1"></i>Reputation data analysis</span>
                         </div>
                         <div class="card-body mx-auto w-100" ng-controller="ChartsController">
-                            <div zingchart id="chart-reputation" zc-json="myJson2" zc-width="100%"
+                            <div zingchart id="chart-reputation" zc-json="json_reputation" zc-width="100%"
                                  zc-height="100%"></div>
                         </div>
                     </div>

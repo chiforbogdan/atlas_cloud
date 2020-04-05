@@ -143,7 +143,7 @@ select {
     height:300px;
     padding:0;
 }
-#chart-reputation, #chart-firewall{
+#chart-reputation, #chart-firewall-ingress, #chart-firewall-egress{
     width:100%;
     min-width:100px;
     min-height: 400px

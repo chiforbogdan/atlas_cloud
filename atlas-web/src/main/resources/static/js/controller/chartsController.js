@@ -54,7 +54,7 @@ atlas_app.controller('ChartsController',[ '$scope', 'GatewayService', function($
     };
 
     var reputationValues = {"systemReputation":["0.35","0.4","0.25","0.15","0.12"],"temperatureReputation":["0.31","0.3","0.2","0.22","0.18"]};
-    $scope.myJson2 = {
+    $scope.json_egress = {
          type: 'line',
          series : [{
             text: "System",
@@ -64,5 +64,114 @@ atlas_app.controller('ChartsController',[ '$scope', 'GatewayService', function($
             text: "Temperature",
             values: reputationValues.temperatureReputation.map(Number)
          }]
-     };
+    };
+
+    $scope.json_ingress = {
+         type: 'line',
+         series : [{
+            text: "System",
+            values: reputationValues.systemReputation.map(Number)
+         },
+         {
+            text: "Temperature",
+            values: reputationValues.temperatureReputation.map(Number)
+         }]
+    };
+
+   $scope.json_reputation = {
+      gui: {
+        contextMenu: {
+          button: {
+            visible: 0
+          }
+        }
+      },
+      backgroundColor: "#FFFFFF",
+      globals: {
+          shadow: false,
+          fontFamily: "Helvetica"
+      },
+      type: "area",
+
+      legend: {
+          layout: "x2",
+          backgroundColor: "transparent",
+          borderColor: "transparent",
+          marker: {
+              borderRadius: "50px",
+              borderColor: "transparent"
+          },
+          item: {
+              fontColor: "black"
+          }
+
+      },
+      scaleX: {
+          zooming: true,
+          label: {
+              text: "Reputation values for clients"
+          },
+          lineColor: "black",
+          lineWidth: "1px",
+          tick: {
+              lineColor: "black",
+              lineWidth: "1px"
+          },
+          item: {
+              fontColor: "black"
+          },
+          guide: {
+              visible: false
+          }
+      },
+      scaleY: {
+          lineColor: "black",
+          lineWidth: "1px",
+          tick: {
+              lineColor: "black",
+              lineWidth: "1px"
+          },
+          guide: {
+              lineStyle: "solid",
+              lineColor: "#626262"
+          },
+          item: {
+              fontColor: "black"
+          },
+      },
+      tooltip: {
+          visible: false
+      },
+      crosshairX: {
+          scaleLabel: {
+              backgroundColor: "#000000",
+              fontColor: "white"
+          },
+          plotLabel: {
+              backgroundColor: "#434343",
+              fontColor: "#ffffff",
+              _text: "Number of hits : %v"
+          }
+      },
+      plot: {
+          lineWidth: "2px",
+          aspect: "spline",
+          marker: {
+              visible: false
+          }
+      },
+      series: [{
+          text: "System",
+          values: reputationValues.systemReputation.map(Number),
+          backgroundColor1: "#77d9f8",
+          backgroundColor2: "#272822",
+          lineColor: "#40beeb"
+      }, {
+          text: "Temperature",
+          values: reputationValues.temperatureReputation.map(Number),
+          backgroundColor1: "#4AD8CC",
+          backgroundColor2: "#272822",
+          lineColor: "#4AD8CC"
+      }]
+    };
 }]);
