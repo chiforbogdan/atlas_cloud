@@ -5,7 +5,9 @@
             <div class="card-header">
                 <span class="lead"> Clients List for Gateway {{gw_alias}} </span>
                 <button type="button" ng-click="forceSync(gw_identity)"
-                        class="btn float-right"><i class="fas fa-sync-alt"></i>
+                        class="btn float-right" data-toggle="tooltip"
+                        title="Force-sync all client device information from gateway">
+                        <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
             <div class="alert alert-success" ng-show="alertSyncDisplayed">
