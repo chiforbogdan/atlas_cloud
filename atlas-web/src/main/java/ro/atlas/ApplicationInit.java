@@ -28,6 +28,6 @@ public class ApplicationInit implements ApplicationRunner {
         mqttService.start();
         
         /* Init gateways */
-        gatewayService.initGateways();        
+        gatewayService.initGateways();
     }
 }

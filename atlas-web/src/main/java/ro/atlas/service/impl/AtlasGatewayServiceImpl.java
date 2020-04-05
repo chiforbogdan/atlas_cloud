@@ -261,7 +261,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             LOG.info("Gateway with identity " + gateway.getIdentity() + " becomes inactive");
             gateway.setRegistered(false);
 
-            LOG.info("All the clients of the gateway with identity " + gateway.getIdentity() + "become inactive");
+            LOG.info("All the clients of the gateway with identity " + gateway.getIdentity() + " become inactive");
             for (Map.Entry<String, AtlasClient> client : gateway.getClients().entrySet())
                 client.getValue().setRegistered("false"); //why is String??
         } else
@@ -274,9 +274,18 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     public synchronized void keepaliveTask() {
         LOG.info("Run periodic keep-alive task to detect inactive gateways");
 
+        boolean shouldSubscribe = mqttService.shouldSubscribeAllTopics();
+        LOG.info("Subscribe to all topics again: " + shouldSubscribe);
+        
         List<AtlasGateway> gateways = gatewayRepository.findAll();
         gateways.forEach((gateway) -> {
-            decrementKeepalive(gateway);
+            /* Subscribe to MQTT topic again, if necessary */
+            if (shouldSubscribe) {
+				LOG.info("Subscribe again to topic " + gateway.getPsk() + ATLAS_TO_CLOUD_TOPIC
+						+ " for gateway with identity " + gateway.getIdentity() + " (" + gateway.getAlias() + ")");
+				initGateway(gateway);
+            } else
+            	decrementKeepalive(gateway);
         });
     }
 
