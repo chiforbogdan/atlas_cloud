@@ -95,4 +95,8 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
              $interval.cancel(fetchClientDetailsInterval);
         }
    });
+   
+   $scope.gotoClientsList = function() {
+	   window.history.back();
+   }
 }]);

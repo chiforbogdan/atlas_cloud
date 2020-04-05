@@ -90,5 +90,9 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$ui
              $interval.cancel(fetchAllClientsInterval);
         }
    });
+   
+   $scope.gotoGatewayList = function() {
+	   window.history.back();
+   }
 
 }]);
