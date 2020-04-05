@@ -54,7 +54,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
     @Transactional
     @Override
-    public void addGateway(AtlasGatewayAddDto gatewayAddDto) {
+    public synchronized void addGateway(AtlasGatewayAddDto gatewayAddDto) {
         LOG.info("Adding gateway info...");
 
         /* Create initial gateway state */
@@ -67,9 +67,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         try {
             /* Add gateway to database */
             gateway = gatewayRepository.save(gateway);
-
-            /* Subscribe to the gateway topic */
-            mqttService.addSubscribeTopic(gateway.getPsk() + ATLAS_TO_CLOUD_TOPIC);
+            /* Init communication with gateway */
+            initGateway(gateway);
         } catch (DuplicateKeyException e) {
             LOG.error(e.getMessage());
             throw new GatewayDuplicateKeyException(Objects.requireNonNull(e.getMessage()));

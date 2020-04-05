@@ -11,10 +11,11 @@ import ro.atlas.service.CronService;
 
 @Component
 public class CronServiceImpl implements CronService {
+	private static final int KEEPALIVE_INITIAL_DELAY_MS = 10000;
 	private static final Logger LOG = LoggerFactory.getLogger(CronServiceImpl.class);
 	private @Autowired AtlasGatewayService gatewayService;
 	
-	@Scheduled(fixedRateString = "${atlas-cloud.keepalive-task-interval-min}")
+	@Scheduled(initialDelay = KEEPALIVE_INITIAL_DELAY_MS, fixedRateString = "${atlas-cloud.keepalive-task-interval-min}")
 	@Override
 	public void keepaliveTask() {
 		LOG.info("Run keep-alive task for gateways");
