@@ -1,6 +1,6 @@
 'use strict'
 
-var atlas_app = angular.module('atlasApp' , ['ngRoute', 'ui.bootstrap']);
+var atlas_app = angular.module('atlasApp' , ['ngRoute', 'ui.bootstrap', 'zingchart-angularjs']);
 
 atlas_app.config(function($routeProvider){
 
