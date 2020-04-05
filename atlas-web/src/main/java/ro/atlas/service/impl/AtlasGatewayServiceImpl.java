@@ -3,17 +3,19 @@ package ro.atlas.service.impl;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-import com.mongodb.ErrorCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +70,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
             /* Subscribe to the gateway topic */
             mqttService.addSubscribeTopic(gateway.getPsk() + ATLAS_TO_CLOUD_TOPIC);
-
         } catch (DuplicateKeyException e) {
             LOG.error(e.getMessage());
             throw new GatewayDuplicateKeyException(Objects.requireNonNull(e.getMessage()));
@@ -228,8 +229,13 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setKeepaliveCounter(properties.getKeepaliveCounter());
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        gateway.setLastRegistertTime(dateFormat.format(new Date()));
-
+		gateway.setLastRegistertTime(dateFormat.format(new Date()));
+		/*
+		 * If the gateway registers now, then mark all clients as offline. The gateway
+		 * should send a full device update.
+		 */
+        gateway.getClients().forEach((identity, client) -> client.setRegistered("false"));
+        
         gateway = gatewayRepository.save(gateway);
         
         /* When gateway is registered also simulate a keep-alive command */
@@ -285,7 +291,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setRegistered(false);
         gateway.getClients().forEach((identity, client) -> client.setRegistered("false"));
 
-        gatewayRepository.save(gateway);
+        gateway = gatewayRepository.save(gateway);
 
         /* Request a registration from gateway */
         AtlasCommand cmd = new AtlasCommand();
