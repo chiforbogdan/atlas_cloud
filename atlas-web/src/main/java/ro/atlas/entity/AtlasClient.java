@@ -467,4 +467,15 @@ public class AtlasClient {
     public void setFirewallTxPassedPktsHistory(LinkedList<AtlasDataSample> firewallTxPassedPktsHistory) {
         this.firewallTxPassedPktsHistory = firewallTxPassedPktsHistory;
     }
+
+    public void initHistorySamples() {
+        this.systemReputationHistory = new LinkedList<>();
+        this.temperatureReputationHistory = new LinkedList<>();
+
+        this.firewallRuleDroppedPktsHistory = new LinkedList<>();
+        this.firewallRulePassedPktsHistory = new LinkedList<>();
+
+        this.firewallTxDroppedPktsHistory = new LinkedList<>();
+        this.firewallTxPassedPktsHistory = new LinkedList<>();
+    }
 }

@@ -210,15 +210,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
         if (client == null) {
-            /* If the client is new, set empty queues */
-            clientInfo.setTemperatureReputationHistory(new LinkedList<>());
-            clientInfo.setSystemReputationHistory(new LinkedList<>());
-
-            clientInfo.setFirewallRuleDroppedPktsHistory(new LinkedList<>());
-            clientInfo.setFirewallRulePassedPktsHistory(new LinkedList<>());
-
-            clientInfo.setFirewallTxDroppedPktsHistory(new LinkedList<>());
-            clientInfo.setFirewallTxPassedPktsHistory(new LinkedList<>());
+            /* If the client is new, set empty history queues */
+            clientInfo.initHistorySamples();
 
             gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
         } else
