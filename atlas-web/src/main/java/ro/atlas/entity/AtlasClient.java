@@ -2,8 +2,10 @@ package ro.atlas.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import ro.atlas.entity.sample.AtlasDataSample;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 @Document
 public class AtlasClient {
@@ -53,8 +55,16 @@ public class AtlasClient {
     private String firewallTxPassedPkts;
 
     /* Reputation samples */
-    private LinkedHashMap<String, String> systemReputationHistory;
-    private LinkedHashMap<String, String> temperatureReputationHistory;
+    private LinkedList<AtlasDataSample> systemReputationHistory;
+    private LinkedList<AtlasDataSample> temperatureReputationHistory;
+
+    /* Firewall ingress */
+    private LinkedList<AtlasDataSample> firewallRuleDroppedPktsHistory;
+    private LinkedList<AtlasDataSample> firewallRulePassedPktsHistory;
+
+    /* Firewall egress */
+    private LinkedList<AtlasDataSample> firewallTxDroppedPktsHistory;
+    private LinkedList<AtlasDataSample> firewallTxPassedPktsHistory;
 
     public String getSysinfoLoad1() {
         return sysinfoLoad1;
@@ -410,20 +420,51 @@ public class AtlasClient {
         this.temperatureReputation = dataReputation;
     }
 
-    public LinkedHashMap<String, String>  getSystemReputationHistory() {
+    public LinkedList<AtlasDataSample> getSystemReputationHistory() {
         return systemReputationHistory;
     }
 
-    public LinkedHashMap<String, String> getTemperatureReputationHistory() {
-        return temperatureReputationHistory;
-    }
-
-    public void setSystemReputationHistory(LinkedHashMap<String, String>  systemReputationHistory) {
+    public void setSystemReputationHistory(LinkedList<AtlasDataSample> systemReputationHistory) {
         this.systemReputationHistory = systemReputationHistory;
     }
 
-    public void setTemperatureReputationHistory(LinkedHashMap<String, String>  temperatureReputationHistory) {
+    public LinkedList<AtlasDataSample> getTemperatureReputationHistory() {
+        return temperatureReputationHistory;
+    }
+
+    public void setTemperatureReputationHistory(LinkedList<AtlasDataSample> temperatureReputationHistory) {
         this.temperatureReputationHistory = temperatureReputationHistory;
     }
 
+    public LinkedList<AtlasDataSample> getFirewallRuleDroppedPktsHistory() {
+        return firewallRuleDroppedPktsHistory;
+    }
+
+    public void setFirewallRuleDroppedPktsHistory(LinkedList<AtlasDataSample> firewallRuleDroppedPktsHistory) {
+        this.firewallRuleDroppedPktsHistory = firewallRuleDroppedPktsHistory;
+    }
+
+    public LinkedList<AtlasDataSample> getFirewallRulePassedPktsHistory() {
+        return firewallRulePassedPktsHistory;
+    }
+
+    public void setFirewallRulePassedPktsHistory(LinkedList<AtlasDataSample> firewallRulePassedPktsHistory) {
+        this.firewallRulePassedPktsHistory = firewallRulePassedPktsHistory;
+    }
+
+    public LinkedList<AtlasDataSample> getFirewallTxDroppedPktsHistory() {
+        return firewallTxDroppedPktsHistory;
+    }
+
+    public void setFirewallTxDroppedPktsHistory(LinkedList<AtlasDataSample> firewallTxDroppedPktsHistory) {
+        this.firewallTxDroppedPktsHistory = firewallTxDroppedPktsHistory;
+    }
+
+    public LinkedList<AtlasDataSample> getFirewallTxPassedPktsHistory() {
+        return firewallTxPassedPktsHistory;
+    }
+
+    public void setFirewallTxPassedPktsHistory(LinkedList<AtlasDataSample> firewallTxPassedPktsHistory) {
+        this.firewallTxPassedPktsHistory = firewallTxPassedPktsHistory;
+    }
 }
