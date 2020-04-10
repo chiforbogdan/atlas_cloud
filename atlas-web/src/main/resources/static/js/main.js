@@ -1,6 +1,6 @@
 'use strict'
 
-var atlas_app = angular.module('atlasApp' , ['ngRoute', 'ui.bootstrap']);
+var atlas_app = angular.module('atlasApp' , ['ngRoute', 'ui.bootstrap', 'zingchart-angularjs']);
 
 atlas_app.config(function($routeProvider){
 
@@ -32,6 +32,7 @@ atlas_app.config(function($routeProvider){
 atlas_app.controller('MainController',[ '$scope', '$location', '$rootScope', function($scope, $location, $rootScope) {
 
     $scope.selected = false;
+    $scope.trace = [];
 
     $scope.showNav = function(){
         $scope.selected = true;
@@ -44,5 +45,19 @@ atlas_app.controller('MainController',[ '$scope', '$location', '$rootScope', fun
     $rootScope.$on('$routeChangeStart', function () {
        $scope.path = $location.url();
        $scope.selected = !angular.equals($scope.path,"/");
+
+       /* Trace the path from gateways for backpropagation */
+       var regExp =  /\/([^/]+)?(?=\/|$)/ //matches /page/
+       var page = $scope.path.match(regExp)[1];
+
+       if (page != null) {
+          $scope.index = $scope.trace.indexOf($scope.path);
+
+          if ($scope.index != -1)
+             $scope.trace.splice($scope.index, $scope.trace.length - $scope.index);
+
+          $scope.trace.push($scope.path);
+       }
+
     });
 }]);

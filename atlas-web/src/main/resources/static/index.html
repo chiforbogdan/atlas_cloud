@@ -43,6 +43,17 @@
                     </ul>
                 </div>
             </nav>
+            <div class="mt-5 pt-3 mb-1 mx-3 ng-cloak" ng-show="selected">
+                <hr style="padding:0px;margin:0px">
+                <div class="d-flex flex-row mx-5" style="padding:0px;margin:0px">
+                    <span class="p-1">Trace: </span>
+                    <div class="p-1" ng-repeat="t in trace">
+                        <a href="#!{{t}}">{{t}}</a>
+                        <span>•</span>
+                    </div>
+                </div>
+                <hr style="padding:0px;margin:0px">
+            </div>
             <div ng-view="" class="min-vh-100"></div>
         </div>
     </div>
@@ -59,10 +70,14 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 
+    <script src="http://cdn.zingchart.com/zingchart.min.js"></script>
+    <script src="http://cdn.zingchart.com/angular/zingchart-angularjs.js"></script>
+
     <script src="../js/main.js"></script>
     <script src="../js/controller/clientListController.js"></script>
     <script src="../js/controller/gatewayListController.js"></script>
     <script src="../js/controller/clientDetailsController.js"></script>
+    <script src="../js/controller/chartsController.js"></script>
     <script src="../js/service/gateway_service.js"></script>
 </body>
 </html>

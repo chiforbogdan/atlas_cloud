@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,6 +29,7 @@ import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.dto.AtlasUsernamePassDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
+import ro.atlas.entity.sample.AtlasDataSample;
 import ro.atlas.exception.ClientNotFoundException;
 import ro.atlas.exception.GatewayDuplicateKeyException;
 import ro.atlas.exception.GatewayNotFoundException;
@@ -35,7 +37,6 @@ import ro.atlas.exception.GatewayNotRegisteredException;
 import ro.atlas.properties.AtlasProperties;
 import ro.atlas.repository.AtlasGatewayRepository;
 import ro.atlas.service.AtlasGatewayService;
-
 
 @Component
 public class AtlasGatewayServiceImpl implements AtlasGatewayService {
@@ -213,9 +214,12 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         }
 
         AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
-        if (client == null)
+        if (client == null) {
+            /* If the client is new, set empty history queues */
+            clientInfo.initHistorySamples();
+
             gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
-        else
+        } else
             client.updateInfo(clientInfo);
 
         gatewayRepository.save(gateway);
@@ -366,5 +370,82 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         
         /* Sync MQTT credentials */
         mqttService.syncUsernamePass(usernamePass);
+    }
+
+    private void updateClientsReputationSamples(AtlasClient client) {
+        LinkedList<AtlasDataSample> systemReputationHistory = client.getSystemReputationHistory();
+        LinkedList<AtlasDataSample> temperatureReputationHistory = client.getTemperatureReputationHistory();
+
+        if (systemReputationHistory.size() == properties.getMaxHistorySamples()) {
+            /* Remove the first element from queue */
+            systemReputationHistory.removeFirst();
+        }
+        /* Add new sample */
+        systemReputationHistory.addLast(new AtlasDataSample(new Date(), client.getSystemReputation()));
+
+        if (temperatureReputationHistory.size() == properties.getMaxHistorySamples()) {
+            /* Remove the first element */
+            temperatureReputationHistory.removeFirst();
+        }
+        /* Add new sample */
+        temperatureReputationHistory.addLast(new AtlasDataSample(new Date(), client.getTemperatureReputation()));
+    }
+
+    private void updateFirewallIngressSamples(AtlasClient client) {
+        LinkedList<AtlasDataSample> firewallRuleDroppedPktsHistory = client.getFirewallRuleDroppedPktsHistory();
+        LinkedList<AtlasDataSample> firewallRulePassedPktsHistory = client.getFirewallRulePassedPktsHistory();
+
+        if (firewallRuleDroppedPktsHistory.size() == properties.getMaxHistorySamples())
+            firewallRuleDroppedPktsHistory.removeFirst();
+        firewallRuleDroppedPktsHistory.addLast(new AtlasDataSample(new Date(), client.getFirewallRuleDroppedPkts()));
+
+        if (firewallRulePassedPktsHistory.size() == properties.getMaxHistorySamples())
+            firewallRulePassedPktsHistory.removeFirst();
+        firewallRulePassedPktsHistory.addLast(new AtlasDataSample(new Date(), client.getFirewallRulePassedPkts()));
+    }
+
+    private void updateFirewallEgressSamples(AtlasClient client) {
+        LinkedList<AtlasDataSample> firewallTxDroppedPktsHistory = client.getFirewallTxDroppedPktsHistory();
+        LinkedList<AtlasDataSample> firewallTxPassedPktsHistory = client.getFirewallTxPassedPktsHistory();
+
+        if (firewallTxDroppedPktsHistory.size() == properties.getMaxHistorySamples())
+            firewallTxDroppedPktsHistory.removeFirst();
+        firewallTxDroppedPktsHistory.addLast(new AtlasDataSample(new Date(), client.getFirewallTxDroppedPkts()));
+
+        if (firewallTxPassedPktsHistory.size() == properties.getMaxHistorySamples())
+            firewallTxPassedPktsHistory.removeFirst();
+        firewallTxPassedPktsHistory.addLast(new AtlasDataSample(new Date(), client.getFirewallTxPassedPkts()));
+    }
+
+    private void updateClientsSamples(AtlasGateway gateway) {
+        HashMap<String, AtlasClient> clients = gateway.getClients();
+
+        for (Map.Entry<String, AtlasClient> entry : clients.entrySet()) {
+
+            /* Update reputation history samples */
+            updateClientsReputationSamples(entry.getValue());
+
+            /* Update firewall ingress samples */
+            updateFirewallIngressSamples(entry.getValue());
+
+            /* Update firewall egress samples */
+            updateFirewallEgressSamples(entry.getValue());
+        }
+
+        gatewayRepository.save(gateway);
+    }
+
+    @Override
+    public synchronized void updateReputationSamples() {
+        List<AtlasGateway> gateways = null;
+        try {
+            gateways = gatewayRepository.findAll();
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+
+        Objects.requireNonNull(gateways).forEach((gateway) -> {
+            updateClientsSamples(gateway);
+        });
     }
 }

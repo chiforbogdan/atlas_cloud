@@ -86,4 +86,9 @@ public interface AtlasGatewayService {
      */
     void reqFullDeviceSync(AtlasGateway gateway);
 
+    /**
+     * Add a new sample in reputation history samples
+     */
+    void updateReputationSamples();
+
 }

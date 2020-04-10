@@ -27,7 +27,10 @@ public class AtlasProperties {
 
 	/* Cloud MQTT QoS */
 	private int mqttQos;
-	
+
+	/* The max number of samples in history lists */
+	private int maxHistorySamples;
+
 	public String getBroker() {
 		return broker;
 	}
@@ -90,5 +93,13 @@ public class AtlasProperties {
 
 	public void setBrokerPidFile(String brokerPidFile) {
 		this.brokerPidFile = brokerPidFile;
+	}
+	
+	public int getMaxHistorySamples() {
+		return maxHistorySamples;
+	}
+
+	public void setMaxHistorySamples(int maxHistorySamples) {
+		this.maxHistorySamples = maxHistorySamples;
 	}
 }
