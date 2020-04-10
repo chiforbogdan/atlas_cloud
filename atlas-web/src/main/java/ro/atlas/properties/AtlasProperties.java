@@ -7,6 +7,18 @@ public class AtlasProperties {
 	/* MQTT cloud broker */
 	private String broker;
 	
+	/* Cloud MQTT password file */
+	private String passwordFile;
+	
+	/* Cloud MQTT password utility tool */
+	private String passwordTool;
+	
+	/* Cloud MQTT broker PID file */
+	private String brokerPidFile;
+	
+	/* Temporary directory */
+	private String tmpDir;
+	
 	/* Gateway keep-alive counter */
 	private int keepaliveCounter;
 	
@@ -46,5 +58,37 @@ public class AtlasProperties {
 
 	public void setMqttQos(int mqttQos) {
 		this.mqttQos = mqttQos;
+	}
+
+	public String getPasswordFile() {
+		return passwordFile;
+	}
+
+	public void setPasswordFile(String passwordFile) {
+		this.passwordFile = passwordFile;
+	}
+
+	public String getPasswordTool() {
+		return passwordTool;
+	}
+
+	public void setPasswordTool(String passwordTool) {
+		this.passwordTool = passwordTool;
+	}
+
+	public String getTmpDir() {
+		return tmpDir;
+	}
+
+	public void setTmpDir(String tmpDir) {
+		this.tmpDir = tmpDir;
+	}
+
+	public String getBrokerPidFile() {
+		return brokerPidFile;
+	}
+
+	public void setBrokerPidFile(String brokerPidFile) {
+		this.brokerPidFile = brokerPidFile;
 	}
 }

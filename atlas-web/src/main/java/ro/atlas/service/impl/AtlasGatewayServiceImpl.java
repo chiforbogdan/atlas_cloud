@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ro.atlas.commands.AtlasCommand;
 import ro.atlas.commands.AtlasCommandType;
 import ro.atlas.dto.AtlasGatewayAddDto;
+import ro.atlas.dto.AtlasUsernamePassDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
 import ro.atlas.exception.ClientNotFoundException;
@@ -324,6 +325,9 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     public synchronized void initGateways() {
         LOG.info("Init gateways at application start-up");
 
+        /* Allow gateway to connect to the cloud broker */
+        syncPermittedMqttGateways();
+        
         List<AtlasGateway> gateways = gatewayRepository.findAll();
         gateways.forEach((gateway) -> {
             initGateway(gateway);
@@ -346,5 +350,21 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void syncPermittedMqttGateways() {
+    	List<AtlasUsernamePassDto> usernamePass = new ArrayList<>();
+    	
+    	LOG.info("Set the list of gateways which are allowed to connect to the cloud broker");
+    	
+        List<AtlasGateway> gateways = gatewayRepository.findAll();
+        for (AtlasGateway gateway : gateways) {
+			LOG.info("Allow gateway " + gateway.getAlias() + " with identity " + gateway.getIdentity()
+					+ " to connect to cloud broker");
+        	usernamePass.add(new AtlasUsernamePassDto(gateway.getIdentity(), gateway.getPsk()));
+        }
+        
+        /* Sync MQTT credentials */
+        mqttService.syncUsernamePass(usernamePass);
     }
 }

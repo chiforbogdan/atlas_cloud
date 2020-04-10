@@ -1,7 +1,14 @@
 package ro.atlas.service.impl;
 
-import java.util.HashSet;
-import java.util.Set;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -18,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ro.atlas.dto.AtlasUsernamePassDto;
 import ro.atlas.properties.AtlasProperties;
 import ro.atlas.service.AtlasGatewayService;
 import ro.atlas.service.AtlasMqttService;
@@ -109,5 +117,48 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 		}
 		
 		return false;
+	}
+
+	@Override
+	public void syncUsernamePass(List<AtlasUsernamePassDto> usernamePassList) {
+		FileWriter fileWriter;
+		
+		try {
+			File passwdFile = new File(properties.getPasswordFile());
+			
+			fileWriter = new FileWriter(properties.getTmpDir() + "/" + passwdFile.getName());
+			
+			for (AtlasUsernamePassDto usernamePass : usernamePassList) {
+				LOG.info("Allow the following MQTT username/password: " + usernamePass.getUsername() + ":"
+						+ usernamePass.getPassword());
+				fileWriter.write(usernamePass.getUsername() + ":" + usernamePass.getPassword());
+			}
+			
+			fileWriter.close();
+
+			System.out.println(String.format("%s -U %s", properties.getPasswordTool(), properties.getPasswordFile()));
+			Process process = Runtime.getRuntime()
+					.exec(String.format("%s -U %s", properties.getPasswordTool(),
+							properties.getTmpDir() + "/" + passwdFile.getName()));
+			
+			if (process.exitValue() != 0)
+				LOG.error("Error in setting the MQTT credentials");
+			else
+				LOG.info("Password file generated succesfully in the temporary directory!");
+
+			Path passwdMove = Files.move(Paths.get(properties.getTmpDir() + "/" + passwdFile.getName()),
+					Paths.get(properties.getPasswordFile()), REPLACE_EXISTING);
+
+			if (passwdMove != null) {
+				LOG.info("Temporary password file moved succesfully into the original one!");
+			} else {
+				LOG.error("Error encountered when moving the temporary password file into the original one!");
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
 	}
 }

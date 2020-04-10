@@ -1,6 +1,8 @@
 package ro.atlas.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
+import ro.atlas.dto.AtlasUsernamePassDto;
 
 @Service
 public interface AtlasMqttService {
@@ -8,6 +10,14 @@ public interface AtlasMqttService {
 	 * Start MQTT service
 	 */
 	void start();
+	
+	/**
+	 * Sync a set of username and password set (allow only this credentials to
+	 * connect to the cloud MQTT broker)
+	 * 
+	 * @param usernamePassList Username/password list
+	 */
+	void syncUsernamePass(List<AtlasUsernamePassDto> usernamePassList);
 	
 	/**
 	 * Add subscribe topic
