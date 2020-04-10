@@ -1,5 +1,5 @@
 <section>
-    <div class="container-fluid">
+    <div class="container-fluid" ng-controller="ClientDetailsController">
         <div class="generic-container mx-auto w-100 py-3">
             <div class="card w-100">
                 <div class="card-header"><span class="lead"><i
@@ -181,7 +181,7 @@
                 </div>
                 <div class="card-body mx-auto w-100" ng-controller="ChartsController">
                     <div class="row">
-                        <select ng-model="selectedDirection">
+                        <select ng-model="selectedDirection" ng-change="firewallSelectedIntervalChanged">
                             <option value="">Ingress</option>
                             <option value="egress">Egress</option>
                         </select>

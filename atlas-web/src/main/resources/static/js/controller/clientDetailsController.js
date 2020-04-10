@@ -6,7 +6,7 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
 	const SYSTEM_LOAD_SCALE = 65536;
     $scope.gw_identity = $route.current.params.id1; //selected gw's psk
     $scope.cl_identity = $route.current.params.id2; //selected client's identity
-    $scope.client = ''; //fetched client
+    $scope.client = 'gfcd'; //fetched client
 
     function convertSecondsToTime(seconds) {
     	var numDays = Math.floor(seconds / 86400);
@@ -44,7 +44,8 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
              .then(
                 function (d) {
                      $scope.client = d;
-                     
+                     $scope.$broadcast('clientDataChangedEvent', $scope.client);
+
                      /* Scale memory size to KB */
                      if (!isNaN($scope.client.sysinfoBufferram)) {
                     	 $scope.client.sysinfoBufferram /= MEMORY_SIZE_1KB;
