@@ -1,10 +1,24 @@
 #!/bin/bash
 
 DEPLOY_DIR=/usr/local/sbin
+MOSQUITTO_CONF_DIR=/etc/mosquitto
 
-if [[ $EUID > 0 ]]; then # we can compare directly with this syntax.
+if [[ $EUID > 0 ]]; then
   echo "Please run this script as root/sudo"
   exit 1
+fi
+
+# Verify if mosquitto broker is installed
+mosquitto_installed=`systemctl list-units --full -all | grep -i mosquitto`
+if [ -z "$mosquitto_installed" ]; then
+    echo "Please make sure MQTT Mosquitto broker is installed"
+    exit 1
+fi
+
+# Verify if mosquitto broker config dir exists
+if [ ! -d $MOSQUITTO_CONF_DIR ]; then
+    echo "Please make sure the following Mosquitto broker configuration directory exists: $MOSQUITTO_CONF_DIR"
+    exit 1
 fi
 
 echo "******** Compile MQTT credentials reload wrapper executable ********"
@@ -19,5 +33,11 @@ chmod 700 $DEPLOY_DIR/atlas_broker_credentials.sh
 chown root:root $DEPLOY_DIR/atlas_broker_credentials_exec
 chmod 4755 $DEPLOY_DIR/atlas_broker_credentials_exec
 
-
-
+echo "******** Deploy Mosquitto configuration file ********"
+cp misc/config/mosquitto.conf $MOSQUITTO_CONF_DIR
+chown root:root $MOSQUITTO_CONF_DIR/mosquitto.conf
+chmod 644 $MOSQUITTO_CONF_DIR/mosquitto.conf
+# Create empty password file
+echo -n > $MOSQUITTO_CONF_DIR/mosquitto.passwd
+chown root:root $MOSQUITTO_CONF_DIR/mosquitto.passwd
+chmod 644 $MOSQUITTO_CONF_DIR/mosquitto.passwd
