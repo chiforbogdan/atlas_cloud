@@ -2,7 +2,9 @@ package ro.atlas.service.impl;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,7 +34,7 @@ import ro.atlas.service.AtlasMqttService;
 
 @Component
 public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListener, MqttCallback {
-
+	private static final String MOSQUITTO_PASSWD_TMP = "mosquitto.passwd.tmp";
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasMqttServiceImpl.class);
 	private MqttClient client;
 	private String clientId;
@@ -121,41 +123,36 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 
 	@Override
 	public void syncUsernamePass(List<AtlasUsernamePassDto> usernamePassList) {
-		FileWriter fileWriter;
 		
 		try {
-			File passwdFile = new File(properties.getPasswordFile());
-			
-			fileWriter = new FileWriter(properties.getTmpDir() + "/" + passwdFile.getName());
+			BufferedWriter writer = new BufferedWriter(new FileWriter(properties.getTmpDir() + "/" + MOSQUITTO_PASSWD_TMP));
 			
 			for (AtlasUsernamePassDto usernamePass : usernamePassList) {
 				LOG.info("Allow the following MQTT username/password: " + usernamePass.getUsername() + ":"
 						+ usernamePass.getPassword());
-				fileWriter.write(usernamePass.getUsername() + ":" + usernamePass.getPassword());
+				writer.append(usernamePass.getUsername() + ":" + usernamePass.getPassword() + "\n");
 			}
 			
-			fileWriter.close();
+			writer.close();
 
-			System.out.println(String.format("%s -U %s", properties.getPasswordTool(), properties.getPasswordFile()));
-			Process process = Runtime.getRuntime()
-					.exec(String.format("%s -U %s", properties.getPasswordTool(),
-							properties.getTmpDir() + "/" + passwdFile.getName()));
-			
-			if (process.exitValue() != 0)
+			/* Transform the credentials file into the mosquitto format */
+			Process process = Runtime.getRuntime().exec(String.format("%s -U %s", properties.getPasswordTool(),
+					properties.getTmpDir() + "/" + MOSQUITTO_PASSWD_TMP));
+
+			if (process.waitFor() != 0)
 				LOG.error("Error in setting the MQTT credentials");
 			else
 				LOG.info("Password file generated succesfully in the temporary directory!");
 
-			Path passwdMove = Files.move(Paths.get(properties.getTmpDir() + "/" + passwdFile.getName()),
-					Paths.get(properties.getPasswordFile()), REPLACE_EXISTING);
+			/* Reload MQTT credentials */
+			process = Runtime.getRuntime().exec(String.format("%s %s", properties.getCredentialsReloadExec(),
+					properties.getTmpDir() + "/" + MOSQUITTO_PASSWD_TMP));
 
-			if (passwdMove != null) {
-				LOG.info("Temporary password file moved succesfully into the original one!");
-			} else {
-				LOG.error("Error encountered when moving the temporary password file into the original one!");
-			}
-			
-		} catch (IOException e) {
+			if (process.waitFor() != 0)
+				LOG.error("Error in reloading the MQTT credentials");
+			else
+				LOG.info("MQTT credentials reloaded succesfully!");
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 		

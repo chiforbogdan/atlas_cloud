@@ -70,6 +70,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         try {
             /* Add gateway to database */
             gateway = gatewayRepository.save(gateway);
+            /* Allow gateway to connect to the cloud broker */
+            syncPermittedMqttGateways();
             /* Init communication with gateway */
             initGateway(gateway);
         } catch (DuplicateKeyException e) {
@@ -208,6 +210,9 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     @Override
     public void deleteGateway(AtlasGateway gw) {
         gatewayRepository.delete(gw);
+        
+        /* Block gateway from connecting to the cloud broker */
+        syncPermittedMqttGateways();
     }
 
     @Override
@@ -345,8 +350,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     @Override
     public synchronized void initGateways() {
         LOG.info("Init gateways at application start-up");
-
-        /* Allow gateway to connect to the cloud broker */
+        
+        /* Sync MQTT credentials */
         syncPermittedMqttGateways();
         
         List<AtlasGateway> gateways = gatewayRepository.findAll();
