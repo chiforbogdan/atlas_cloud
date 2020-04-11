@@ -14,14 +14,12 @@ commonName                 = Common Name (e.g. server FQDN or YOUR name)
 countryName_default             = RO
 stateOrProvinceName_default     = Bucharest
 localityName_default            = Bucharest
-0.organizationName_default      = atlas
-organizationalUnitName_default  = atlas
+organizationName_default      = atlas
+commonName_default              = ${ENV::FQDN}
 emailAddress_default            = admin@atlas.ro
 
 [ req_ext ]
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1	= [Fully Qualified Domain Name]
-DNS.2	= [Any variation of FQDN]
-DNS.3	= [Any variation of FQDN]
+DNS.1 = ${ENV::FQDN}
