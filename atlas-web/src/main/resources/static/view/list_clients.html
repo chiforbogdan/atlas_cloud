@@ -35,7 +35,7 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="c in clients">
-                            <td>{{$index}}</td>
+                            <td>{{$index + 1}}</td>
                             <td><a href="#!/client/{{gw_identity}}/{{c.identity}}"><span
                                     ng-bind="c.identity"></span></a>
                             <td><span ng-bind="c.hostname"></span></td>

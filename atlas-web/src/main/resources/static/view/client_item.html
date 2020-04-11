@@ -1,5 +1,5 @@
 <section>
-    <div class="container-fluid" ng-controller="ClientDetailsController">
+    <div class="container-fluid" ng-controller="ChartsController">
         <div class="generic-container mx-auto w-100 py-3">
             <div class="card w-100">
                 <div class="card-header"><span class="lead"><i
@@ -179,9 +179,9 @@
             <div class="card mb-4 w-100">
                 <div class="card-header"><span class="lead"><i class="fas fa-chart-area mr-1"></i>Firewall data analysis</span>
                 </div>
-                <div class="card-body mx-auto w-100" ng-controller="ChartsController">
+                <div class="card-body mx-auto w-100">
                     <div class="row">
-                        <select ng-model="selectedDirection" ng-change="firewallSelectedIntervalChanged">
+                        <select ng-model="firewallSelectedDirection" ng-change="firewallSelectedIntervalChanged()">
                             <option value="">Ingress</option>
                             <option value="egress">Egress</option>
                         </select>
@@ -199,7 +199,7 @@
             <div class="card mb-4 w-100">
                 <div class="card-header"><span class="lead"><i class="fas fa-chart-area mr-1"></i>Reputation data analysis</span>
                 </div>
-                <div class="card-body mx-auto w-100" ng-controller="ChartsController">
+                <div class="card-body mx-auto w-100">
                     <select ng-model="reputationSelectedInterval" ng-change="reputationSelectedIntervalChanged()">
                         <option value="">Last 12h</option>
                         <option value="last_day">Last day</option>

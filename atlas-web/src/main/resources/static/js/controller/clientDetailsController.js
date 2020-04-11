@@ -39,7 +39,7 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
     * @param gw_identity selected gw's identity
     * @param cl_identity selected client's identity
     */
-    function fetchClientDetails(gw_identity, cl_identity){
+    function fetchClientDetails(gw_identity, cl_identity) {
         GatewayService.fetchClientDetails(gw_identity, cl_identity)
              .then(
                 function (d) {
