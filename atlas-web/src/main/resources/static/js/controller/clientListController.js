@@ -8,13 +8,13 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$ui
     $scope.alertSyncDisplayed = false; //Hide|Show force-sync success message
     $scope.alertSyncFailure = false; //Hide|Show force-sync failure message
 
-    fetchAllClients($scope.gw_identity);
+    fetchAllClientsSummary($scope.gw_identity);
 
     /*
     * Get updates of clients data by polling //to do WebSocket
     */
      var fetchAllClientsInterval = $interval(function() {
-            fetchAllClients($scope.gw_identity)
+    	 fetchAllClientsSummary($scope.gw_identity)
          }, 2000);
 
     /*
@@ -70,8 +70,8 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$ui
     * Fetch the clients using the GatewayService
     * @param gw_identity selected gw's identity
     */
-    function fetchAllClients(gw_identity){
-        GatewayService.fetchAllClients(gw_identity)
+    function fetchAllClientsSummary(gw_identity){
+        GatewayService.fetchAllClientsSummary(gw_identity)
              .then(
                 function (d) {
                      $scope.clients = d;

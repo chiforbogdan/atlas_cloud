@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import ro.atlas.dto.AtlasClientSummaryDto;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
@@ -55,12 +56,12 @@ public class AtlasWebController {
     }
 
     @GetMapping(path = "gateway/clients/{gateway_identity}")
-    public ResponseEntity<List<AtlasClient>> getGatewayClientsList(@PathVariable("gateway_identity") String gateway_identity) {
-        LOG.debug("Fetching clients for gateway with identity: " + gateway_identity);
+    public ResponseEntity<List<AtlasClientSummaryDto>> getGatewayClientsList(@PathVariable("gateway_identity") String gatewayIdentity) {
+        LOG.debug("Fetching clients for gateway with identity: " + gatewayIdentity);
 
-        List<AtlasClient> clients = gatewayService.getAllClients(gateway_identity);
+        List<AtlasClientSummaryDto> clients = gatewayService.getAllClientsSummary(gatewayIdentity);
         if (clients == null) {
-            LOG.debug("There are no clients for gateway with identity " + gateway_identity);
+            LOG.debug("There are no clients for gateway with identity " + gatewayIdentity);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 

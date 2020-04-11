@@ -8,7 +8,7 @@ atlas_app.factory('GatewayService', ['$http', '$q', '$location', function ($http
     var factory = {
         fetchAllGateways: fetchAllGateways,
         createGateway: createGateway,
-        fetchAllClients: fetchAllClients,
+        fetchAllClientsSummary: fetchAllClientsSummary,
         fetchClientDetails: fetchClientDetails,
         deleteGateway: deleteGateway,
         deleteClient: deleteClient,
@@ -32,7 +32,7 @@ atlas_app.factory('GatewayService', ['$http', '$q', '$location', function ($http
         return deferred.promise;
     }
 
-    function fetchAllClients(gw_identity) {
+    function fetchAllClientsSummary(gw_identity) {
          var deferred = $q.defer();
          $http.get(REST_SERVICE_URI_GATEWAY + 'clients/' + gw_identity)
              .then(

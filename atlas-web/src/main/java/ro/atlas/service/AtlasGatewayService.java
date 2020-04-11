@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import ro.atlas.dto.AtlasClientSummaryDto;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
@@ -49,12 +50,12 @@ public interface AtlasGatewayService {
     AtlasGateway getGateway(String gw_identity);
 
     /**
-     * Get all the clients of a gateway
+     * Get all the clients summary of a gateway
      *
-     * @param gw_identity gateway identity
-     * @return list of clients
+     * @param gatewayIdentity gateway identity
+     * @return list of clients summary
      */
-    List<AtlasClient> getAllClients(String gw_identity);
+    List<AtlasClientSummaryDto> getAllClientsSummary(String gatewayIdentity);
 
     /**
      * Get client details

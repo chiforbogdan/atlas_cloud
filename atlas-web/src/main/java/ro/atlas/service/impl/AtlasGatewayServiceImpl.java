@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ro.atlas.commands.AtlasCommand;
 import ro.atlas.commands.AtlasCommandType;
+import ro.atlas.dto.AtlasClientSummaryDto;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.dto.AtlasUsernamePassDto;
 import ro.atlas.entity.AtlasClient;
@@ -159,10 +160,10 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Override
-    public List<AtlasClient> getAllClients(String identity) {
+    public List<AtlasClientSummaryDto> getAllClientsSummary(String gatewayIdentity) {
         HashMap<String, AtlasClient> clients = null;
         try {
-            clients = getGateway(identity).getClients();
+            clients = getGateway(gatewayIdentity).getClients();
         } catch (GatewayNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -172,7 +173,23 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         if (clients == null)
             return null;
 
-        return new ArrayList<AtlasClient>(clients.values());
+        List<AtlasClientSummaryDto> clientSummaryList = new ArrayList<>();
+        
+        clients.values().forEach((client) -> {
+        	AtlasClientSummaryDto clientSummary = new AtlasClientSummaryDto();
+        	clientSummary.setIdentity(client.getIdentity());
+        	clientSummary.setRegistered(client.getRegistered());
+        	clientSummary.setLastRegisterTime(client.getLastRegisterTime());
+        	clientSummary.setLastKeepAliveTime(client.getLastKeepAliveTime());
+        	clientSummary.setHostname(client.getHostname());
+        	clientSummary.setIpPort(client.getIpPort());
+        	clientSummary.setSystemReputation(client.getSystemReputation());
+        	clientSummary.setTemperatureReputation(client.getTemperatureReputation());
+        	
+        	clientSummaryList.add(clientSummary);
+        });
+        
+        return clientSummaryList;
     }
 
     @Override
