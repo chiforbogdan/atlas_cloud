@@ -2,14 +2,25 @@
 
 atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, $filter) {
 
-    $scope.client = $scope.$parent.client;
+	/* Maximum number of samples in the plot (5 minute sample rate) */
+	const PLOT_MAX_SAMPLES = 288
+    
+	$scope.client = $scope.$parent.client;
 
     $scope.firewallValues = [];
     $scope.reputationValues = [];
     $scope.timeLabels = [];
+    
+    /* Last plot samples dates */
+    $scope.lastSampleDate = {
+    	firewallIngress: '',
+    	firewallEgress: '',
+    	systemReputation: '',
+    	temperatureReputation: ''
+    };
 
     $scope.$on('clientDataChangedEvent', function (events, data){
-      	$scope.client = data;
+    	$scope.client = data;
 
         /* Dates at which the samples were taken */
         var dates = $scope.client.systemReputationHistory.map(x => x.date);
@@ -17,21 +28,62 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
           	$scope.timeLabels.push($filter('date')(value,'yyyy-MM-dd HH:mm:ss'));
         })
 
-        /* Reputation samples */
-        $scope.systemReputationHistory = $scope.client.systemReputationHistory.map(x => x.value).map(Number);
-        $scope.temperatureReputationHistory = $scope.client.temperatureReputationHistory.map(x => x.value).map(Number);
-
+        var updateReputationPlot = false;
+        /* System reputation samples */
+        if ($scope.client.systemReputationHistory.length > 0) {
+        	var currentSysRepDate = $scope.client.systemReputationHistory[$scope.client.systemReputationHistory.length - 1].date;
+        	/* If the last value is updated, then we must update the plot */
+        	if (currentSysRepDate != $scope.lastSampleDate.systemReputation) {
+        		$scope.systemReputationHistory = $scope.client.systemReputationHistory.map(x => x.value).map(Number);
+        		$scope.lastSampleDate.systemReputation = currentSysRepDate;
+        		updateReputationPlot = true;
+        	}
+        }
+        /* Temperature reputation samples */
+        if ($scope.client.temperatureReputationHistory.length > 0) {
+        	var currentTempRepDate = $scope.client.temperatureReputationHistory[$scope.client.temperatureReputationHistory.length - 1].date;
+        	/* If the last value is updated, then we must update the plot */
+        	if (currentTempRepDate != $scope.lastSampleDate.temperatureReputation) {
+        		$scope.temperatureReputationHistory = $scope.client.temperatureReputationHistory.map(x => x.value).map(Number);
+        		$scope.lastSampleDate.temperatureReputation = currentTempRepDate;
+        		updateReputationPlot = true;
+        	}
+        }
+        /* Update reputation plot is required */
+        if (updateReputationPlot)
+        	$scope.reputationSelectedIntervalChanged();
+        
         /* Firewall ingress */
-        $scope.firewallRuleDroppedPktsHistory = $scope.client.firewallRuleDroppedPktsHistory.map(x => x.value).map(Number);
-        $scope.firewallRulePassedPktsHistory = $scope.client.firewallRulePassedPktsHistory.map(x => x.value).map(Number);
-
+        if ($scope.client.firewallRulePassedPktsHistory.length > 0) {
+        	var currentFwIngressDate = $scope.client.firewallRulePassedPktsHistory[$scope.client.firewallRulePassedPktsHistory.length - 1].date;
+        	/* If the last value is updated, then we must update the plot */
+        	if (currentFwIngressDate != $scope.lastSampleDate.firewallIngress) {
+        		$scope.firewallRuleDroppedPktsHistory = $scope.client.firewallRuleDroppedPktsHistory.map(x => x.value).map(Number);
+        		$scope.firewallRulePassedPktsHistory = $scope.client.firewallRulePassedPktsHistory.map(x => x.value).map(Number);
+        		$scope.lastSampleDate.firewallIngress = currentFwIngressDate;
+        		/* Update ingress plot only if ingress is selected */
+        		//console.log("Selected " + $scope.firewallSelectedDirection);
+        		if($scope.firewallSelectedDirection != 'egress') {
+        			//console.log("GO ingress");
+        			$scope.firewallIngressUpdatePlot();
+        		}
+        	}
+        }
+        
         /* Firewall egress */
-        $scope.firewallTxDroppedPktsHistory = $scope.client.firewallTxDroppedPktsHistory.map(x => x.value).map(Number);
-        $scope.firewallTxPassedPktsHistory = $scope.client.firewallTxPassedPktsHistory.map(x => x.value).map(Number);
-
-        /* Update graphs -> new data came */
-        $scope.firewallSelectedIntervalChanged();
-        $scope.reputationSelectedIntervalChanged();
+        if ($scope.client.firewallTxPassedPktsHistory.length > 0) {
+        	var currentFwEgressDate = $scope.client.firewallTxPassedPktsHistory[$scope.client.firewallTxPassedPktsHistory.length - 1].date;
+        	/* If the last value is updated, then we must update the plot */
+        	if (currentFwEgressDate != $scope.lastSampleDate.firewallEgress) {
+                $scope.firewallTxDroppedPktsHistory = $scope.client.firewallTxDroppedPktsHistory.map(x => x.value).map(Number);
+                $scope.firewallTxPassedPktsHistory = $scope.client.firewallTxPassedPktsHistory.map(x => x.value).map(Number);
+         		$scope.lastSampleDate.firewallEgress = currentFwEgressDate;
+        		/* Update egress plot only if egress is selected */
+        		if($scope.firewallSelectedDirection == 'egress') {
+        			$scope.firewallEgressUpdatePlot();
+        		}
+        	}
+        }
     });
 
     /* Selected option for time interval (12h or 24h) */
@@ -39,66 +91,91 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
     $scope.reputationSelectedInterval = '';
 
     /* Ingress or egress data */
-    $scope.selectedDirection = '';
+    $scope.firewallSelectedDirection = '';
 
     /*
     * Callback function when selected interval for firewall graph
     * is chanced or selected direction for firewall changed
     */
-    $scope.firewallSelectedIntervalChanged = function() {
-        if($scope.selectedDirection == 'egress') {
-            if($scope.firewallSelectedInterval == 'last_day') {
-                /* Get 144 samples from even positions */
-                var filteredFirewallTxPassedPktsHistory = $scope.firewallTxPassedPktsHistory.filter((a,i) => i % 2 === 0);
-                var filteredFirewallTxDroppedPktsHistory = $scope.firewallTxDroppedPktsHistory.filter((a,i) => i % 2 === 0);
-                //$scope.timeLabels = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
+    $scope.firewallEgressUpdatePlot = function() {
+    	if($scope.firewallSelectedInterval == 'last_day') {
+            /* Get PLOT_MAX_SAMPLES/2 samples from even positions */
+            var filteredFirewallTxPassedPktsHistory = $scope.firewallTxPassedPktsHistory.filter((a,i) => i % 2 === 0);
+            var filteredFirewallTxDroppedPktsHistory = $scope.firewallTxDroppedPktsHistory.filter((a,i) => i % 2 === 0);
+            $scope.timeLabels = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
 
-                $scope.firewallValues[0] = filteredFirewallTxPassedPktsHistory;
-                $scope.firewallValues[1] = filteredFirewallTxDroppedPktsHistory;
-            }
-            else {
-                /* Last 12h [144, end] */
-                if($scope.firewallTxPassedPktsHistory.length > 90)
-                    $scope.firewallValues[0] = $scope.firewallTxPassedPktsHistory.slice(90, $scope.firewallTxPassedPktsHistory.length);
-                if($scope.firewallTxDroppedPktsHistory.length > 90)
-                    $scope.firewallValues[1] = $scope.firewallTxDroppedPktsHistory.slice(90, $scope.firewallTxDroppedPktsHistory.length);
-            }
+            $scope.firewallValues[0] = filteredFirewallTxPassedPktsHistory;
+            $scope.firewallValues[1] = filteredFirewallTxDroppedPktsHistory;
+        } else {
+            /* Last 12h (last PLOT_MAX_SAMPLES/2 values) */
+            if($scope.firewallTxPassedPktsHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.firewallValues[0] = $scope.firewallTxPassedPktsHistory;
+            else
+            	$scope.firewallValues[0] = $scope.firewallTxPassedPktsHistory.slice($scope.firewallTxPassedPktsHistory.length - PLOT_MAX_SAMPLES / 2,
+            																		$scope.firewallTxPassedPktsHistory.length);
+            
+            if($scope.firewallTxDroppedPktsHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.firewallValues[1] = $scope.firewallTxDroppedPktsHistory;
+            else
+            	$scope.firewallValues[1] = $scope.firewallTxDroppedPktsHistory.slice($scope.firewallTxDroppedPktsHistory.length - PLOT_MAX_SAMPLES / 2,
+            																		 $scope.firewallTxDroppedPktsHistory.length);
         }
-        else {
-            if($scope.firewallSelectedInterval == 'last_day') {
-                /* Get 144 samples from even positions */
-                var filteredFirewallRulePassedPktsHistory = $scope.firewallRulePassedPktsHistory.filter((a,i) => i % 2 === 0);
-                var filteredFirewallRuleDroppedPktsHistory = $scope.firewallRuleDroppedPktsHistory.filter((a,i) => i % 2 === 0);
+    }
+    
+    $scope.firewallIngressUpdatePlot = function() {
+        if($scope.firewallSelectedInterval == 'last_day') {
+            /* Get PLOT_MAX_SAMPLES/2 samples from even positions */
+            var filteredFirewallRulePassedPktsHistory = $scope.firewallRulePassedPktsHistory.filter((a,i) => i % 2 === 0);
+            var filteredFirewallRuleDroppedPktsHistory = $scope.firewallRuleDroppedPktsHistory.filter((a,i) => i % 2 === 0);
 
-                $scope.firewallValues[0] = filteredFirewallRulePassedPktsHistory;
-                $scope.firewallValues[1] = filteredFirewallRuleDroppedPktsHistory;
-            }
-            else {
-                /* Last 12h [144, end] */
-                if($scope.firewallRulePassedPktsHistory.length > 90)
-                    $scope.firewallValues[0] = $scope.firewallRulePassedPktsHistory.slice(90, $scope.firewallRulePassedPktsHistory.length);
-                if($scope.firewallRuleDroppedPktsHistory.length > 90)
-                    $scope.firewallValues[1] = $scope.firewallRuleDroppedPktsHistory.slice(90, $scope.firewallRuleDroppedPktsHistory.length);
-            }
+            $scope.firewallValues[0] = filteredFirewallRulePassedPktsHistory;
+            $scope.firewallValues[1] = filteredFirewallRuleDroppedPktsHistory;
+        } else {
+        	/* Last 12h (last PLOT_MAX_SAMPLES/2 values) */
+            if($scope.firewallRulePassedPktsHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.firewallValues[0] = $scope.firewallRulePassedPktsHistory;
+            else
+            	$scope.firewallValues[0] = $scope.firewallRulePassedPktsHistory.slice($scope.firewallRulePassedPktsHistory.length - PLOT_MAX_SAMPLES / 2,
+            																		  $scope.firewallRulePassedPktsHistory.length);
+            
+            if($scope.firewallRuleDroppedPktsHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.firewallValues[1] = $scope.firewallRuleDroppedPktsHistory;
+            else
+            	$scope.firewallValues[1] = $scope.firewallRuleDroppedPktsHistory.slice($scope.firewallRuleDroppedPktsHistory.length - PLOT_MAX_SAMPLES / 2,
+            																		   $scope.firewallRuleDroppedPktsHistory.length);
+        }
+    };
+    
+    $scope.firewallSelectedIntervalChanged = function() {
+        if($scope.firewallSelectedDirection == 'egress') {
+        	$scope.firewallEgressUpdatePlot();
+        } else {
+        	$scope.firewallIngressUpdatePlot();
         }
     };
 
     /* Callback function when selected interval for reputation graph is chanced */
     $scope.reputationSelectedIntervalChanged = function() {
         if($scope.reputationSelectedInterval == 'last_day') {
-            /* Get 144 samples from even positions */
+            /* Get PLOT_MAX_SAMPLES/2 samples from even positions */
             var filteredSystemReputationHistory = $scope.systemReputationHistory.filter((a,i) => i % 2 === 0);
             var filteredTemperatureReputationHistory = $scope.temperatureReputationHistory.filter((a,i) => i % 2 === 0);
 
             $scope.reputationValues[0] = filteredSystemReputationHistory;
             $scope.reputationValues[1] = filteredTemperatureReputationHistory;
-        }
-        else {
-            /* Last 12h [144, end] */
-            if($scope.systemReputationHistory.length > 90)
-                $scope.reputationValues[0] = $scope.systemReputationHistory.slice(90, $scope.systemReputationHistory.length);
-            if($scope.temperatureReputationHistory.length > 90)
-                $scope.reputationValues[1] = $scope.temperatureReputationHistory.slice(90, $scope.temperatureReputationHistory.length);
+        } else {
+        	/* Last 12h (last PLOT_MAX_SAMPLES/2 values) */
+            if($scope.systemReputationHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.reputationValues[0] = $scope.systemReputationHistory;
+            else
+            	$scope.reputationValues[0] = $scope.systemReputationHistory.slice($scope.systemReputationHistory.length - PLOT_MAX_SAMPLES / 2,
+            																	  $scope.systemReputationHistory.length);
+            
+            if($scope.temperatureReputationHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.reputationValues[1] = $scope.temperatureReputationHistory;
+            else
+            	$scope.reputationValues[1] = $scope.temperatureReputationHistory.slice($scope.temperatureReputationHistory.length - PLOT_MAX_SAMPLES / 2,
+            																		   $scope.temperatureReputationHistory.length);
         }
     };
 

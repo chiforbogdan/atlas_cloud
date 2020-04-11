@@ -381,14 +381,17 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         for (Map.Entry<String, AtlasClient> entry : clients.entrySet()) {
 
-            /* Update reputation history samples */
-            updateClientsReputationSamples(entry.getValue());
+        	/* Update client history samples only if the client is registered */
+        	if (entry.getValue().getRegistered().equalsIgnoreCase("true")) {
+        		/* Update reputation history samples */
+        		updateClientsReputationSamples(entry.getValue());
 
-            /* Update firewall ingress samples */
-            updateFirewallIngressSamples(entry.getValue());
+        		/* Update firewall ingress samples */
+        		updateFirewallIngressSamples(entry.getValue());
 
-            /* Update firewall egress samples */
-            updateFirewallEgressSamples(entry.getValue());
+        		/* Update firewall egress samples */
+        		updateFirewallEgressSamples(entry.getValue());
+        	}
         }
 
         gatewayRepository.save(gateway);
@@ -404,7 +407,10 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         }
 
         Objects.requireNonNull(gateways).forEach((gateway) -> {
-            updateClientsSamples(gateway);
+        	/* Update history samples only if the gateway is registered */
+        	if (gateway.isRegistered()) {
+        		updateClientsSamples(gateway);
+        	}
         });
     }
 
