@@ -30,7 +30,8 @@ import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.dto.AtlasUsernamePassDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
-import ro.atlas.entity.sample.AtlasDataSample;
+import ro.atlas.entity.sample.AtlasFirewallSample;
+import ro.atlas.entity.sample.AtlasReputationSample;
 import ro.atlas.exception.ClientNotFoundException;
 import ro.atlas.exception.GatewayDuplicateKeyException;
 import ro.atlas.exception.GatewayNotFoundException;
@@ -285,15 +286,11 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         if (gateway.getKeepaliveCounter() == 0) {
             LOG.info("Gateway with identity " + gateway.getIdentity() + " becomes inactive");
-            gateway.setRegistered(false);
-
-            LOG.info("All the clients of the gateway with identity " + gateway.getIdentity() + " become inactive");
-            for (Map.Entry<String, AtlasClient> client : gateway.getClients().entrySet())
-                client.getValue().setRegistered("false"); //why is String??
-        } else
+            initGateway(gateway);
+        } else {
             gateway.setKeepaliveCounter(gateway.getKeepaliveCounter() - 1);
-
-        gatewayRepository.save(gateway);
+            gatewayRepository.save(gateway);
+        }
     }
 
     @Override
@@ -337,13 +334,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             mqttService.publish(gateway.getPsk() + ATLAS_TO_GATEWAY_TOPIC, jsonCmd);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-        }
-
-        /* Request a full device sync from the gateway */
-        try {
-            reqFullDeviceSync(gateway);
-        } catch (GatewayNotRegisteredException e) {
-            LOG.debug(e.getMessage());
         }
     }
 
@@ -394,49 +384,62 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         mqttService.syncUsernamePass(usernamePass);
     }
 
-    private void updateClientsReputationSamples(AtlasClient client) {
-        LinkedList<AtlasDataSample> systemReputationHistory = client.getSystemReputationHistory();
-        LinkedList<AtlasDataSample> temperatureReputationHistory = client.getTemperatureReputationHistory();
+	private void updateClientsReputationSamples(AtlasClient client) {
+		double systemReputation = 0;
+		double temperatureReputation = 0;
 
-        if (systemReputationHistory.size() == properties.getMaxHistorySamples()) {
-            /* Remove the first element from queue */
-            systemReputationHistory.removeFirst();
-        }
-        /* Add new sample */
-        systemReputationHistory.addLast(new AtlasDataSample(new Date(), client.getSystemReputation()));
+		LinkedList<AtlasReputationSample> reputationHistory = client.getReputationHistory();
 
-        if (temperatureReputationHistory.size() == properties.getMaxHistorySamples()) {
-            /* Remove the first element */
-            temperatureReputationHistory.removeFirst();
-        }
-        /* Add new sample */
-        temperatureReputationHistory.addLast(new AtlasDataSample(new Date(), client.getTemperatureReputation()));
-    }
+		if (reputationHistory.size() == properties.getMaxHistorySamples()) {
+			/* Remove the first element from queue */
+			reputationHistory.removeFirst();
+		}
+
+		try {
+			systemReputation = Double.parseDouble(client.getSystemReputation());
+			temperatureReputation = Double.parseDouble(client.getTemperatureReputation());
+		} catch (NumberFormatException e) {
+			LOG.error(e.getMessage());
+		}
+
+		/* Add new sample */
+		reputationHistory.addLast(new AtlasReputationSample(new Date(), systemReputation, temperatureReputation));
+	}
 
     private void updateFirewallIngressSamples(AtlasClient client) {
-        LinkedList<AtlasDataSample> firewallRuleDroppedPktsHistory = client.getFirewallRuleDroppedPktsHistory();
-        LinkedList<AtlasDataSample> firewallRulePassedPktsHistory = client.getFirewallRulePassedPktsHistory();
+        LinkedList<AtlasFirewallSample> ingressFirewallHistory = client.getIngressFirewallHistory();
+    	int passed = 0;
+    	int dropped = 0;
 
-        if (firewallRuleDroppedPktsHistory.size() == properties.getMaxHistorySamples())
-            firewallRuleDroppedPktsHistory.removeFirst();
-        firewallRuleDroppedPktsHistory.addLast(new AtlasDataSample(new Date(), client.getFirewallRuleDroppedPkts()));
+        if (ingressFirewallHistory.size() == properties.getMaxHistorySamples())
+        	ingressFirewallHistory.removeFirst();
 
-        if (firewallRulePassedPktsHistory.size() == properties.getMaxHistorySamples())
-            firewallRulePassedPktsHistory.removeFirst();
-        firewallRulePassedPktsHistory.addLast(new AtlasDataSample(new Date(), client.getFirewallRulePassedPkts()));
+        try {
+			passed = Integer.parseInt(client.getFirewallRulePassedPkts());
+			dropped = Integer.parseInt(client.getFirewallRuleDroppedPkts());
+		} catch (NumberFormatException e) {
+			LOG.error(e.getMessage());
+		}
+        
+        ingressFirewallHistory.addLast(new AtlasFirewallSample(new Date(), passed, dropped));
     }
 
     private void updateFirewallEgressSamples(AtlasClient client) {
-        LinkedList<AtlasDataSample> firewallTxDroppedPktsHistory = client.getFirewallTxDroppedPktsHistory();
-        LinkedList<AtlasDataSample> firewallTxPassedPktsHistory = client.getFirewallTxPassedPktsHistory();
+        LinkedList<AtlasFirewallSample> egressFirewallHistory = client.getEgressFirewallHistory();
+    	int passed = 0;
+    	int dropped = 0;
 
-        if (firewallTxDroppedPktsHistory.size() == properties.getMaxHistorySamples())
-            firewallTxDroppedPktsHistory.removeFirst();
-        firewallTxDroppedPktsHistory.addLast(new AtlasDataSample(new Date(), client.getFirewallTxDroppedPkts()));
-
-        if (firewallTxPassedPktsHistory.size() == properties.getMaxHistorySamples())
-            firewallTxPassedPktsHistory.removeFirst();
-        firewallTxPassedPktsHistory.addLast(new AtlasDataSample(new Date(), client.getFirewallTxPassedPkts()));
+        if (egressFirewallHistory.size() == properties.getMaxHistorySamples())
+        	egressFirewallHistory.removeFirst();
+        
+        try {
+			passed = Integer.parseInt(client.getFirewallTxPassedPkts());
+			dropped = Integer.parseInt(client.getFirewallTxDroppedPkts());
+		} catch (NumberFormatException e) {
+			LOG.error(e.getMessage());
+		}
+        
+        egressFirewallHistory.addLast(new AtlasFirewallSample(new Date(), passed, dropped));
     }
 
     private void updateClientsSamples(AtlasGateway gateway) {

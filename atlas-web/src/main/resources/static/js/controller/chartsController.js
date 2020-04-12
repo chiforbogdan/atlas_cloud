@@ -13,69 +13,62 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
     $scope.lastSampleDate = {
     	firewallIngress: '',
     	firewallEgress: '',
-    	systemReputation: '',
-    	temperatureReputation: ''
+    	reputation: ''
     };
 
-    $scope.$on('clientDataChangedEvent', function (events, data){
+    $scope.$on('clientDataChangedEvent', function (events, data) {
     	$scope.client = data;
 
-        /* Dates at which the samples were taken */
-        $scope.allTimeLabels = [];
-        var dates = $scope.client.systemReputationHistory.map(x => x.date);
-        angular.forEach(dates, function(value, key) {
-          	$scope.allTimeLabels.push($filter('date')(value,'yyyy-MM-dd <br> HH:mm'));
-        })
-
-        var updateReputationPlot = false;
         /* System reputation samples */
-        if ($scope.client.systemReputationHistory.length > 0) {
-        	var currentSysRepDate = $scope.client.systemReputationHistory[$scope.client.systemReputationHistory.length - 1].date;
+        if ($scope.client.reputationHistory.length > 0) {
+        	var currentRepDate = $scope.client.reputationHistory[$scope.client.reputationHistory.length - 1].date;
         	/* If the last value is updated, then we must update the plot */
-        	if (currentSysRepDate != $scope.lastSampleDate.systemReputation) {
-        		$scope.systemReputationHistory = $scope.client.systemReputationHistory.map(x => x.value).map(Number);
-        		$scope.lastSampleDate.systemReputation = currentSysRepDate;
-        		updateReputationPlot = true;
+        	if (currentRepDate != $scope.lastSampleDate.reputation) {
+        		$scope.systemReputationHistory = $scope.client.reputationHistory.map(x => x.system);
+        		$scope.temperatureReputationHistory = $scope.client.reputationHistory.map(x => x.temperature);
+        		var dates = $scope.client.reputationHistory.map(x => x.date);
+        		$scope.reputationTimeLabels = [];
+        		angular.forEach(dates, function(value, key) {
+                	$scope.reputationTimeLabels.push($filter('date')(value,'yyyy-MM-dd <br> HH:mm:ss'));
+        		})
+        		$scope.lastSampleDate.reputation = currentRepDate;
+            	/* Update plot */
+        		$scope.reputationSelectedIntervalChanged();
         	}
         }
-        /* Temperature reputation samples */
-        if ($scope.client.temperatureReputationHistory.length > 0) {
-        	var currentTempRepDate = $scope.client.temperatureReputationHistory[$scope.client.temperatureReputationHistory.length - 1].date;
-        	/* If the last value is updated, then we must update the plot */
-        	if (currentTempRepDate != $scope.lastSampleDate.temperatureReputation) {
-        		$scope.temperatureReputationHistory = $scope.client.temperatureReputationHistory.map(x => x.value).map(Number);
-        		$scope.lastSampleDate.temperatureReputation = currentTempRepDate;
-        		updateReputationPlot = true;
-        	}
-        }
-        /* Update reputation plot is required */
-        if (updateReputationPlot)
-        	$scope.reputationSelectedIntervalChanged();
 
         /* Firewall ingress */
-        if ($scope.client.firewallRulePassedPktsHistory.length > 0) {
-        	var currentFwIngressDate = $scope.client.firewallRulePassedPktsHistory[$scope.client.firewallRulePassedPktsHistory.length - 1].date;
+        if ($scope.client.ingressFirewallHistory.length > 0) {
+        	var currentFwIngressDate = $scope.client.ingressFirewallHistory[$scope.client.ingressFirewallHistory.length - 1].date;
         	/* If the last value is updated, then we must update the plot */
         	if (currentFwIngressDate != $scope.lastSampleDate.firewallIngress) {
-        		$scope.firewallRuleDroppedPktsHistory = $scope.client.firewallRuleDroppedPktsHistory.map(x => x.value).map(Number);
-        		$scope.firewallRulePassedPktsHistory = $scope.client.firewallRulePassedPktsHistory.map(x => x.value).map(Number);
+        		$scope.ingressFwPassedHistory = $scope.client.ingressFirewallHistory.map(x => x.passed);
+        		$scope.ingressFwDroppedHistory = $scope.client.ingressFirewallHistory.map(x => x.dropped);
+        		var dates = $scope.client.ingressFirewallHistory.map(x => x.date);
+        		$scope.fwIngressTimeLabels = [];
+        		angular.forEach(dates, function(value, key) {
+                	$scope.fwIngressTimeLabels.push($filter('date')(value,'yyyy-MM-dd <br> HH:mm:ss'));
+        		})
         		$scope.lastSampleDate.firewallIngress = currentFwIngressDate;
         		/* Update ingress plot only if ingress is selected */
-        		//console.log("Selected " + $scope.firewallSelectedDirection);
         		if($scope.firewallSelectedDirection != 'egress') {
-        			//console.log("GO ingress");
         			$scope.firewallIngressUpdatePlot();
         		}
         	}
         }
         
         /* Firewall egress */
-        if ($scope.client.firewallTxPassedPktsHistory.length > 0) {
-        	var currentFwEgressDate = $scope.client.firewallTxPassedPktsHistory[$scope.client.firewallTxPassedPktsHistory.length - 1].date;
+        if ($scope.client.egressFirewallHistory.length > 0) {
+        	var currentFwEgressDate = $scope.client.egressFirewallHistory[$scope.client.egressFirewallHistory.length - 1].date;
         	/* If the last value is updated, then we must update the plot */
         	if (currentFwEgressDate != $scope.lastSampleDate.firewallEgress) {
-                $scope.firewallTxDroppedPktsHistory = $scope.client.firewallTxDroppedPktsHistory.map(x => x.value).map(Number);
-                $scope.firewallTxPassedPktsHistory = $scope.client.firewallTxPassedPktsHistory.map(x => x.value).map(Number);
+        		$scope.egressFwPassedHistory = $scope.client.egressFirewallHistory.map(x => x.passed);
+        		$scope.egressFwDroppedHistory = $scope.client.egressFirewallHistory.map(x => x.dropped);
+        		var dates = $scope.client.egressFirewallHistory.map(x => x.date);
+        		$scope.fwEgressTimeLabels = [];
+        		angular.forEach(dates, function(value, key) {
+                	$scope.fwEgressTimeLabels.push($filter('date')(value,'yyyy-MM-dd <br> HH:mm:ss'));
+        		})
          		$scope.lastSampleDate.firewallEgress = currentFwEgressDate;
         		/* Update egress plot only if egress is selected */
         		if($scope.firewallSelectedDirection == 'egress') {
@@ -83,10 +76,6 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
         		}
         	}
         }
-
-        /* If update is necessary for firewall graph, update time labels */
-        if(updateFirewallEgressPlot == true || updateFirewallIngressPlot == true)
-            $scope.firewallTimeLabelsUpdate();
     });
 
     /* Selected option for time interval (12h or 24h) */
@@ -102,82 +91,81 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
     */
     $scope.firewallEgressUpdatePlot = function() {
         /* Update time labels for x-axis */
-        $scope.firewallTimeLabelsUpdate();
+        $scope.firewallTimeLabelsUpdate($scope.fwEgressTimeLabels);
 
     	if($scope.firewallSelectedInterval == 'last_day') {
             /* Get PLOT_MAX_SAMPLES/2 samples from even positions */
-            var filteredFirewallTxPassedPktsHistory = $scope.firewallTxPassedPktsHistory.filter((a,i) => i % 2 === 0);
-            var filteredFirewallTxDroppedPktsHistory = $scope.firewallTxDroppedPktsHistory.filter((a,i) => i % 2 === 0);
+            var filteredEgressFwPassedHistory = $scope.egressFwPassedHistory.filter((a,i) => i % 2 === 0);
+            var filteredEgressFwDroppedHistory = $scope.egressFwDroppedHistory.filter((a,i) => i % 2 === 0);
 
-            $scope.firewallValues[0] = filteredFirewallTxPassedPktsHistory;
-            $scope.firewallValues[1] = filteredFirewallTxDroppedPktsHistory;
+            $scope.firewallValues[0] = filteredEgressFwPassedHistory;
+            $scope.firewallValues[1] = filteredEgressFwDroppedHistory;
         } else {
             /* Last 12h (last PLOT_MAX_SAMPLES/2 values) */
-            if($scope.firewallTxPassedPktsHistory.length < PLOT_MAX_SAMPLES / 2)
-                $scope.firewallValues[0] = $scope.firewallTxPassedPktsHistory;
+            if($scope.egressFwPassedHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.firewallValues[0] = $scope.egressFwPassedHistory;
             else
-            	$scope.firewallValues[0] = $scope.firewallTxPassedPktsHistory.slice($scope.firewallTxPassedPktsHistory.length - PLOT_MAX_SAMPLES / 2,
-            																		$scope.firewallTxPassedPktsHistory.length);
+            	$scope.firewallValues[0] = $scope.egressFwPassedHistory.slice($scope.egressFwPassedHistory.length - PLOT_MAX_SAMPLES / 2,
+            																  $scope.egressFwPassedHistory.length);
             
-            if($scope.firewallTxDroppedPktsHistory.length < PLOT_MAX_SAMPLES / 2)
-                $scope.firewallValues[1] = $scope.firewallTxDroppedPktsHistory;
+            if($scope.egressFwDroppedHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.firewallValues[1] = $scope.egressFwDroppedHistory;
             else
-            	$scope.firewallValues[1] = $scope.firewallTxDroppedPktsHistory.slice($scope.firewallTxDroppedPktsHistory.length - PLOT_MAX_SAMPLES / 2,
-            																		 $scope.firewallTxDroppedPktsHistory.length);
+            	$scope.firewallValues[1] = $scope.egressFwDroppedHistory.slice($scope.egressFwDroppedHistory.length - PLOT_MAX_SAMPLES / 2,
+            																   $scope.egressFwDroppedHistory.length);
         }
     }
     
     $scope.firewallIngressUpdatePlot = function() {
         /* Update time labels for x-axis */
-        $scope.firewallTimeLabelsUpdate();
+        $scope.firewallTimeLabelsUpdate($scope.fwIngressTimeLabels);
 
         if($scope.firewallSelectedInterval == 'last_day') {
             /* Get PLOT_MAX_SAMPLES/2 samples from even positions */
-            var filteredFirewallRulePassedPktsHistory = $scope.firewallRulePassedPktsHistory.filter((a,i) => i % 2 === 0);
-            var filteredFirewallRuleDroppedPktsHistory = $scope.firewallRuleDroppedPktsHistory.filter((a,i) => i % 2 === 0);
+            var filteredIngressFwPassedHistory = $scope.ingressFwPassedHistory.filter((a,i) => i % 2 === 0);
+            var filteredIngressFwDroppedHistory = $scope.ingressFwDroppedHistory.filter((a,i) => i % 2 === 0);
 
-            $scope.firewallValues[0] = filteredFirewallRulePassedPktsHistory;
-            $scope.firewallValues[1] = filteredFirewallRuleDroppedPktsHistory;
+            $scope.firewallValues[0] = filteredIngressFwPassedHistory;
+            $scope.firewallValues[1] = filteredIngressFwDroppedHistory;
         } else {
         	/* Last 12h (last PLOT_MAX_SAMPLES/2 values) */
-            if($scope.firewallRulePassedPktsHistory.length < PLOT_MAX_SAMPLES / 2)
-                $scope.firewallValues[0] = $scope.firewallRulePassedPktsHistory;
+            if($scope.ingressFwPassedHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.firewallValues[0] = $scope.ingressFwPassedHistory;
             else
-            	$scope.firewallValues[0] = $scope.firewallRulePassedPktsHistory.slice($scope.firewallRulePassedPktsHistory.length - PLOT_MAX_SAMPLES / 2,
-            																		  $scope.firewallRulePassedPktsHistory.length);
+            	$scope.firewallValues[0] = $scope.ingressFwPassedHistory.slice($scope.ingressFwPassedHistory.length - PLOT_MAX_SAMPLES / 2,
+            															  	   $scope.ingressFwPassedHistory.length);
             
-            if($scope.firewallRuleDroppedPktsHistory.length < PLOT_MAX_SAMPLES / 2)
-                $scope.firewallValues[1] = $scope.firewallRuleDroppedPktsHistory;
+            if($scope.ingressFwDroppedHistory.length < PLOT_MAX_SAMPLES / 2)
+                $scope.firewallValues[1] = $scope.ingressFwDroppedHistory;
             else
-            	$scope.firewallValues[1] = $scope.firewallRuleDroppedPktsHistory.slice($scope.firewallRuleDroppedPktsHistory.length - PLOT_MAX_SAMPLES / 2,
-            																		   $scope.firewallRuleDroppedPktsHistory.length);
+            	$scope.firewallValues[1] = $scope.ingressFwDroppedHistory.slice($scope.ingressFwDroppedHistory.length - PLOT_MAX_SAMPLES / 2,
+            																	$scope.ingressFwDroppedPktsHistory.length);
         }
     };
 
-    $scope.firewallTimeLabelsUpdate = function() {
+    $scope.firewallTimeLabelsUpdate = function(timeLabels) {
         if($scope.firewallSelectedInterval == 'last_day') {
-            $scope.json_firewall.scaleX.values = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
+            $scope.json_firewall.scaleX.values = timeLabels.filter((a,i) => i % 2 === 0);
         }
         else {
-            if($scope.allTimeLabels.length < PLOT_MAX_SAMPLES / 2)
-                $scope.json_firewall.scaleX.values = $scope.allTimeLabels;
+            if(timeLabels.length < PLOT_MAX_SAMPLES / 2)
+                $scope.json_firewall.scaleX.values = timeLabels;
             else
-                $scope.json_firewall.scaleX.values = $scope.allTimeLabels.slice($scope.allTimeLabels.length - PLOT_MAX_SAMPLES / 2,
-                                                                                $scope.allTimeLabels.length);
+                $scope.json_firewall.scaleX.values = timeLabels.slice(timeLabels.length - PLOT_MAX_SAMPLES / 2,
+                                                                      timeLabels.length);
         }
     };
 
     $scope.reputationTimeLabelsUpdate = function() {
         if($scope.reputationSelectedInterval == 'last_day') {
-            $scope.json_reputation.scaleX.values = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
-            $scope.ana = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
+            $scope.json_reputation.scaleX.values = $scope.reputationTimeLabels.filter((a,i) => i % 2 === 0);
         }
         else {
-            if($scope.allTimeLabels.length < PLOT_MAX_SAMPLES / 2)
-                $scope.json_reputation.scaleX.values = $scope.allTimeLabels;
+            if($scope.reputationTimeLabels.length < PLOT_MAX_SAMPLES / 2)
+                $scope.json_reputation.scaleX.values = $scope.reputationTimeLabels;
             else
-                $scope.json_reputation.scaleX.values = $scope.allTimeLabels.slice($scope.allTimeLabels.length - PLOT_MAX_SAMPLES / 2,
-                                                                                $scope.allTimeLabels.length);
+                $scope.json_reputation.scaleX.values = $scope.reputationTimeLabels.slice($scope.reputationTimeLabels.length - PLOT_MAX_SAMPLES / 2,
+                                                                                		 $scope.reputationTimeLabels.length);
         }
     };
 

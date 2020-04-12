@@ -1,11 +1,12 @@
 package ro.atlas.entity;
 
+import java.util.LinkedList;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import ro.atlas.entity.sample.AtlasDataSample;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import ro.atlas.entity.sample.AtlasFirewallSample;
+import ro.atlas.entity.sample.AtlasReputationSample;
 
 @Document
 public class AtlasClient {
@@ -55,16 +56,13 @@ public class AtlasClient {
     private String firewallTxPassedPkts;
 
     /* Reputation samples */
-    private LinkedList<AtlasDataSample> systemReputationHistory;
-    private LinkedList<AtlasDataSample> temperatureReputationHistory;
+    private LinkedList<AtlasReputationSample> reputationHistory;
 
     /* Firewall ingress */
-    private LinkedList<AtlasDataSample> firewallRuleDroppedPktsHistory;
-    private LinkedList<AtlasDataSample> firewallRulePassedPktsHistory;
+    private LinkedList<AtlasFirewallSample> ingressFirewallHistory;
 
     /* Firewall egress */
-    private LinkedList<AtlasDataSample> firewallTxDroppedPktsHistory;
-    private LinkedList<AtlasDataSample> firewallTxPassedPktsHistory;
+    private LinkedList<AtlasFirewallSample> egressFirewallHistory;
 
     public String getSysinfoLoad1() {
         return sysinfoLoad1;
@@ -420,62 +418,33 @@ public class AtlasClient {
         this.temperatureReputation = dataReputation;
     }
 
-    public LinkedList<AtlasDataSample> getSystemReputationHistory() {
-        return systemReputationHistory;
+    public LinkedList<AtlasReputationSample> getReputationHistory() {
+        return reputationHistory;
     }
 
-    public void setSystemReputationHistory(LinkedList<AtlasDataSample> systemReputationHistory) {
-        this.systemReputationHistory = systemReputationHistory;
-    }
-
-    public LinkedList<AtlasDataSample> getTemperatureReputationHistory() {
-        return temperatureReputationHistory;
-    }
-
-    public void setTemperatureReputationHistory(LinkedList<AtlasDataSample> temperatureReputationHistory) {
-        this.temperatureReputationHistory = temperatureReputationHistory;
-    }
-
-    public LinkedList<AtlasDataSample> getFirewallRuleDroppedPktsHistory() {
-        return firewallRuleDroppedPktsHistory;
-    }
-
-    public void setFirewallRuleDroppedPktsHistory(LinkedList<AtlasDataSample> firewallRuleDroppedPktsHistory) {
-        this.firewallRuleDroppedPktsHistory = firewallRuleDroppedPktsHistory;
-    }
-
-    public LinkedList<AtlasDataSample> getFirewallRulePassedPktsHistory() {
-        return firewallRulePassedPktsHistory;
-    }
-
-    public void setFirewallRulePassedPktsHistory(LinkedList<AtlasDataSample> firewallRulePassedPktsHistory) {
-        this.firewallRulePassedPktsHistory = firewallRulePassedPktsHistory;
-    }
-
-    public LinkedList<AtlasDataSample> getFirewallTxDroppedPktsHistory() {
-        return firewallTxDroppedPktsHistory;
-    }
-
-    public void setFirewallTxDroppedPktsHistory(LinkedList<AtlasDataSample> firewallTxDroppedPktsHistory) {
-        this.firewallTxDroppedPktsHistory = firewallTxDroppedPktsHistory;
-    }
-
-    public LinkedList<AtlasDataSample> getFirewallTxPassedPktsHistory() {
-        return firewallTxPassedPktsHistory;
-    }
-
-    public void setFirewallTxPassedPktsHistory(LinkedList<AtlasDataSample> firewallTxPassedPktsHistory) {
-        this.firewallTxPassedPktsHistory = firewallTxPassedPktsHistory;
+    public void setReputationHistory(LinkedList<AtlasReputationSample> reputationHistory) {
+        this.reputationHistory = reputationHistory;
     }
 
     public void initHistorySamples() {
-        this.systemReputationHistory = new LinkedList<>();
-        this.temperatureReputationHistory = new LinkedList<>();
-
-        this.firewallRuleDroppedPktsHistory = new LinkedList<>();
-        this.firewallRulePassedPktsHistory = new LinkedList<>();
-
-        this.firewallTxDroppedPktsHistory = new LinkedList<>();
-        this.firewallTxPassedPktsHistory = new LinkedList<>();
+        this.reputationHistory = new LinkedList<>();
+        this.setIngressFirewallHistory(new LinkedList<>());
+        this.setEgressFirewallHistory(new LinkedList<>());
     }
+
+	public LinkedList<AtlasFirewallSample> getIngressFirewallHistory() {
+		return ingressFirewallHistory;
+	}
+
+	public void setIngressFirewallHistory(LinkedList<AtlasFirewallSample> ingressFirewallHistory) {
+		this.ingressFirewallHistory = ingressFirewallHistory;
+	}
+
+	public LinkedList<AtlasFirewallSample> getEgressFirewallHistory() {
+		return egressFirewallHistory;
+	}
+
+	public void setEgressFirewallHistory(LinkedList<AtlasFirewallSample> egressFirewallHistory) {
+		this.egressFirewallHistory = egressFirewallHistory;
+	}
 }

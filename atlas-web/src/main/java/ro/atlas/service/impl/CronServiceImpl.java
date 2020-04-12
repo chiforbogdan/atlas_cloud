@@ -24,7 +24,7 @@ public class CronServiceImpl implements CronService {
     }
 
     //@Scheduled(fixedRateString = "${atlas-cloud.reputation-history-update-min}")
-    @Scheduled(fixedRate = 20000)
+    @Scheduled(fixedRate = 30000)
     @Override
     public void updateReputationSamplesTask() {
         LOG.info("Update reputation samples for clients");

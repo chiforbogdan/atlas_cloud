@@ -30,6 +30,7 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	private static final String MOSQUITTO_PASSWD_TMP = "mosquitto.passwd.tmp";
 	private static final String DUMMY_CREDENTIAL_ENTRY = "dummy";
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasMqttServiceImpl.class);
+	private static final int KEEPALIVE_SEC = 60;
 	private MqttClient client;
 	private String clientId;
 	private MemoryPersistence persistence = new MemoryPersistence();
@@ -49,6 +50,7 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 		options.setAutomaticReconnect(false);
 		options.setCleanSession(true);
 		options.setConnectionTimeout(properties.getMqttTimeout());
+		options.setKeepAliveInterval(KEEPALIVE_SEC);
 
 		/* Create MQTT client */
 		try {
@@ -71,7 +73,7 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 
 	@Override
 	public void connectionLost(Throwable cause) {
-		LOG.info("Connection to server is lost");
+		LOG.info("+++++++++++++++++=Connection to server is lost: " + cause.getMessage());
 	}
 
 	@Override
@@ -121,6 +123,10 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(properties.getTmpDir() + "/" + MOSQUITTO_PASSWD_TMP));
 			
+			/*
+			 * Mosquitto requires at least one entry in the credentials file, otherwise it
+			 * will allow any device to log in
+			 */
 			writer.append(DUMMY_CREDENTIAL_ENTRY + ":" + DUMMY_CREDENTIAL_ENTRY + "\n");
 			for (AtlasUsernamePassDto usernamePass : usernamePassList) {
 				LOG.info("Allow the following MQTT username/password: " + usernamePass.getUsername() + ":"
