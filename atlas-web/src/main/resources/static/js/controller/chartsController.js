@@ -6,10 +6,8 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
 	const PLOT_MAX_SAMPLES = 288
     
 	$scope.client = $scope.$parent.client;
-
     $scope.firewallValues = [];
     $scope.reputationValues = [];
-    $scope.timeLabels = [];
     
     /* Last plot samples dates */
     $scope.lastSampleDate = {
@@ -23,9 +21,10 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
     	$scope.client = data;
 
         /* Dates at which the samples were taken */
+        $scope.allTimeLabels = [];
         var dates = $scope.client.systemReputationHistory.map(x => x.date);
         angular.forEach(dates, function(value, key) {
-          	$scope.timeLabels.push($filter('date')(value,'yyyy-MM-dd HH:mm:ss'));
+          	$scope.allTimeLabels.push($filter('date')(value,'yyyy-MM-dd <br> HH:mm'));
         })
 
         var updateReputationPlot = false;
@@ -52,7 +51,7 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
         /* Update reputation plot is required */
         if (updateReputationPlot)
         	$scope.reputationSelectedIntervalChanged();
-        
+
         /* Firewall ingress */
         if ($scope.client.firewallRulePassedPktsHistory.length > 0) {
         	var currentFwIngressDate = $scope.client.firewallRulePassedPktsHistory[$scope.client.firewallRulePassedPktsHistory.length - 1].date;
@@ -84,6 +83,10 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
         		}
         	}
         }
+
+        /* If update is necessary for firewall graph, update time labels */
+        if(updateFirewallEgressPlot == true || updateFirewallIngressPlot == true)
+            $scope.firewallTimeLabelsUpdate();
     });
 
     /* Selected option for time interval (12h or 24h) */
@@ -98,11 +101,13 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
     * is chanced or selected direction for firewall changed
     */
     $scope.firewallEgressUpdatePlot = function() {
+        /* Update time labels for x-axis */
+        $scope.firewallTimeLabelsUpdate();
+
     	if($scope.firewallSelectedInterval == 'last_day') {
             /* Get PLOT_MAX_SAMPLES/2 samples from even positions */
             var filteredFirewallTxPassedPktsHistory = $scope.firewallTxPassedPktsHistory.filter((a,i) => i % 2 === 0);
             var filteredFirewallTxDroppedPktsHistory = $scope.firewallTxDroppedPktsHistory.filter((a,i) => i % 2 === 0);
-            $scope.timeLabels = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
 
             $scope.firewallValues[0] = filteredFirewallTxPassedPktsHistory;
             $scope.firewallValues[1] = filteredFirewallTxDroppedPktsHistory;
@@ -123,6 +128,9 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
     }
     
     $scope.firewallIngressUpdatePlot = function() {
+        /* Update time labels for x-axis */
+        $scope.firewallTimeLabelsUpdate();
+
         if($scope.firewallSelectedInterval == 'last_day') {
             /* Get PLOT_MAX_SAMPLES/2 samples from even positions */
             var filteredFirewallRulePassedPktsHistory = $scope.firewallRulePassedPktsHistory.filter((a,i) => i % 2 === 0);
@@ -145,7 +153,34 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
             																		   $scope.firewallRuleDroppedPktsHistory.length);
         }
     };
-    
+
+    $scope.firewallTimeLabelsUpdate = function() {
+        if($scope.firewallSelectedInterval == 'last_day') {
+            $scope.json_firewall.scaleX.values = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
+        }
+        else {
+            if($scope.allTimeLabels.length < PLOT_MAX_SAMPLES / 2)
+                $scope.json_firewall.scaleX.values = $scope.allTimeLabels;
+            else
+                $scope.json_firewall.scaleX.values = $scope.allTimeLabels.slice($scope.allTimeLabels.length - PLOT_MAX_SAMPLES / 2,
+                                                                                $scope.allTimeLabels.length);
+        }
+    };
+
+    $scope.reputationTimeLabelsUpdate = function() {
+        if($scope.reputationSelectedInterval == 'last_day') {
+            $scope.json_reputation.scaleX.values = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
+            $scope.ana = $scope.allTimeLabels.filter((a,i) => i % 2 === 0);
+        }
+        else {
+            if($scope.allTimeLabels.length < PLOT_MAX_SAMPLES / 2)
+                $scope.json_reputation.scaleX.values = $scope.allTimeLabels;
+            else
+                $scope.json_reputation.scaleX.values = $scope.allTimeLabels.slice($scope.allTimeLabels.length - PLOT_MAX_SAMPLES / 2,
+                                                                                $scope.allTimeLabels.length);
+        }
+    };
+
     $scope.firewallSelectedIntervalChanged = function() {
         if($scope.firewallSelectedDirection == 'egress') {
         	$scope.firewallEgressUpdatePlot();
@@ -156,6 +191,9 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
 
     /* Callback function when selected interval for reputation graph is chanced */
     $scope.reputationSelectedIntervalChanged = function() {
+        /* Update time labels for x-axis */
+        $scope.reputationTimeLabelsUpdate();
+
         if($scope.reputationSelectedInterval == 'last_day') {
             /* Get PLOT_MAX_SAMPLES/2 samples from even positions */
             var filteredSystemReputationHistory = $scope.systemReputationHistory.filter((a,i) => i % 2 === 0);
@@ -199,6 +237,9 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
            },
            borderWidth: 0
       },
+      plotarea:{
+              margin: "dynamic",
+      },
       scaleX: {
           zooming: true,
           label: {
@@ -207,11 +248,10 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
           guide: {
               visible: false
           },
-          /*values: $scope.timeLabels, !!
           item:{
               fontAngle: -45,
               offsetX: "7px"
-          }*/
+          }
       },
       scaleY: {
           label: {
@@ -266,6 +306,9 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
            },
            borderWidth: 0
       },
+      plotarea:{
+              margin: "dynamic",
+      },
       scaleX: {
           zooming: true,
           label: {
@@ -273,6 +316,10 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
           },
           guide: {
               visible: false
+          },
+          item:{
+              fontAngle: -45,
+              offsetX: "7px"
           }
       },
       scaleY: {
