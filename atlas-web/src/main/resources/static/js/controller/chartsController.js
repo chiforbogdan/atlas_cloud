@@ -179,7 +179,6 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
 
     /* Callback function when selected interval for reputation graph is chanced */
     $scope.reputationSelectedIntervalChanged = function() {
-    	console.log("Rep len " + $scope.systemReputationHistory.length);
         /* Update time labels for x-axis */
         $scope.reputationTimeLabelsUpdate();
 
