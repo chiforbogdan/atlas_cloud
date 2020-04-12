@@ -139,7 +139,7 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
                 $scope.firewallValues[1] = $scope.ingressFwDroppedHistory;
             else
             	$scope.firewallValues[1] = $scope.ingressFwDroppedHistory.slice($scope.ingressFwDroppedHistory.length - PLOT_MAX_SAMPLES / 2,
-            																	$scope.ingressFwDroppedPktsHistory.length);
+            																	$scope.ingressFwDroppedHistory.length);
         }
     };
 
@@ -179,6 +179,7 @@ atlas_app.controller('ChartsController',[ '$scope', '$filter', function($scope, 
 
     /* Callback function when selected interval for reputation graph is chanced */
     $scope.reputationSelectedIntervalChanged = function() {
+    	console.log("Rep len " + $scope.systemReputationHistory.length);
         /* Update time labels for x-axis */
         $scope.reputationTimeLabelsUpdate();
 
