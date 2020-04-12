@@ -38,8 +38,11 @@ openssl req -config openssl_intermediate_client_subca.cnf -new -newkey rsa:4096 
 openssl ca -config openssl_root.cnf -extensions v3_intermediate_ca -days 3650 -notext -md sha512 -in ca/intermediate-client/csr/int.atlas-client-subca.csr -out ca/intermediate-client/certs/int.atlas-client-subca.crt.pem
 
 # Create server truststore
-cat ca/intermediate-server/certs/int.atlas-server-subca.crt.pem ca/certs/ca.atlas-root.crt.pem > artifacts/server.truststore.pem
+cat ca/intermediate-client/certs/int.atlas-client-subca.crt.pem ca/certs/ca.atlas-root.crt.pem > artifacts/server.truststore.pem
 
-echo "********Generate web server certificate********"
+echo "********Generate server (web and MQTT) certificate********"
+./pki_generate_server_cert.sh
 
+echo "********Generate client certificate********"
+./pki_generate_client_cert.sh
 

@@ -11,3 +11,4 @@ openssl ca -config openssl_intermediate_server_subca.cnf -extensions server_cert
 mkdir -p artifacts/servers/$fqdn
 cp ca/intermediate-server/private/$fqdn.key.pem artifacts/servers/$fqdn
 cp ca/intermediate-server/certs/$fqdn.crt.pem artifacts/servers/$fqdn
+cat ca/intermediate-server/certs/int.atlas-server-subca.crt.pem ca/certs/ca.atlas-root.crt.pem > artifacts/servers/$fqdn/$fqdn.chain.pem

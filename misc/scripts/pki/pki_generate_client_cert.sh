@@ -12,3 +12,7 @@ openssl ca -config openssl_intermediate_client_subca.cnf -days 1800 -notext -md 
 mkdir -p artifacts/clients/$fullname
 cp ca/intermediate-client/private/$fullname.key.pem artifacts/clients/$fullname
 cp ca/intermediate-client/certs/$fullname.crt.pem artifacts/clients/$fullname
+cat ca/intermediate-client/certs/int.atlas-client-subca.crt.pem ca/certs/ca.atlas-root.crt.pem > artifacts/clients/$fullname/$fullname.chain.pem
+
+# Generate PKCS12
+openssl pkcs12 -export -out artifacts/clients/$fullname/$fullname.p12 -inkey artifacts/clients/$fullname/$fullname.key.pem -in artifacts/clients/$fullname/$fullname.crt.pem -certfile artifacts/clients/$fullname/$fullname.chain.pem

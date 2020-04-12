@@ -1,15 +1,8 @@
 package ro.atlas.service.impl;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +28,7 @@ import ro.atlas.service.AtlasMqttService;
 @Component
 public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListener, MqttCallback {
 	private static final String MOSQUITTO_PASSWD_TMP = "mosquitto.passwd.tmp";
+	private static final String DUMMY_CREDENTIAL_ENTRY = "dummy";
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasMqttServiceImpl.class);
 	private MqttClient client;
 	private String clientId;
@@ -127,6 +121,7 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(properties.getTmpDir() + "/" + MOSQUITTO_PASSWD_TMP));
 			
+			writer.append(DUMMY_CREDENTIAL_ENTRY + ":" + DUMMY_CREDENTIAL_ENTRY + "\n");
 			for (AtlasUsernamePassDto usernamePass : usernamePassList) {
 				LOG.info("Allow the following MQTT username/password: " + usernamePass.getUsername() + ":"
 						+ usernamePass.getPassword());
