@@ -47,7 +47,7 @@
                 <hr style="padding:0px;margin:0px">
                 <div class="d-flex flex-row mx-5" style="padding:0px;margin:0px">
                     <span class="p-1">Trace: </span>
-                    <div class="p-1" ng-repeat="t in trace">
+                    <div class="p-1" ng-repeat="t in $storage.savedTrace">
                         <a href="#!{{t}}">{{t}}</a>
                         <span>•</span>
                     </div>
@@ -72,6 +72,8 @@
 
     <script src="http://cdn.zingchart.com/zingchart.min.js"></script>
     <script src="http://cdn.zingchart.com/angular/zingchart-angularjs.js"></script>
+
+    <script src="https://rawgithub.com/gsklee/ngStorage/master/ngStorage.js"></script>
 
     <script src="../js/main.js"></script>
     <script src="../js/controller/clientListController.js"></script>

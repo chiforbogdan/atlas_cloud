@@ -3,7 +3,7 @@
         <div class="col-xl-12 mx-auto">
             <div class="card">
                 <div class="card-header">
-                    <span class="lead"><i class="fas fa-table mr-2"></i>Clients List for Gateway {{gw_alias}} </span>
+                    <span class="lead"><i class="fas fa-table mr-2"></i>Clients List for Gateway {{gw_alias}}</span>
                     <button type="button" ng-click="forceSync(gw_identity)"
                             class="btn float-right"><i class="fas fa-sync-alt"></i>
                     </button>
@@ -38,12 +38,13 @@
                             <td>{{$index + 1}}</td>
                             <td><a href="#!/client/{{gw_identity}}/{{c.identity}}"><span
                                     ng-bind="c.identity"></span></a>
-                            <td><span ng-bind="c.hostname"></span></td>
+                            <td><span></span>{{c.hostname == null ? 'N/A' : c.hostname}}</td>
                             <td class="pl-5"><span
                                     ng-bind="selectedOption == 'temperatureReputation' ? c.temperatureReputation : c.systemReputation"></span>
                             </td>
-                            <td><span style="font-weight:normal">{{c.ipPort.split(':')[0]}}</span></td>
-                            <td><span ng-bind="c.lastRegisterTime"></span></td>
+                            <td><span contenteditable="true" class="single-line"
+                                      id="editable">Client_{{$index+1}}</span></td>
+                            <td><span>{{c.lastRegisterTime == null ? 'N/A' : c.lastRegisterTime}}</span></td>
                             <td><span class="dot"
                                       ng-style="c.registered === 'true' && {'background-color':'green'} || c.registered === 'false' && {'background-color':'red'}"
                                       data-toggle="tooltip" title="Last keep-alive time: {{c.lastKeepAliveTime}}">

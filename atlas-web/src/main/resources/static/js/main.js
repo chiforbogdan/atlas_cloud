@@ -1,6 +1,6 @@
 'use strict'
 
-var atlas_app = angular.module('atlasApp' , ['ngRoute', 'ui.bootstrap', 'zingchart-angularjs']);
+var atlas_app = angular.module('atlasApp' , ['ngRoute', 'ui.bootstrap', 'zingchart-angularjs', 'ngStorage']);
 
 atlas_app.config(function($routeProvider){
 
@@ -29,10 +29,13 @@ atlas_app.config(function($routeProvider){
                 });
 });
 
-atlas_app.controller('MainController',[ '$scope', '$location', '$rootScope', function($scope, $location, $rootScope) {
+atlas_app.controller('MainController',[ '$scope', '$location', '$rootScope', '$localStorage', function($scope, $location, $rootScope, $localStorage) {
 
     $scope.selected = false;
-    $scope.trace = [];
+
+    $scope.$storage = $localStorage.$default({
+        savedTrace: []
+    });
 
     $scope.showNav = function(){
         $scope.selected = true;
@@ -51,13 +54,16 @@ atlas_app.controller('MainController',[ '$scope', '$location', '$rootScope', fun
        var page = $scope.path.match(regExp)[1];
 
        if (page != null) {
-          $scope.index = $scope.trace.indexOf($scope.path);
+          var trace =  $scope.$storage.savedTrace;
+
+          $scope.index = trace.indexOf($scope.path);
 
           if ($scope.index != -1)
-             $scope.trace.splice($scope.index, $scope.trace.length - $scope.index);
+             trace.splice($scope.index, trace.length - $scope.index);
 
-          $scope.trace.push($scope.path);
+          trace.push($scope.path);
+
+          $scope.$storage.savedTrace = trace;
        }
-
     });
 }]);

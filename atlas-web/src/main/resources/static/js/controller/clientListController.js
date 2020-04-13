@@ -10,6 +10,11 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$ui
 
     fetchAllClientsSummary($scope.gw_identity);
 
+    var editable = $('#editable')
+    editable.on('input', function() {
+        //!
+    });
+
     /*
     * Get updates of clients data by polling //to do WebSocket
     */

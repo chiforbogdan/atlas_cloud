@@ -144,11 +144,27 @@ select {
     height:300px;
     padding:0;
 }
-#chart-reputation, #chart-firewall{
+#chart-reputation, #chart-firewall {
     width:100%;
     min-width:100px;
     min-height: 400px
 }
-.table-card{
+.table-card {
     border:1px solid black;
+}
+.table-entry {
+    border-right: 1px solid black;
+}
+[contenteditable="true"].single-line {
+    white-space: nowrap;
+    width:200px;
+    overflow: hidden;
+}
+[contenteditable="true"].single-line br {
+    display:none;
+
+}
+[contenteditable="true"].single-line * {
+    display:inline;
+    white-space:nowrap;
 }
