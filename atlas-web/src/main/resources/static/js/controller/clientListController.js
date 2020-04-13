@@ -47,7 +47,7 @@ atlas_app.controller('ClientsController',[ '$scope', '$interval', '$route', '$ui
         });
 
         modalInstance.result.then(function(){
-            fetchAllClients($scope.gw_identity);},function(data){});
+        	fetchAllClientsSummary($scope.gw_identity);}, function(data){});
     };
 
     /*
