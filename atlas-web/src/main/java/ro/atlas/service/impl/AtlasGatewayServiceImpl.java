@@ -448,7 +448,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         for (Map.Entry<String, AtlasClient> entry : clients.entrySet()) {
 
         	/* Update client history samples only if the client is registered */
-        	if (entry.getValue().getRegistered().equalsIgnoreCase("true")) {
+			if (entry.getValue().getRegistered() != null && entry.getValue().getRegistered().equalsIgnoreCase("true")) {
         		/* Update reputation history samples */
         		updateClientsReputationSamples(entry.getValue());
 
