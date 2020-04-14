@@ -19,6 +19,7 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
         /* hide ok button*/
         $scope.editAliasSelected = false;
     };
+
     function convertSecondsToTime(seconds) {
     	var numDays = Math.floor(seconds / 86400);
     	var numHours = Math.floor((seconds % 86400) / 3600);
