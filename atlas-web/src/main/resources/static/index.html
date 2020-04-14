@@ -44,15 +44,6 @@
                 </div>
             </nav>
             <div class="mt-5 pt-3 mb-1 mx-3 ng-cloak" ng-show="selected">
-                <hr style="padding:0px;margin:0px">
-                <div class="d-flex flex-row mx-5" style="padding:0px;margin:0px">
-                    <span class="p-1">Trace: </span>
-                    <div class="p-1" ng-repeat="t in $storage.savedTrace">
-                        <a href="#!{{t}}">{{t}}</a>
-                        <span>•</span>
-                    </div>
-                </div>
-                <hr style="padding:0px;margin:0px">
             </div>
             <div ng-view="" class="min-vh-100"></div>
         </div>

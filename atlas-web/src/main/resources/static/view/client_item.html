@@ -1,183 +1,176 @@
 <section>
     <div class="container-fluid" ng-controller="ChartsController">
         <div class="generic-container mx-auto w-100">
-            <div class="card w-100">
-                <div class="card-header"><span class="lead"><i
-                        class="fas fa-info-circle mr-1"></i> Telemetry </span>
-                    <div class="row ml-3 mt-3 mb-0 pb-0">
-                        <div class="col-sm-10 col-xl-2">
-                            <div class="input-container ml-2" style="border-bottom:1px solid black">
-                                <span class="lead far fa-edit pt-2 pb-2 pr-2 mx-auto" ng-click="setEditAliasSelected()"
-                                      data-toggle="tooltip" title="Edit alias"></span>
-                                <input type="text" class="form-control-plaintext" id="clientAlias" name="clientAlias"
-                                       ng-model="alias" ng-change="setEditAliasSelected()">
-                                <button type="button" class="btn btn-dark" ng-show="editAliasSelected"
-                                        ng-click="aliasFieldChanged(alias)">Ok
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="container-fluid">
-                    <div class="row w-100 p-0 m-0">
-                        <div class="table-container overflow-auto mt-2 w-100">
-                            <table class="table table-sm table-hover table-card">
-                                <thead class="thead-dark">
-                                <tr>
-                                    <th width="18%"> Telemetry</th>
-                                    <th width="15%"> Value</th>
+        	<button type="button" class="btn btn-dark" ng-click="gotoClientsList()">&laquo; Back to clients list</button>
+			<div class="card w-100">
+				<div class="card-header">
+					<span class="lead"><i class="fas fa-info-circle mr-1"></i>
+						Telemetry </span>
+					<div>
+						<span id="aliasLabel"><b>Device alias:&nbsp;</b></span> <input
+							type="text" data-toggle="tooltip" title="Edit device alias"
+							id="clientAlias" name="clientAlias" ng-model="alias"
+							ng-change="setEditAliasSelected()" size="36" maxlength="36">
+						<button type="button" class="btn btn-dark  btn-sm"
+							ng-show="editAliasSelected" ng-click="aliasFieldChanged(alias)">Save
+							alias</button>
+					</div>
+				</div>
+				<div class="container-fluid">
+					<div class="row w-100 p-0 m-0">
+						<div class="table-container overflow-auto mt-2 w-100">
+							<table class="table table-sm table-hover table-card">
+								<thead class="thead-dark">
+									<tr>
+										<th width="18%">Telemetry</th>
+										<th width="15%">Value</th>
 
-                                    <th width="18%"> Telemetry</th>
-                                    <th width="15%"> Value</th>
+										<th width="18%">Telemetry</th>
+										<th width="15%">Value</th>
 
-                                    <th width="18%"> Telemetry</th>
-                                    <th width="15%"> Value</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <th>Client Identity</th>
-                                    <td class="table-entry">
-                                        <span>{{client.identity == null ? 'N/A' : client.identity}}</span>
-                                    </td>
+										<th width="18%">Telemetry</th>
+										<th width="15%">Value</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<th>Client Identity</th>
+										<td class="table-entry"><span>{{client.identity ==
+												null ? 'N/A' : client.identity}}</span></td>
 
-                                    <th>Firewall policy maximum payload length</th>
-                                    <td class="table-entry"><span>{{client.firewallPolicyPayloadLen == null ? 'N/A' : client.firewallPolicyPayloadLen}}</span>
-                                    </td>
+										<th>Firewall policy maximum payload length</th>
+										<td class="table-entry"><span>{{client.firewallPolicyPayloadLen
+												== null ? 'N/A' : client.firewallPolicyPayloadLen}}</span></td>
 
-                                    <th>Sysinfo free swap space (KB)</th>
-                                    <td class="table-entry"><span>{{client.sysinfoFreeswap == null ? 'N/A' : client.sysinfoFreeswap}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Registered</th>
-                                    <td class="table-entry">
-                                        <span>{{client.registered == null ? 'N/A' : client.registered}}</span>
-                                    </td>
+										<th>Sysinfo free swap space (KB)</th>
+										<td class="table-entry"><span>{{client.sysinfoFreeswap
+												== null ? 'N/A' : client.sysinfoFreeswap}}</span></td>
+									</tr>
+									<tr>
+										<th>Registered</th>
+										<td class="table-entry"><span>{{client.registered
+												== null ? 'N/A' : client.registered}}</span></td>
 
-                                    <th>Sysinfo uptime</th>
-                                    <td class="table-entry"><span>{{client.sysinfoUptime == null ? 'N/A' : client.sysinfoUptime}}</span>
-                                    </td>
+										<th>Sysinfo uptime</th>
+										<td class="table-entry"><span>{{client.sysinfoUptime
+												== null ? 'N/A' : client.sysinfoUptime}}</span></td>
 
-                                    <th>Sysinfo amount of shared memory (KB)</th>
-                                    <td class="table-entry"><span>{{client.sysinfoSharedram == null ? 'N/A' : client.sysinfoSharedram}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Last register time</th>
-                                    <td class="table-entry"><span>{{client.lastRegisterTime == null ? 'N/A' : client.lastRegisterTime}}</span>
-                                    </td>
+										<th>Sysinfo amount of shared memory (KB)</th>
+										<td class="table-entry"><span>{{client.sysinfoSharedram
+												== null ? 'N/A' : client.sysinfoSharedram}}</span></td>
+									</tr>
+									<tr>
+										<th>Last register time</th>
+										<td class="table-entry"><span>{{client.lastRegisterTime
+												== null ? 'N/A' : client.lastRegisterTime}}</span></td>
 
-                                    <th>Sysinfo number of processes</th>
-                                    <td class="table-entry"><span>{{client.sysinfoProcs == null ? 'N/A' : client.sysinfoProcs}}</span>
-                                    </td>
+										<th>Sysinfo number of processes</th>
+										<td class="table-entry"><span>{{client.sysinfoProcs
+												== null ? 'N/A' : client.sysinfoProcs}}</span></td>
 
-                                    <th>Data plane packets-per-minute</th>
-                                    <td class="table-entry"><span>{{client.packetsPerMinute == null ? 'N/A' : client.packetsPerMinute}}</span>
-                                    </td>
+										<th>Data plane packets-per-minute</th>
+										<td class="table-entry"><span>{{client.packetsPerMinute
+												== null ? 'N/A' : client.packetsPerMinute}}</span></td>
 
-                                </tr>
-                                <tr>
-                                    <th>Last keep-alive time</th>
-                                    <td class="table-entry"><span>{{client.lastKeepAliveTime == null ? 'N/A' : client.lastKeepAliveTime}}</span>
-                                    </td>
+									</tr>
+									<tr>
+										<th>Last keep-alive time</th>
+										<td class="table-entry"><span>{{client.lastKeepAliveTime
+												== null ? 'N/A' : client.lastKeepAliveTime}}</span></td>
 
-                                    <th>Sysinfo load average (1 minute)</th>
-                                    <td class="table-entry"><span>{{client.client.sysinfoLoad1 == null ? 'N/A' : client.client.sysinfoLoad1}}</span>
-                                    </td>
+										<th>Sysinfo load average (1 minute)</th>
+										<td class="table-entry"><span>{{client.client.sysinfoLoad1
+												== null ? 'N/A' : client.client.sysinfoLoad1}}</span></td>
 
-                                    <th>Data plane packets average length</th>
-                                    <td class="table-entry"><span>{{client.packetsAvgLength == null ? 'N/A' : client.packetsAvgLength}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th> Hostname</th>
-                                    <td class="table-entry">
-                                        <span>{{client.hostname == null ? 'N/A' : client.hostname}}</span>
-                                    </td>
+										<th>Data plane packets average length</th>
+										<td class="table-entry"><span>{{client.packetsAvgLength
+												== null ? 'N/A' : client.packetsAvgLength}}</span></td>
+									</tr>
+									<tr>
+										<th>Hostname</th>
+										<td class="table-entry"><span>{{client.hostname ==
+												null ? 'N/A' : client.hostname}}</span></td>
 
-                                    <th>Sysinfo load average (5 minutes)</th>
-                                    <td class="table-entry"><span>{{client.sysinfoLoad5 == null ? 'N/A' : client.sysinfoLoad5}}</span>
-                                    </td>
+										<th>Sysinfo load average (5 minutes)</th>
+										<td class="table-entry"><span>{{client.sysinfoLoad5
+												== null ? 'N/A' : client.sysinfoLoad5}}</span></td>
 
-                                    <th>Ingress dropped packets</th>
-                                    <td class="table-entry"><span>{{client.firewallRuleDroppedPkts == null ? 'N/A' : client.firewallRuleDroppedPkts}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Kernel information</th>
-                                    <td class="table-entry">
-                                        <span>{{client.kernelInfo == null ? 'N/A' : client.kernelInfo}}</span>
-                                    </td>
+										<th>Ingress dropped packets</th>
+										<td class="table-entry"><span>{{client.firewallRuleDroppedPkts
+												== null ? 'N/A' : client.firewallRuleDroppedPkts}}</span></td>
+									</tr>
+									<tr>
+										<th>Kernel information</th>
+										<td class="table-entry"><span>{{client.kernelInfo
+												== null ? 'N/A' : client.kernelInfo}}</span></td>
 
-                                    <th>Sysinfo load average (15 minutes)</th>
-                                    <td class="table-entry"><span>{{client.sysinfoLoad15 == null ? 'N/A' : client.sysinfoLoad15}}</span>
-                                    </td>
+										<th>Sysinfo load average (15 minutes)</th>
+										<td class="table-entry"><span>{{client.sysinfoLoad15
+												== null ? 'N/A' : client.sysinfoLoad15}}</span></td>
 
-                                    <th>Ingress passed packets</th>
-                                    <td class="table-entry"><span>{{client.firewallRulePassedPkts == null ? 'N/A' : client.firewallRulePassedPkts}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Local IP and port</th>
-                                    <td class="table-entry">
-                                        <span>{{client.ipPort == null ? 'N/A' : client.ipPort}}</span>
-                                    </td>
+										<th>Ingress passed packets</th>
+										<td class="table-entry"><span>{{client.firewallRulePassedPkts
+												== null ? 'N/A' : client.firewallRulePassedPkts}}</span></td>
+									</tr>
+									<tr>
+										<th>Local IP and port</th>
+										<td class="table-entry"><span>{{client.ipPort ==
+												null ? 'N/A' : client.ipPort}}</span></td>
 
-                                    <th>Sysinfo total usable main memory size (KB)</th>
-                                    <td class="table-entry"><span>{{client.sysinfoTotalram == null ? 'N/A' : client.sysinfoTotalram}}</span>
-                                    </td>
+										<th>Sysinfo total usable main memory size (KB)</th>
+										<td class="table-entry"><span>{{client.sysinfoTotalram
+												== null ? 'N/A' : client.sysinfoTotalram}}</span></td>
 
-                                    <th>Egress dropped packets</th>
-                                    <td class="table-entry"><span>{{client.firewallTxDroppedPkts == null ? 'N/A' : client.firewallTxDroppedPkts}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Publish-subscribe client ID</th>
-                                    <td class="table-entry"><span>{{client.pubSubClientId == null ? 'N/A' : client.pubSubClientId}}</span>
-                                    </td>
+										<th>Egress dropped packets</th>
+										<td class="table-entry"><span>{{client.firewallTxDroppedPkts
+												== null ? 'N/A' : client.firewallTxDroppedPkts}}</span></td>
+									</tr>
+									<tr>
+										<th>Publish-subscribe client ID</th>
+										<td class="table-entry"><span>{{client.pubSubClientId
+												== null ? 'N/A' : client.pubSubClientId}}</span></td>
 
-                                    <th>Sysinfo memory used by buffers (KB)</th>
-                                    <td class="table-entry"><span>{{client.sysinfoBufferram == null ? 'N/A' : client.sysinfoBufferram}}</span>
-                                    </td>
+										<th>Sysinfo memory used by buffers (KB)</th>
+										<td class="table-entry"><span>{{client.sysinfoBufferram
+												== null ? 'N/A' : client.sysinfoBufferram}}</span></td>
 
-                                    <th>Egress passed packets</th>
-                                    <td class="table-entry"><span>{{client.firewallTxPassedPkts == null ? 'N/A' : client.firewallTxPassedPkts}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Firewall policy QoS</th>
-                                    <td class="table-entry"><span>{{client.firewallPolicyQos == null ? 'N/A' : client.firewallPolicyQos}}</span>
-                                    </td>
+										<th>Egress passed packets</th>
+										<td class="table-entry"><span>{{client.firewallTxPassedPkts
+												== null ? 'N/A' : client.firewallTxPassedPkts}}</span></td>
+									</tr>
+									<tr>
+										<th>Firewall policy QoS</th>
+										<td class="table-entry"><span>{{client.firewallPolicyQos
+												== null ? 'N/A' : client.firewallPolicyQos}}</span></td>
 
-                                    <th>Sysinfo available memory size (KB)</th>
-                                    <td class="table-entry"><span>{{client.sysinfoFreeram == null ? 'N/A' : client.sysinfoFreeram}}</span>
-                                    </td>
+										<th>Sysinfo available memory size (KB)</th>
+										<td class="table-entry"><span>{{client.sysinfoFreeram
+												== null ? 'N/A' : client.sysinfoFreeram}}</span></td>
 
-                                    <th>System reputation</th>
-                                    <td class="table-entry"><span>{{client.systemReputation == null ? 'N/A' : client.systemReputation}}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Firewall policy packets-per-minute</th>
-                                    <td class="table-entry"><span>{{client.firewallPolicyPpm == null ? 'N/A' : client.firewallPolicyPpm}}</span>
-                                    </td>
+										<th>System reputation</th>
+										<td class="table-entry"><span>{{client.systemReputation
+												== null ? 'N/A' : client.systemReputation}}</span></td>
+									</tr>
+									<tr>
+										<th>Firewall policy packets-per-minute</th>
+										<td class="table-entry"><span>{{client.firewallPolicyPpm
+												== null ? 'N/A' : client.firewallPolicyPpm}}</span></td>
 
-                                    <th>Sysinfo total swap space size (KB)</th>
-                                    <td class="table-entry"><span>{{client.sysinfoTotalswap == null ? 'N/A' : client.sysinfoTotalswap}}</span>
-                                    </td>
+										<th>Sysinfo total swap space size (KB)</th>
+										<td class="table-entry"><span>{{client.sysinfoTotalswap
+												== null ? 'N/A' : client.sysinfoTotalswap}}</span></td>
 
-                                    <th>Temperature reputation</th>
-                                    <td class="table-entry"><span>{{client.temperatureReputation == null ? 'N/A' : client.temperatureReputation}}</span>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+										<th>Temperature reputation</th>
+										<td class="table-entry"><span>{{client.temperatureReputation
+												== null ? 'N/A' : client.temperatureReputation}}</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
         <div class="row mx-2">
             <div class="card mb-4 w-100">
                 <div class="card-header"><span class="lead"><i

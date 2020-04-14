@@ -160,4 +160,12 @@ select {
   width: 100%;
   margin-bottom: 15px;
 }
+#clientAlias {
+	background: transparent;
+	border: none;
+	font-size: 15px
+}
+#aliasLabel {
+	font-size: 15px;
+}
 
