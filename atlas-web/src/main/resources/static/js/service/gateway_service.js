@@ -12,7 +12,8 @@ atlas_app.factory('GatewayService', ['$http', '$q', '$location', function ($http
         fetchClientDetails: fetchClientDetails,
         deleteGateway: deleteGateway,
         deleteClient: deleteClient,
-        forceSync: forceSync
+        forceSync: forceSync,
+        updateClientAlias: updateClientAlias
     };
 
     return factory;
@@ -115,7 +116,22 @@ atlas_app.factory('GatewayService', ['$http', '$q', '$location', function ($http
                     deferred.resolve(response.data);
                 },
                 function (errResponse) {
-                    console.error('Error while farce-sync!');
+                    console.error('Error while force-sync!');
+                    deferred.reject(errResponse);
+                }
+            );
+        return deferred.promise;
+    }
+
+    function updateClientAlias(gw_identity, cl_identity, alias) {
+        var deferred = $q.defer();
+        $http.put(REST_SERVICE_URI_GATEWAY + 'client/' + gw_identity + '/' + cl_identity + '/' + alias)
+            .then(
+                function (response) {
+                    deferred.resolve(response.data);
+                },
+                function (errResponse) {
+                    console.error('Error while updating client alias!');
                     deferred.reject(errResponse);
                 }
             );

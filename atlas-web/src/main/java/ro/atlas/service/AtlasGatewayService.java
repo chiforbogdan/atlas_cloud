@@ -44,10 +44,10 @@ public interface AtlasGatewayService {
     /**
      * Get gateway from db
      *
-     * @param gw_identity gateway identity
+     * @param gatewayIdentity gateway identity
      * @return AtlasGateway
      */
-    AtlasGateway getGateway(String gw_identity);
+    AtlasGateway getGateway(String gatewayIdentity);
 
     /**
      * Get all the clients summary of a gateway
@@ -60,25 +60,25 @@ public interface AtlasGatewayService {
     /**
      * Get client details
      *
-     * @param gw_identity gateway psk
-     * @param cl_identity client identity
+     * @param gatewayIdentity gateway psk
+     * @param clientIdentity  client identity
      */
-    AtlasClient getClient(String gw_identity, String cl_identity);
+    AtlasClient getClient(String gatewayIdentity, String clientIdentity);
 
     /**
      * Delete gateway from db
      *
-     * @param gw gateway to be deleted
+     * @param gateway gateway to be deleted
      */
-    void deleteGateway(AtlasGateway gw);
+    void deleteGateway(AtlasGateway gateway);
 
     /**
      * Delete client from db
      *
-     * @param gateway     Gateway
-     * @param cl_identity Client identity
+     * @param gateway        Gateway
+     * @param clientIdentity Client identity
      */
-    void deleteClient(AtlasGateway gateway, String cl_identity);
+    void deleteClient(AtlasGateway gateway, String clientIdentity);
 
     /**
      * Request a full device sync for a gateway
@@ -92,4 +92,8 @@ public interface AtlasGatewayService {
      */
     void updateReputationSamples();
 
+    /**
+     * Edit client's alias
+     */
+    void updateClientAlias(String gatewayIdentity, String clientIdentity, String alias);
 }

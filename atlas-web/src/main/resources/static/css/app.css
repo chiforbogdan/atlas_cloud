@@ -155,16 +155,9 @@ select {
 .table-entry {
     border-right: 1px solid black;
 }
-[contenteditable="true"].single-line {
-    white-space: nowrap;
-    width:200px;
-    overflow: hidden;
+.input-container {
+  display: flex;
+  width: 100%;
+  margin-bottom: 15px;
 }
-[contenteditable="true"].single-line br {
-    display:none;
 
-}
-[contenteditable="true"].single-line * {
-    display:inline;
-    white-space:nowrap;
-}

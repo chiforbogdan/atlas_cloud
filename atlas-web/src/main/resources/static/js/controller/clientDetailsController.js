@@ -6,7 +6,19 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
 	const SYSTEM_LOAD_SCALE = 65536;
     $scope.gw_identity = $route.current.params.id1; //selected gw's psk
     $scope.cl_identity = $route.current.params.id2; //selected client's identity
+    $scope.editAliasSelected = false;
+    $scope.alias = '';
 
+    $scope.setEditAliasSelected = function() {
+        $scope.editAliasSelected = true;
+    };
+
+    $scope.aliasFieldChanged = function(alias) {
+        GatewayService.updateClientAlias($scope.gw_identity, $scope.cl_identity, alias);
+
+        /* hide ok button*/
+        $scope.editAliasSelected = false;
+    };
     function convertSecondsToTime(seconds) {
     	var numDays = Math.floor(seconds / 86400);
     	var numHours = Math.floor((seconds % 86400) / 3600);
@@ -44,6 +56,10 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
                 function (d) {
                      $scope.client = d;
                      $scope.$broadcast('clientDataChangedEvent', $scope.client);
+
+                     /* Set the initial value of the alias*/
+                     if ($scope.alias == '')
+                        $scope.alias = $scope.client.alias;
 
                      /* Scale memory size to KB */
                      if (!isNaN($scope.client.sysinfoBufferram)) {

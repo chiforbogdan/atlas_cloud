@@ -27,7 +27,7 @@
                                     <option value="temperatureReputation">Temperature Reputation</option>
                                 </select>
                             </th>
-                            <th width="15%"> Local IP Address</th>
+                            <th width="15%"> Alias</th>
                             <th width="15%"> Last Register Time</th>
                             <th width="10%"> Status</th>
                             <th width="%4"></th>
@@ -42,8 +42,7 @@
                             <td class="pl-5"><span
                                     ng-bind="selectedOption == 'temperatureReputation' ? c.temperatureReputation : c.systemReputation"></span>
                             </td>
-                            <td><span contenteditable="true" class="single-line"
-                                      id="editable">Client_{{$index+1}}</span></td>
+                            <td><span>{{c.alias == null ? 'N/A' : c.alias}}</span></td>
                             <td><span>{{c.lastRegisterTime == null ? 'N/A' : c.lastRegisterTime}}</span></td>
                             <td><span class="dot"
                                       ng-style="c.registered === 'true' && {'background-color':'green'} || c.registered === 'false' && {'background-color':'red'}"

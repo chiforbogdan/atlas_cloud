@@ -146,17 +146,17 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Override
-    public AtlasGateway getGateway(String gw_identity) {
+    public AtlasGateway getGateway(String gatewayIdentity) {
         AtlasGateway gateway = null;
         try {
-            gateway = gatewayRepository.findByIdentity(gw_identity);
+            gateway = gatewayRepository.findByIdentity(gatewayIdentity);
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
 
         if (gateway == null) {
-            LOG.debug("Gateway with identity " + gw_identity + " not found!");
-            throw new GatewayNotFoundException(gw_identity);
+            LOG.debug("Gateway with identity " + gatewayIdentity + " not found!");
+            throw new GatewayNotFoundException(gatewayIdentity);
         }
 
         return gateway;
@@ -177,48 +177,49 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             return null;
 
         List<AtlasClientSummaryDto> clientSummaryList = new ArrayList<>();
-        
+
         clients.values().forEach((client) -> {
-        	AtlasClientSummaryDto clientSummary = new AtlasClientSummaryDto();
-        	clientSummary.setIdentity(client.getIdentity());
-        	clientSummary.setRegistered(client.getRegistered());
-        	clientSummary.setLastRegisterTime(client.getLastRegisterTime());
-        	clientSummary.setLastKeepAliveTime(client.getLastKeepAliveTime());
-        	clientSummary.setHostname(client.getHostname());
-        	clientSummary.setIpPort(client.getIpPort());
-        	clientSummary.setSystemReputation(client.getSystemReputation());
-        	clientSummary.setTemperatureReputation(client.getTemperatureReputation());
-        	
-        	clientSummaryList.add(clientSummary);
+            AtlasClientSummaryDto clientSummary = new AtlasClientSummaryDto();
+            clientSummary.setIdentity(client.getIdentity());
+            clientSummary.setAlias(client.getAlias());
+            clientSummary.setRegistered(client.getRegistered());
+            clientSummary.setLastRegisterTime(client.getLastRegisterTime());
+            clientSummary.setLastKeepAliveTime(client.getLastKeepAliveTime());
+            clientSummary.setHostname(client.getHostname());
+            clientSummary.setIpPort(client.getIpPort());
+            clientSummary.setSystemReputation(client.getSystemReputation());
+            clientSummary.setTemperatureReputation(client.getTemperatureReputation());
+
+            clientSummaryList.add(clientSummary);
         });
-        
+
         return clientSummaryList;
     }
 
     @Override
-    public AtlasClient getClient(String gw_identity, String cl_identity) {
-        AtlasGateway gateway = getGateway(gw_identity);
+    public AtlasClient getClient(String gatewayIdentity, String clientIdentity) {
+        AtlasGateway gateway = getGateway(gatewayIdentity);
 
-        AtlasClient client = gateway.getClients().get(cl_identity);
+        AtlasClient client = gateway.getClients().get(clientIdentity);
         if (client == null) {
-            LOG.debug("There are no client with identity " + cl_identity + " within gateway with identity " + gw_identity);
-            throw new ClientNotFoundException(cl_identity);
+            LOG.debug("There are no client with identity " + clientIdentity + " within gateway with identity " + clientIdentity);
+            throw new ClientNotFoundException(clientIdentity);
         }
 
         return client;
     }
 
     @Override
-    public void deleteGateway(AtlasGateway gw) {
-        gatewayRepository.delete(gw);
-        
+    public void deleteGateway(AtlasGateway gateway) {
+        gatewayRepository.delete(gateway);
+
         /* Block gateway from connecting to the cloud broker */
         syncPermittedMqttGateways();
     }
 
     @Override
-    public void deleteClient(AtlasGateway gateway, String cl_identity) {
-        gateway.getClients().remove(cl_identity);
+    public void deleteClient(AtlasGateway gateway, String clientIdentity) {
+        gateway.getClients().remove(clientIdentity);
         gatewayRepository.save(gateway);
     }
 
@@ -238,8 +239,10 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         AtlasClient client = gateway.getClients().get(clientInfo.getIdentity());
         if (client == null) {
-            /* If the client is new, set empty history queues */
+            /* Set empty history queues */
             clientInfo.initHistorySamples();
+            /* Set initial alias, client's identity field */
+            clientInfo.setAlias(clientInfo.getIdentity());
 
             gateway.getClients().put(clientInfo.getIdentity(), clientInfo);
         } else
@@ -256,15 +259,15 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setKeepaliveCounter(properties.getKeepaliveCounter());
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		gateway.setLastRegistertTime(dateFormat.format(new Date()));
-		/*
-		 * If the gateway registers now, then mark all clients as offline. The gateway
-		 * should send a full device update.
-		 */
+        gateway.setLastRegistertTime(dateFormat.format(new Date()));
+        /*
+         * If the gateway registers now, then mark all clients as offline. The gateway
+         * should send a full device update.
+         */
         gateway.getClients().forEach((identity, client) -> client.setRegistered("false"));
-        
+
         gateway = gatewayRepository.save(gateway);
-        
+
         /* When gateway is registered also simulate a keep-alive command */
         keepaliveNow(gateway);
     }
@@ -299,16 +302,16 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         boolean shouldSubscribe = mqttService.shouldSubscribeAllTopics();
         LOG.info("Subscribe to all topics again: " + shouldSubscribe);
-        
+
         List<AtlasGateway> gateways = gatewayRepository.findAll();
         gateways.forEach((gateway) -> {
             /* Subscribe to MQTT topic again, if necessary */
             if (shouldSubscribe) {
-				LOG.info("Subscribe again to topic " + gateway.getPsk() + ATLAS_TO_CLOUD_TOPIC
-						+ " for gateway with identity " + gateway.getIdentity() + " (" + gateway.getAlias() + ")");
-				initGateway(gateway);
+                LOG.info("Subscribe again to topic " + gateway.getPsk() + ATLAS_TO_CLOUD_TOPIC
+                        + " for gateway with identity " + gateway.getIdentity() + " (" + gateway.getAlias() + ")");
+                initGateway(gateway);
             } else
-            	decrementKeepalive(gateway);
+                decrementKeepalive(gateway);
         });
     }
 
@@ -340,10 +343,10 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     @Override
     public synchronized void initGateways() {
         LOG.info("Init gateways at application start-up");
-        
+
         /* Sync MQTT credentials */
         syncPermittedMqttGateways();
-        
+
         List<AtlasGateway> gateways = gatewayRepository.findAll();
         gateways.forEach((gateway) -> {
             initGateway(gateway);
@@ -367,78 +370,78 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             e.printStackTrace();
         }
     }
-    
+
     private void syncPermittedMqttGateways() {
-    	List<AtlasUsernamePassDto> usernamePass = new ArrayList<>();
-    	
-    	LOG.info("Set the list of gateways which are allowed to connect to the cloud broker");
-    	
+        List<AtlasUsernamePassDto> usernamePass = new ArrayList<>();
+
+        LOG.info("Set the list of gateways which are allowed to connect to the cloud broker");
+
         List<AtlasGateway> gateways = gatewayRepository.findAll();
         for (AtlasGateway gateway : gateways) {
-			LOG.info("Allow gateway " + gateway.getAlias() + " with identity " + gateway.getIdentity()
-					+ " to connect to cloud broker");
-        	usernamePass.add(new AtlasUsernamePassDto(gateway.getIdentity(), gateway.getPsk()));
+            LOG.info("Allow gateway " + gateway.getAlias() + " with identity " + gateway.getIdentity()
+                    + " to connect to cloud broker");
+            usernamePass.add(new AtlasUsernamePassDto(gateway.getIdentity(), gateway.getPsk()));
         }
-        
+
         /* Sync MQTT credentials */
         mqttService.syncUsernamePass(usernamePass);
     }
 
-	private void updateClientsReputationSamples(AtlasClient client) {
-		double systemReputation = 0;
-		double temperatureReputation = 0;
+    private void updateClientsReputationSamples(AtlasClient client) {
+        double systemReputation = 0;
+        double temperatureReputation = 0;
 
-		LinkedList<AtlasReputationSample> reputationHistory = client.getReputationHistory();
+        LinkedList<AtlasReputationSample> reputationHistory = client.getReputationHistory();
 
-		if (reputationHistory.size() == properties.getMaxHistorySamples()) {
-			/* Remove the first element from queue */
-			reputationHistory.removeFirst();
-		}
+        if (reputationHistory.size() == properties.getMaxHistorySamples()) {
+            /* Remove the first element from queue */
+            reputationHistory.removeFirst();
+        }
 
-		try {
-			systemReputation = Double.parseDouble(client.getSystemReputation());
-			temperatureReputation = Double.parseDouble(client.getTemperatureReputation());
-		} catch (NumberFormatException e) {
-			LOG.error(e.getMessage());
-		}
+        try {
+            systemReputation = Double.parseDouble(client.getSystemReputation());
+            temperatureReputation = Double.parseDouble(client.getTemperatureReputation());
+        } catch (NumberFormatException e) {
+            LOG.error(e.getMessage());
+        }
 
-		/* Add new sample */
-		reputationHistory.addLast(new AtlasReputationSample(new Date(), systemReputation, temperatureReputation));
-	}
+        /* Add new sample */
+        reputationHistory.addLast(new AtlasReputationSample(new Date(), systemReputation, temperatureReputation));
+    }
 
     private void updateFirewallIngressSamples(AtlasClient client) {
         LinkedList<AtlasFirewallSample> ingressFirewallHistory = client.getIngressFirewallHistory();
-    	int passed = 0;
-    	int dropped = 0;
+        int passed = 0;
+        int dropped = 0;
 
         if (ingressFirewallHistory.size() == properties.getMaxHistorySamples())
-        	ingressFirewallHistory.removeFirst();
+            ingressFirewallHistory.removeFirst();
 
         try {
-			passed = Integer.parseInt(client.getFirewallRulePassedPkts());
-			dropped = Integer.parseInt(client.getFirewallRuleDroppedPkts());
-		} catch (NumberFormatException e) {
-			LOG.error(e.getMessage());
-		}
-        
+            passed = Integer.parseInt(client.getFirewallRulePassedPkts());
+            dropped = Integer.parseInt(client.getFirewallRuleDroppedPkts());
+        } catch (NumberFormatException e) {
+            LOG.error(e.getMessage());
+        }
+
         ingressFirewallHistory.addLast(new AtlasFirewallSample(new Date(), passed, dropped));
     }
 
     private void updateFirewallEgressSamples(AtlasClient client) {
         LinkedList<AtlasFirewallSample> egressFirewallHistory = client.getEgressFirewallHistory();
-    	int passed = 0;
-    	int dropped = 0;
+        int passed = 0;
+        int dropped = 0;
 
         if (egressFirewallHistory.size() == properties.getMaxHistorySamples())
-        	egressFirewallHistory.removeFirst();
-        
+            egressFirewallHistory.removeFirst();
+
         try {
-			passed = Integer.parseInt(client.getFirewallTxPassedPkts());
-			dropped = Integer.parseInt(client.getFirewallTxDroppedPkts());
-		} catch (NumberFormatException e) {
-			LOG.error(e.getMessage());
-		}
-        
+            passed = Integer.parseInt(client.getFirewallTxPassedPkts());
+            dropped = Integer.parseInt(client.getFirewallTxDroppedPkts());
+        } catch (NumberFormatException e) {
+            LOG.error(e.getMessage());
+        }
+
         egressFirewallHistory.addLast(new AtlasFirewallSample(new Date(), passed, dropped));
     }
 
@@ -447,17 +450,17 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         for (Map.Entry<String, AtlasClient> entry : clients.entrySet()) {
 
-        	/* Update client history samples only if the client is registered */
-        	if (entry.getValue().getRegistered().equalsIgnoreCase("true")) {
-        		/* Update reputation history samples */
-        		updateClientsReputationSamples(entry.getValue());
+            /* Update client history samples only if the client is registered */
+            if (entry.getValue().getRegistered().equalsIgnoreCase("true")) {
+                /* Update reputation history samples */
+                updateClientsReputationSamples(entry.getValue());
 
-        		/* Update firewall ingress samples */
-        		updateFirewallIngressSamples(entry.getValue());
+                /* Update firewall ingress samples */
+                updateFirewallIngressSamples(entry.getValue());
 
-        		/* Update firewall egress samples */
-        		updateFirewallEgressSamples(entry.getValue());
-        	}
+                /* Update firewall egress samples */
+                updateFirewallEgressSamples(entry.getValue());
+            }
         }
 
         gatewayRepository.save(gateway);
@@ -473,10 +476,24 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         }
 
         Objects.requireNonNull(gateways).forEach((gateway) -> {
-        	/* Update history samples only if the gateway is registered */
-        	if (gateway.isRegistered()) {
-        		updateClientsSamples(gateway);
-        	}
+            /* Update history samples only if the gateway is registered */
+            if (gateway.isRegistered()) {
+                updateClientsSamples(gateway);
+            }
         });
     }
+
+    @Override
+    public void updateClientAlias(String gatewayIdentity, String clientIdentity, String alias) {
+        AtlasGateway gateway = getGateway(gatewayIdentity);
+        AtlasClient client = gateway.getClients().get(clientIdentity);
+        if (client == null) {
+            LOG.debug("There are no client with identity " + clientIdentity + " within gateway with identity " + clientIdentity);
+            throw new ClientNotFoundException(clientIdentity);
+        }
+        client.setAlias(alias);
+
+        gatewayRepository.save(gateway);
+    }
+
 }

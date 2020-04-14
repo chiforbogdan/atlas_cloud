@@ -15,6 +15,7 @@ public class AtlasClient {
 
     /* Client device identity */
     private String identity;
+    private String alias;
 
     /* Client device system info */
     private String registered;
@@ -447,4 +448,12 @@ public class AtlasClient {
 	public void setEgressFirewallHistory(LinkedList<AtlasFirewallSample> egressFirewallHistory) {
 		this.egressFirewallHistory = egressFirewallHistory;
 	}
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 }

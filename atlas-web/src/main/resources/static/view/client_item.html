@@ -4,6 +4,20 @@
             <div class="card w-100">
                 <div class="card-header"><span class="lead"><i
                         class="fas fa-info-circle mr-1"></i> Telemetry </span>
+                    <div class="row ml-3 mt-3 mb-0 pb-0">
+                        <div class="col-sm-10 col-xl-2">
+                            <div class="input-container ml-2" style="border-bottom:1px solid black">
+                                <span class="lead far fa-edit pt-2 pb-2 pr-2 mx-auto" ng-click="setEditAliasSelected()"
+                                      data-toggle="tooltip" title="Edit alias"></span>
+                                <input type="text" class="form-control-plaintext" id="clientAlias" name="clientAlias"
+                                       ng-model="alias" ng-change="setEditAliasSelected()">
+                                <button type="button" class="btn btn-dark" ng-show="editAliasSelected"
+                                        ng-click="aliasFieldChanged(alias)">Ok
+                                </button>
+                            </div>
+                        </div>
+                       <!-- <p>{{alias}}</p>-->
+                    </div>
                 </div>
                 <div class="container-fluid">
                     <div class="row w-100 p-0 m-0">
@@ -24,7 +38,8 @@
                                 <tbody>
                                 <tr>
                                     <th>Client Identity</th>
-                                    <td class="table-entry"><span>{{client.identity == null ? 'N/A' : client.identity}}</span>
+                                    <td class="table-entry">
+                                        <span>{{client.identity == null ? 'N/A' : client.identity}}</span>
                                     </td>
 
                                     <th>Firewall policy maximum payload length</th>
@@ -37,7 +52,8 @@
                                 </tr>
                                 <tr>
                                     <th>Registered</th>
-                                    <td class="table-entry"><span>{{client.registered == null ? 'N/A' : client.registered}}</span>
+                                    <td class="table-entry">
+                                        <span>{{client.registered == null ? 'N/A' : client.registered}}</span>
                                     </td>
 
                                     <th>Sysinfo uptime</th>
@@ -91,7 +107,8 @@
                                 </tr>
                                 <tr>
                                     <th>Kernel information</th>
-                                    <td class="table-entry"><span>{{client.kernelInfo == null ? 'N/A' : client.kernelInfo}}</span>
+                                    <td class="table-entry">
+                                        <span>{{client.kernelInfo == null ? 'N/A' : client.kernelInfo}}</span>
                                     </td>
 
                                     <th>Sysinfo load average (15 minutes)</th>
@@ -164,7 +181,8 @@
         </div>
         <div class="row mx-2">
             <div class="card mb-4 w-100">
-                <div class="card-header"><span class="lead"><i class="fas fa-chart-area mr-1"></i>Firewall data analysis</span>
+                <div class="card-header"><span class="lead"><i
+                        class="fas fa-chart-area mr-1"></i>Firewall data analysis</span>
                 </div>
                 <div class="card-body mx-auto w-100">
                     <div class="row">
@@ -184,7 +202,8 @@
         </div>
         <div class="row mx-2">
             <div class="card mb-4 w-100">
-                <div class="card-header"><span class="lead"><i class="fas fa-chart-area mr-1"></i>Reputation data analysis</span>
+                <div class="card-header"><span class="lead"><i
+                        class="fas fa-chart-area mr-1"></i>Reputation data analysis</span>
                 </div>
                 <div class="card-body mx-auto w-100">
                     <select ng-model="reputationSelectedInterval" ng-change="reputationSelectedIntervalChanged()">

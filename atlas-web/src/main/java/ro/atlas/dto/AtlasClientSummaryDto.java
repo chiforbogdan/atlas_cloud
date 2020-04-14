@@ -3,6 +3,7 @@ package ro.atlas.dto;
 public class AtlasClientSummaryDto {
 	 /* Client device identity */
     private String identity;
+    private String alias;
     
     /* Client device system info */
     private String registered;
@@ -81,5 +82,13 @@ public class AtlasClientSummaryDto {
 
 	public void setIpPort(String ipPort) {
 		this.ipPort = ipPort;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 }

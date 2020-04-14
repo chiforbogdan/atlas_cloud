@@ -48,9 +48,9 @@
                         </tr>
                         <tr ng-switch-when="true">
                             <td></td>
-                            <td><span> <b>Last registered time:</b> {{g.lastRegistertTime}}</span></td>
-                            <td><span> <b>Last keep-alive time:</b> {{g.lastKeepaliveTime}}</span></td>
-                            <td><span> <b>Keep-alive counter:</b>  {{g.keepaliveCounter}}</span></td>
+                            <td><span> <b>Last registered time:</b> {{g.lastRegistertTime == null ? 'N/A' : g.lastRegistertTime}}</span></td>
+                            <td><span> <b>Last keep-alive time:</b> {{g.lastKeepaliveTime == null ? 'N/A' : g.lastKeepaliveTime}}</span></td>
+                            <td><span> <b>Keep-alive counter:</b>  {{g.keepaliveCounter == null ? 'N/A' : g.keepaliveCounter}}</span></td>
                             <td></td>
                         </tr>
                         </tbody>
