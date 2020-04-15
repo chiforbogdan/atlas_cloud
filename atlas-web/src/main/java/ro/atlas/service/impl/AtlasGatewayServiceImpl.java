@@ -208,7 +208,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Override
-    public void deleteGateway(AtlasGateway gateway) {
+    public synchronized void deleteGateway(AtlasGateway gateway) {
         gatewayRepository.delete(gateway);
 
         /* Block gateway from connecting to the cloud broker */
@@ -216,7 +216,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Override
-    public void deleteClient(AtlasGateway gateway, String clientIdentity) {
+    public synchronized void deleteClient(AtlasGateway gateway, String clientIdentity) {
         gateway.getClients().remove(clientIdentity);
         gatewayRepository.save(gateway);
     }
@@ -478,7 +478,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     }
 
     @Override
-    public void updateClientAlias(String gatewayIdentity, String clientIdentity, String alias) {
+    public synchronized void updateClientAlias(String gatewayIdentity, String clientIdentity, String alias) {
         AtlasGateway gateway = getGateway(gatewayIdentity);
         AtlasClient client = gateway.getClients().get(clientIdentity);
         if (client == null) {

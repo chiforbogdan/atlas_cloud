@@ -7,13 +7,14 @@
 					<span class="lead"><i class="fas fa-info-circle mr-1"></i>
 						Telemetry </span>
 					<div>
-						<span id="aliasLabel"><b>Device alias:&nbsp;</b></span> <input
-							type="text" data-toggle="tooltip" title="Edit device alias"
+						<span id="aliasLabel"><b>Device alias:&nbsp;</b></span>
+						<input type="text" data-toggle="tooltip" title="Edit device alias"
 							id="clientAlias" name="clientAlias" ng-model="alias"
-							ng-change="setEditAliasSelected()" size="36" maxlength="36">
+							ng-change="setEditAliasSelected()" placeholder="Enter the client device alias"
+							size="36" maxlength="36">
 						<button type="button" class="btn btn-dark  btn-sm"
-							ng-show="editAliasSelected" ng-click="aliasFieldChanged(alias)">Save
-							alias</button>
+							ng-show="editAliasSelected" ng-click="aliasFieldChanged(alias)"
+							ng-disabled="alias.length == 0">Save alias</button>
 					</div>
 				</div>
 				<div class="container-fluid">
