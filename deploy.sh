@@ -34,10 +34,17 @@ chown root:root $DEPLOY_DIR/atlas_broker_credentials_exec
 chmod 4755 $DEPLOY_DIR/atlas_broker_credentials_exec
 
 echo "******** Deploy Mosquitto configuration file ********"
-cp misc/config/mosquitto.conf $MOSQUITTO_CONF_DIR
+cp misc/config/mosquitto/mosquitto.conf $MOSQUITTO_CONF_DIR
 chown root:root $MOSQUITTO_CONF_DIR/mosquitto.conf
 chmod 644 $MOSQUITTO_CONF_DIR/mosquitto.conf
 # Create empty password file
 echo -n > $MOSQUITTO_CONF_DIR/mosquitto.passwd
 chown root:root $MOSQUITTO_CONF_DIR/mosquitto.passwd
 chmod 644 $MOSQUITTO_CONF_DIR/mosquitto.passwd
+
+# Create certs directory
+mkdir $MOSQUITTO_CONF_DIR/certs
+chown root:root $MOSQUITTO_CONF_DIR/certs
+chmod 700 $MOSQUITTO_CONF_DIR/certs
+
+

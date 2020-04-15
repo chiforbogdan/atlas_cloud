@@ -33,13 +33,11 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	private static final String DUMMY_CREDENTIAL = "dummy-";
 	private static final int DUMMY_PASSWORD_LEN = 64;
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasMqttServiceImpl.class);
-	private static final int KEEPALIVE_SEC = 60;
+	private static final int KEEPALIVE_SEC = 600;
 	private MqttClient client;
 	private String clientId;
 	private MemoryPersistence persistence = new MemoryPersistence();
-	
 	private SecureRandom random = new SecureRandom();
-
 	private @Autowired AtlasGatewayService gatewayService;
 	private @Autowired AtlasProperties properties;
 

@@ -23,8 +23,7 @@ public class CronServiceImpl implements CronService {
         gatewayService.keepaliveTask();
     }
 
-    //@Scheduled(fixedRateString = "${atlas-cloud.reputation-history-update-min}")
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRateString = "${atlas-cloud.samples-update-min}")
     @Override
     public void updateReputationSamplesTask() {
         LOG.info("Update reputation samples for clients");
