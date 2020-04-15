@@ -18,7 +18,6 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +55,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     private @Autowired
     AtlasProperties properties;
 
-    @Transactional
     @Override
     public synchronized void addGateway(AtlasGatewayAddDto gatewayAddDto) {
         LOG.info("Adding gateway info...");
@@ -223,7 +221,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gatewayRepository.save(gateway);
     }
 
-    @Transactional
     private void updateCommand(AtlasGateway gateway, String cmdPayload) {
         LOG.info("Update device for gateway with identity " + gateway.getIdentity());
 
@@ -251,7 +248,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gatewayRepository.save(gateway);
     }
 
-    @Transactional
     private void registerNow(AtlasGateway gateway) {
         LOG.info("Set register state for gateway with identity " + gateway.getIdentity());
 
@@ -272,7 +268,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         keepaliveNow(gateway);
     }
 
-    @Transactional
     private void keepaliveNow(AtlasGateway gateway) {
         LOG.info("Set keep-alive state for gateway with identity " + gateway.getIdentity());
 
@@ -283,7 +278,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gatewayRepository.save(gateway);
     }
 
-    @Transactional
     private void decrementKeepalive(AtlasGateway gateway) {
         LOG.info("Decrement keep-alive counter for gateway with identity " + gateway.getIdentity());
 
@@ -315,7 +309,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         });
     }
 
-    @Transactional
     private void initGateway(AtlasGateway gateway) {
         LOG.info("Init gateway with identity " + gateway.getIdentity());
 
@@ -474,12 +467,14 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             LOG.error(e.getMessage());
         }
 
-        Objects.requireNonNull(gateways).forEach((gateway) -> {
-            /* Update history samples only if the gateway is registered */
-            if (gateway.isRegistered()) {
-                updateClientsSamples(gateway);
-            }
-        });
+		if (gateways != null) {
+			gateways.forEach((gateway) -> {
+				/* Update history samples only if the gateway is registered */
+				if (gateway.isRegistered()) {
+					updateClientsSamples(gateway);
+				}
+			});
+		}
     }
 
     @Override
