@@ -3,6 +3,8 @@ package ro.atlas.service.impl;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,12 +30,15 @@ import ro.atlas.service.AtlasMqttService;
 @Component
 public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListener, MqttCallback {
 	private static final String MOSQUITTO_PASSWD_TMP = "mosquitto.passwd.tmp";
-	private static final String DUMMY_CREDENTIAL_ENTRY = "dummy";
+	private static final String DUMMY_CREDENTIAL = "dummy-";
+	private static final int DUMMY_PASSWORD_LEN = 64;
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasMqttServiceImpl.class);
 	private static final int KEEPALIVE_SEC = 60;
 	private MqttClient client;
 	private String clientId;
 	private MemoryPersistence persistence = new MemoryPersistence();
+	
+	private SecureRandom random = new SecureRandom();
 
 	private @Autowired AtlasGatewayService gatewayService;
 	private @Autowired AtlasProperties properties;
@@ -73,7 +78,16 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 
 	@Override
 	public void connectionLost(Throwable cause) {
-		LOG.info("+++++++++++++++++=Connection to server is lost: " + cause.getMessage());
+		LOG.info("Connection to server is lost: " + cause.getMessage());
+
+		// TODO remove this code
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		System.exit(1);
 	}
 
 	@Override
@@ -127,7 +141,12 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 			 * Mosquitto requires at least one entry in the credentials file, otherwise it
 			 * will allow any device to log in
 			 */
-			writer.append(DUMMY_CREDENTIAL_ENTRY + ":" + DUMMY_CREDENTIAL_ENTRY + "\n");
+			byte[] bytes = new byte[DUMMY_PASSWORD_LEN];
+			random.nextBytes(bytes);
+			writer.append(DUMMY_CREDENTIAL + UUID.randomUUID().toString() + ":"
+					+ Base64.getEncoder().encodeToString(bytes) + "\n");
+			
+			
 			for (AtlasUsernamePassDto usernamePass : usernamePassList) {
 				LOG.info("Allow the following MQTT username/password: " + usernamePass.getUsername() + ":"
 						+ usernamePass.getPassword());
