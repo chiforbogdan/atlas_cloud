@@ -43,7 +43,7 @@ chown root:root $MOSQUITTO_CONF_DIR/mosquitto.passwd
 chmod 644 $MOSQUITTO_CONF_DIR/mosquitto.passwd
 
 # Create certs directory
-mkdir $MOSQUITTO_CONF_DIR/certs
+mkdir -p $MOSQUITTO_CONF_DIR/certs
 chown root:root $MOSQUITTO_CONF_DIR/certs
 chmod 700 $MOSQUITTO_CONF_DIR/certs
 

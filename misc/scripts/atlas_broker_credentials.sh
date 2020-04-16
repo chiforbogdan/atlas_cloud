@@ -15,6 +15,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Set R/W permission to credentials file
+chmod 644 $MOSQUITTO_PASSWD_FILE_PATH
+if [ $? -ne 0 ]; then
+    echo "An error occured when setting R/W permissions to the mosquitto.passwd file"
+    exit 1
+fi
+
 # If there are multiple mosquitto brokers installed, choose the one which is a service
 pid=`systemctl show --property MainPID --value mosquitto`
 if [ $? -ne 0 ]; then
