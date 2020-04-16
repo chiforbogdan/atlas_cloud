@@ -1,6 +1,13 @@
 # ATLAS IoT Security Cloud
-TODO add description
-
+ATLAS IoT Security Cloud is a SaaS portal used to manage ATLAS gateways and ATLAS client devices. The portal permits visualizing gateways and IoT client device telemetry data in *real-time*. More specifically, the portal allows the following main functions:
+* add/remove gateways from the platform using a unique identity and a pre-shared key
+* visualize the gateway connection health
+* visualize the IoT clients connected to the gateway
+* visualize the IoT connection health with the gateway
+* visualize the IoT device system telemetry data (e.g. number of processes, used memory)
+* visualize the IoT device network information: statistics collected from the IoT device and firewall statistics (ingress/egress passed and dropped packets) collected from the gateway MQTT firewall. 
+* visualize the IoT device reputation: system reputation (evaluates the node behavior in the system using metrics like connection health and number of packets accepted by other nodes) and sensor reputation (evaluates the quality of sensor generated data).
+The ATLAS Cloud portal communicates with the gateways using a TLS secured MQTT protocol and the user-interface web application is accessed by an administrator using a client digital certificate.
 ---
 
 ## Prerequisites
@@ -22,7 +29,7 @@ sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
 
 ## Configuration
  The following elements must be configured before building and deploying the application:
-1. Validate the following fields from the `application.properties` file
+1. Validate the following fields from the `atlas-web/src/main/resources/application.properties` file
  - The following field indicates the path mosquitto_passwd utility tool (replace this if necessary). The full path of the binary can be found using the following command `which mosquitto_passwd`.
 ```
 atlas-cloud.passwordTool = /usr/local/bin/mosquitto_passwd
@@ -61,7 +68,7 @@ The PKI script will create the following directories:
 
 ## Deployment
 1. Deploy the *Mosquitto* files
-* Run the `deploy.sh` script, which will install a credentials reload script and a wrapper executable for this script in `usr/local/sbin`. This script will also install the mosquitto config file in `/etc/mosquitto` directory.
+* Run the `deploy.sh` script, which will install a *credentials reload script* and a wrapper executable for the *credentials reload script* in `usr/local/sbin`. The `deploy.sh` script will also install the mosquitto config file in `/etc/mosquitto` directory.
 * Copy the server certificate and private key into `/etc/mosquitto/certs` directory as follows:
 ```
 cp misc/scripts/pki/artifacts/servers/<FQDN>.chain.pem /etc/mosquitto/certs/server.chain.pem
@@ -77,4 +84,5 @@ cp misc/scripts/pki/artifacts/servers/<FQDN>.chain.pem <Tomcat dir>/conf/server.
 cp misc/scripts/pki/artifacts/servers/<FQDN>.crt.pem <Tomcat dir>/conf/server.crt.pem
 cp misc/scripts/pki/artifacts/servers/<FQDN>.key.pem <Tomcat dir>/conf/server.key.pem
 ```
-
+5. Start the Tomcat server using `bin/startup.sh`.
+6. Install the client certificate `misc/scripts/pki/artifacts/clients/<Fullname>.p12` into a browser in order to access the web application.
