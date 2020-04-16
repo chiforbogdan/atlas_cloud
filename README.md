@@ -1,4 +1,4 @@
-# ATLAS IoT Security cloud
+# ATLAS IoT Security Cloud
 TODO add description
 
 ---
@@ -10,19 +10,19 @@ TODO add description
 ```
 sudo apt-get install libapr1 libapr1-dev libtcnative-1
 ```
-  
- - Mosquitto MQTT broker 1.6.8
- -- In order to install the required version, the following repository must be added:
+ 
+ - Mosquitto MQTT broker 1.6.8+
+ -- In order to install the required version, the following repository must be added (Mosquitto version can be verified using `/usr/sbi/mosquitto -v`):
 ```
 sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
 ```
-- Mosquitto client tools must be installed (mosquitto_passwd tool is required)
+- Mosquitto client tools must be installed (mosquitto_passwd tool is required). These should be installed along with the Mosquitto broker.
 
 ---
 
 ## Configuration
  The following elements must be configured before building and deploying the application:
-1. Validate the following fields from the application.properties file
+1. Validate the following fields from the `application.properties` file
  - The following field indicates the path mosquitto_passwd utility tool (replace this if necessary):
 ```
 atlas-cloud.passwordTool = /usr/local/bin/mosquitto_passwd
@@ -32,9 +32,23 @@ atlas-cloud.passwordTool = /usr/local/bin/mosquitto_passwd
 atlas-cloud.tmpDir = /tmp
 ```
 2. Generate the server and client certificates along with the certificate chain. The web application uses a server certificate and a client certificate (mutual TLS authentication).
-The following script must be executed to generate the certificates.
-`misc/scripts/pki/pki_init.sh`
-This script will generate the following certificates: a ROOT CA, an intermediate CA which signs the server certificate, an intermediate CA which signs the client certificate, the server certificate and the client certificate. The **pkit_init.sh** script will prompt a set of default information for the certificate authorities, a FQDN for the server certificate and a fullname (with no spaces) for the client certificate.
+The following script must be executed to generate the certificates: `misc/scripts/pki/pki_init.sh`.
+This script will generate the following certificates: a *ROOT CA*, an *intermediate CA (server sub-CA)* which signs the server certificate, an *intermediate CA (client sub-CA)* which signs the client certificate, the *server certificate* and the *client certificate*.
+The `pkit_init.sh` script will prompt for a set of default information for the certificate authorities (can be used as default), a **FQDN** for the server certificate and a **fullname (with no spaces)** for the client certificate.
+The PKI script will create the following directories:
+* `misc/scripts/pki/ca` - this directory holds the certificate and private keys for the ROOT CA, server sub-CA and client sub-CA
+* `misc/scripts/pki/artifacts` - this directory holds the generate server and client certificates as follows:
+  * `client.truststore.pem` - this file contains the certificate truststore (contains the ROOT certificate and the server sub-CA certificate) which must be deployed on the **ATLAS Gateway** side.
+  * `server.truststore.pem` - this file contains the certificate truststore (contains the ROOT certificate and the client sub-CA certificate) which must be deployed on the **Tomcat server**. This is used to valide the client certificate which accesses the web application using mutual authentication TLS.
+  * `clients` - this directory contains one or more client certificate directories which are named with the client **Fullname**. Each client certificate directory contains the following files:
+    * `<Fullname>.chain.pem` - this file contains the certificate chain for the client (contains the ROOT certificate and the client sub-CA certificate)
+    * `<Fullname>`.crt.pem` - this file contains the client certificate
+    * `<Fullname>`.key.pem` - this file contains the client private key
+    * `<Fullname>.p12` - this file contains the client certificate and the private key in a PKCS#12 format (encrypted with the password required by the `pki_init.sh` script)
+  * `servers` - this directory contains one or more server certificate directories which are named with the server **FQDN**. Each server certificate directory contains the following file:
+    * `<FQDN>.chain.pem` - this file contains the certificate chain for the client (contains the ROOT certificate and the server sub-CA certificate)
+    * `<FQDN>.crt.pem` - this file contains the server certificate
+    * `<FQDN>.key.pem` - this file contains the server private key
 ---
 
 ## Build
@@ -45,5 +59,7 @@ This script will generate the following certificates: a ROOT CA, an intermediate
 
 ---
 
-## Deployment 
-Copy the generated WAR application atlas-cloud-1.0.war into the Tomcat webapps directory as ROOT.war
+## Deployment
+1. Copy the generated WAR application **atlas-cloud-1.0.war** into the Tomcat webapps directory as ROOT.war
+	
+
