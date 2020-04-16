@@ -1,5 +1,5 @@
 # ATLAS IoT Security Cloud
-ATLAS IoT Security Cloud is a SaaS portal used to manage ATLAS gateways and ATLAS client devices. The portal permits visualizing gateways and IoT client device telemetry data in *real-time*. More specifically, the portal allows the following main functions:
+ATLAS IoT Security Cloud is a SaaS portal used to manage ATLAS gateways and ATLAS client devices. The portal permits visualizing gateways and IoT client device telemetry data in **real-time**. More specifically, the portal allows the following main functions:
 * add/remove gateways from the platform using a unique identity and a pre-shared key
 * visualize the gateway connection health
 * visualize the IoT clients connected to the gateway
@@ -7,7 +7,10 @@ ATLAS IoT Security Cloud is a SaaS portal used to manage ATLAS gateways and ATLA
 * visualize the IoT device system telemetry data (e.g. number of processes, used memory)
 * visualize the IoT device network information: statistics collected from the IoT device and firewall statistics (ingress/egress passed and dropped packets) collected from the gateway MQTT firewall. 
 * visualize the IoT device reputation: system reputation (evaluates the node behavior in the system using metrics like connection health and number of packets accepted by other nodes) and sensor reputation (evaluates the quality of sensor generated data).
+* inspect the network statistics and reputation history in a real-time updated chart
+
 The ATLAS Cloud portal communicates with the gateways using a TLS secured MQTT protocol and the user-interface web application is accessed by an administrator using a client digital certificate.
+
 ---
 
 ## Prerequisites
@@ -17,7 +20,8 @@ The ATLAS Cloud portal communicates with the gateways using a TLS secured MQTT p
 ```
 sudo apt-get install libapr1 libapr1-dev libtcnative-1
 ```
- 
+
+ - MongoDB
  - Mosquitto MQTT broker 1.6.8+
  -- In order to install the required version, the following repository must be added (Mosquitto version can be verified using `/usr/sbi/mosquitto -v`):
 ```
