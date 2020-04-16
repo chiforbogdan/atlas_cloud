@@ -23,7 +23,7 @@ sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
 ## Configuration
  The following elements must be configured before building and deploying the application:
 1. Validate the following fields from the `application.properties` file
- - The following field indicates the path mosquitto_passwd utility tool (replace this if necessary):
+ - The following field indicates the path mosquitto_passwd utility tool (replace this if necessary). The full path of the binary can be found using the following command `which mosquitto_passwd`.
 ```
 atlas-cloud.passwordTool = /usr/local/bin/mosquitto_passwd
 ```
@@ -60,6 +60,21 @@ The PKI script will create the following directories:
 ---
 
 ## Deployment
-1. Copy the generated WAR application **atlas-cloud-1.0.war** into the Tomcat webapps directory as ROOT.war
-	
+1. Deploy the *Mosquitto* files
+* Run the `deploy.sh` script, which will install a credentials reload script and a wrapper executable for this script in `usr/local/sbin`. This script will also install the mosquitto config file in `/etc/mosquitto` directory.
+* Copy the server certificate and private key into `/etc/mosquitto/certs` directory as follows:
+```
+cp misc/scripts/pki/artifacts/servers/<FQDN>.chain.pem /etc/mosquitto/certs/server.chain.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>.crt.pem /etc/mosquitto/certs/server.crt.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>.key.pem /etc/mosquitto/certs/server.key.pem
+```
+* Restart Mosquitto using `systemctl restart mosquitto`. Verify that Mosquitto is running using `systemctl status mosquitto` and that Mosquitto is listening on ports 1883 and 8883 using `sudo netstat -plotnu | grep 1883` and `sudo netstat -plotnu | grep 8883`
+2. Copy the generated WAR application **atlas-cloud-1.0.war** into the Tomcat webapps directory as ROOT.war
+3. Copy the Tomcat config from `misc/config/tomcat/server.xml` into Tomcat **conf** directory.
+4. Copy server certificate and private key into the Tomcat **conf** directory as follows:
+```
+cp misc/scripts/pki/artifacts/servers/<FQDN>.chain.pem <Tomcat dir>/conf/server.chain.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>.crt.pem <Tomcat dir>/conf/server.crt.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>.key.pem <Tomcat dir>/conf/server.key.pem
+```
 
