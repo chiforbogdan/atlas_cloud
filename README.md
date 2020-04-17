@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/badge/license-GPL%20v3.0%20or%20later-brightgreen.svg)](https://github.com/chiforbogdan/atlas_cloud/blob/master/LICENSE)
+
 # ATLAS IoT Security Platform - general information
 ATLAS consists in a 3-tier IoT security platform which offers the following modules:
 * A lightweight software client which runs on the IoT device ([Atlas_client])
@@ -10,7 +12,7 @@ On the IoT data plane layer, ATLAS provides an API which can be integrated with 
 * Send packet statistics to the gateway and cloud
 * Get the device with the most trusted reputation within a category and provide reputation feedback
 
-# ATLAS IoT Security Cloud
+## ATLAS IoT Security Cloud
 ATLAS IoT Security Cloud is a SaaS portal used to manage ATLAS gateways and ATLAS client devices. The portal permits visualizing gateways and IoT client device telemetry data in **real-time**. More specifically, the portal allows the following main functions:
 * add gateways to the platform using a unique identity and a pre-shared key
 * visualize the gateway connection health
