@@ -1,8 +1,8 @@
 # ATLAS IoT Security Platform - general information
 ATLAS consists in a 3-tier IoT security platform which offers the following modules:
-* A lightweight software client which runs on the IoT device
-* A gateway software which runs on the network edge and manages all the clients from the network
-* A cloud platform which allows managing the gateways and the clients
+* A lightweight software client which runs on the IoT device ([Atlas_client])
+* A gateway software which runs on the network edge and manages all the clients from the network ([Atlas_gateway])
+* A cloud platform which allows managing the gateways and the clients ([Atlas_cloud])
 
 ATLAS provides security management for a fleet of IoT devices and enables a reputation based Sensing-as-a-service platform. It also offers the capability to inspect the IoT device telemetry values and supports the CoAP lightweight protocol for the communication between the IoT device and the gateway.
 On the IoT data plane layer, ATLAS provides an API which can be integrated with a user application and offers the following capabilities:
@@ -34,9 +34,13 @@ sudo apt-get install libapr1 libapr1-dev libtcnative-1
 ```
 
  - MongoDB
+```
+    sudo apt-get install mongodb
+```
  - Mosquitto MQTT broker 1.6.8+. In order to install the required version, the following repository must be added (Mosquitto version can be verified using `/usr/sbin/mosquitto -v`):
 ```
 sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
+sudo apt-get install mosquitto
 ```
 - Mosquitto client tools must be installed (mosquitto_passwd tool is required). These should be installed along with the Mosquitto broker.
 
@@ -54,18 +58,22 @@ atlas-cloud.passwordTool = /usr/local/bin/mosquitto_passwd
 atlas-cloud.tmpDir = /tmp
 ```
 2. Generate the server and client certificates along with the certificate chain. The web application uses a server certificate and a client certificate (mutual TLS authentication).
-The following script must be executed to generate the certificates: `misc/scripts/pki/pki_init.sh`.
+The following script must be executed to generate the certificates:
+```
+cd misc/scripts/pki
+pki_init.sh
+```
 This script will generate the following certificates: a *ROOT CA*, an *intermediate CA (server sub-CA)* which signs the server certificate, an *intermediate CA (client sub-CA)* which signs the client certificate, the *server certificate* and the *client certificate*.
 The `pkit_init.sh` script will prompt for a set of default information for the certificate authorities (can be used as default), a **FQDN** for the server certificate and a **fullname (with no spaces)** for the client certificate.
 The PKI script will create the following directories:
 * `misc/scripts/pki/ca` - this directory holds the certificate and private keys for the ROOT CA, server sub-CA and client sub-CA
-* `misc/scripts/pki/artifacts` - this directory holds the generate server and client certificates as follows:
+* `misc/scripts/pki/artifacts` - this directory holds the generated server and client certificates as follows:
   * `client.truststore.pem` - this file contains the certificate truststore (contains the ROOT certificate and the server sub-CA certificate) which must be deployed on the **ATLAS Gateway** side.
   * `server.truststore.pem` - this file contains the certificate truststore (contains the ROOT certificate and the client sub-CA certificate) which must be deployed on the **Tomcat server**. This is used to valide the client certificate which accesses the web application using mutual authentication TLS.
   * `clients` - this directory contains one or more client certificate directories which are named with the client **Fullname**. Each client certificate directory contains the following files:
     * `<Fullname>.chain.pem` - this file contains the certificate chain for the client (contains the ROOT certificate and the client sub-CA certificate)
-    * `<Fullname>`.crt.pem` - this file contains the client certificate
-    * `<Fullname>`.key.pem` - this file contains the client private key
+    * `<Fullname>.crt.pem` - this file contains the client certificate
+    * `<Fullname>.key.pem` - this file contains the client private key
     * `<Fullname>.p12` - this file contains the client certificate and the private key in a PKCS#12 format (encrypted with the password required by the `pki_init.sh` script)
   * `servers` - this directory contains one or more server certificate directories which are named with the server **FQDN**. Each server certificate directory contains the following file:
     * `<FQDN>.chain.pem` - this file contains the certificate chain for the client (contains the ROOT certificate and the server sub-CA certificate)
@@ -76,6 +84,7 @@ The PKI script will create the following directories:
 ## Build
   The application is build using the following command:
   ```
+    cd atlas-web
     mvn clean package -DskipTests
   ```
 
@@ -86,9 +95,9 @@ The PKI script will create the following directories:
 * Run the `deploy.sh` script, which will install a *credentials reload script* and a wrapper executable for the *credentials reload script* in `usr/local/sbin`. The `deploy.sh` script will also install the mosquitto config file in `/etc/mosquitto` directory.
 * Copy the server certificate and private key into `/etc/mosquitto/certs` directory as follows:
 ```
-cp misc/scripts/pki/artifacts/servers/<FQDN>.chain.pem /etc/mosquitto/certs/server.chain.pem
-cp misc/scripts/pki/artifacts/servers/<FQDN>.crt.pem /etc/mosquitto/certs/server.crt.pem
-cp misc/scripts/pki/artifacts/servers/<FQDN>.key.pem /etc/mosquitto/certs/server.key.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>/<FQDN>.chain.pem /etc/mosquitto/certs/server.chain.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>/<FQDN>.crt.pem /etc/mosquitto/certs/server.crt.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>/<FQDN>.key.pem /etc/mosquitto/certs/server.key.pem
 ```
 * Restart Mosquitto using `systemctl restart mosquitto`. Verify that Mosquitto is running using `systemctl status mosquitto` and that Mosquitto is listening on ports 1883 and 8883 using `sudo netstat -plotnu | grep 1883` and `sudo netstat -plotnu | grep 8883`
 2. Copy the generated WAR application **atlas-cloud-1.0.war** into the Tomcat webapps directory as **ROOT.war**
@@ -96,9 +105,29 @@ cp misc/scripts/pki/artifacts/servers/<FQDN>.key.pem /etc/mosquitto/certs/server
 4. Copy the server certificate and private key along with the server truststore into the Tomcat **conf** directory as follows:
 ```
 cp misc/scripts/pki/artifacts/server.truststore.pem <Tomcat dir>/conf/server.truststore.pem
-cp misc/scripts/pki/artifacts/servers/<FQDN>.chain.pem <Tomcat dir>/conf/server.chain.pem
-cp misc/scripts/pki/artifacts/servers/<FQDN>.crt.pem <Tomcat dir>/conf/server.crt.pem
-cp misc/scripts/pki/artifacts/servers/<FQDN>.key.pem <Tomcat dir>/conf/server.key.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>/<FQDN>.chain.pem <Tomcat dir>/conf/server.chain.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>/<FQDN>.crt.pem <Tomcat dir>/conf/server.crt.pem
+cp misc/scripts/pki/artifacts/servers/<FQDN>/<FQDN>.key.pem <Tomcat dir>/conf/server.key.pem
 ```
 5. Start the Tomcat server using `bin/startup.sh` from the Tomcat directory.
-6. Install the client certificate `misc/scripts/pki/artifacts/clients/<Fullname>.p12` into a browser in order to access the web application.
+6. Install the client certificate `misc/scripts/pki/artifacts/clients/<Fullname>/<Fullname>.p12` into a browser in order to access the web application.
+
+#### Authors
+ATLAS Cloud was developed by:
+* Bogdan-Cosmin Chifor
+* Mirabela Medvei
+
+ATLAS project is sponsored by [UEFISCDI].
+
+----
+
+#### License
+GNU General Public License v3.0 or later.
+
+See LICENSE file to read the full text.
+
+[Atlas_client]: https://github.com/chiforbogdan/atlas_client
+[Atlas_gateway]: https://github.com/chiforbogdan/atlas_gateway
+[Atlas_cloud]: https://github.com/chiforbogdan/atlas_cloud
+[UEFISCDI]: https://uefiscdi.gov.ro/
+
