@@ -1,12 +1,24 @@
+# ATLAS IoT Security Platform - general information
+ATLAS consists in a 3-tier IoT security platform which offers the following modules:
+* A lightweight software client which runs on the IoT device
+* A gateway software which runs on the network edge and manages all the clients from the network
+* A cloud platform which allows managing the gateways and the clients
+
+ATLAS provides security management for a fleet of IoT devices and enables a reputation based Sensing-as-a-service platform. It also offers the capability to inspect the IoT device telemetry values and supports the CoAP lightweight protocol for the communication between the IoT device and the gateway.
+On the IoT data plane layer, ATLAS provides an API which can be integrated with a user application and offers the following capabilities:
+* Install a firewall rule on the gateway side
+* Send packet statistics to the gateway and cloud
+* Get the device with the most trusted reputation within a category and provide reputation feedback
+
 # ATLAS IoT Security Cloud
 ATLAS IoT Security Cloud is a SaaS portal used to manage ATLAS gateways and ATLAS client devices. The portal permits visualizing gateways and IoT client device telemetry data in **real-time**. More specifically, the portal allows the following main functions:
-* add/remove gateways from the platform using a unique identity and a pre-shared key
+* add gateways to the platform using a unique identity and a pre-shared key
 * visualize the gateway connection health
 * visualize the IoT clients connected to the gateway
-* visualize the IoT connection health with the gateway
-* visualize the IoT device system telemetry data (e.g. number of processes, used memory)
-* visualize the IoT device network information: statistics collected from the IoT device and firewall statistics (ingress/egress passed and dropped packets) collected from the gateway MQTT firewall. 
-* visualize the IoT device reputation: system reputation (evaluates the node behavior in the system using metrics like connection health and number of packets accepted by other nodes) and sensor reputation (evaluates the quality of sensor generated data).
+* visualize the IoT client connection health with the gateway
+* visualize the IoT client system telemetry data (e.g. number of processes, used memory)
+* visualize the IoT client network information: statistics collected from the IoT device and firewall statistics (ingress/egress passed and dropped packets) collected from the gateway MQTT firewall. 
+* visualize the IoT device reputation: system reputation (evaluates the client behavior in the system using metrics like connection health and number of packets accepted by other nodes) and sensor reputation (evaluates the quality of sensor generated data).
 * inspect the network statistics and reputation history in a real-time updated chart
 
 The ATLAS Cloud portal communicates with the gateways using a TLS secured MQTT protocol and the user-interface web application is accessed by an administrator using a client digital certificate.
@@ -22,8 +34,7 @@ sudo apt-get install libapr1 libapr1-dev libtcnative-1
 ```
 
  - MongoDB
- - Mosquitto MQTT broker 1.6.8+
- -- In order to install the required version, the following repository must be added (Mosquitto version can be verified using `/usr/sbi/mosquitto -v`):
+ - Mosquitto MQTT broker 1.6.8+. In order to install the required version, the following repository must be added (Mosquitto version can be verified using `/usr/sbin/mosquitto -v`):
 ```
 sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
 ```
@@ -34,11 +45,11 @@ sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
 ## Configuration
  The following elements must be configured before building and deploying the application:
 1. Validate the following fields from the `atlas-web/src/main/resources/application.properties` file
- - The following field indicates the path mosquitto_passwd utility tool (replace this if necessary). The full path of the binary can be found using the following command `which mosquitto_passwd`.
+ - The `atlas-cloud.passwordTool` field indicates the full path to the `mosquitto_passwd` utility tool (replace this if necessary). The full path of the binary can be found using the following command `which mosquitto_passwd`.
 ```
 atlas-cloud.passwordTool = /usr/local/bin/mosquitto_passwd
 ```
- - The following field indicates a temporary directory which must be accessed by the Tomcat user - Read/Write/Execute permissions (replace this if necessary)
+ - The `atlas-cloud.tmpDir` field indicates a temporary directory which must be accessed by the Tomcat user - Read/Write/Execute permissions (replace this if necessary)
 ```
 atlas-cloud.tmpDir = /tmp
 ```
@@ -80,13 +91,14 @@ cp misc/scripts/pki/artifacts/servers/<FQDN>.crt.pem /etc/mosquitto/certs/server
 cp misc/scripts/pki/artifacts/servers/<FQDN>.key.pem /etc/mosquitto/certs/server.key.pem
 ```
 * Restart Mosquitto using `systemctl restart mosquitto`. Verify that Mosquitto is running using `systemctl status mosquitto` and that Mosquitto is listening on ports 1883 and 8883 using `sudo netstat -plotnu | grep 1883` and `sudo netstat -plotnu | grep 8883`
-2. Copy the generated WAR application **atlas-cloud-1.0.war** into the Tomcat webapps directory as ROOT.war
+2. Copy the generated WAR application **atlas-cloud-1.0.war** into the Tomcat webapps directory as **ROOT.war**
 3. Copy the Tomcat config from `misc/config/tomcat/server.xml` into Tomcat **conf** directory.
-4. Copy server certificate and private key into the Tomcat **conf** directory as follows:
+4. Copy the server certificate and private key along with the server truststore into the Tomcat **conf** directory as follows:
 ```
+cp misc/scripts/pki/artifacts/server.truststore.pem <Tomcat dir>/conf/server.truststore.pem
 cp misc/scripts/pki/artifacts/servers/<FQDN>.chain.pem <Tomcat dir>/conf/server.chain.pem
 cp misc/scripts/pki/artifacts/servers/<FQDN>.crt.pem <Tomcat dir>/conf/server.crt.pem
 cp misc/scripts/pki/artifacts/servers/<FQDN>.key.pem <Tomcat dir>/conf/server.key.pem
 ```
-5. Start the Tomcat server using `bin/startup.sh`.
+5. Start the Tomcat server using `bin/startup.sh` from the Tomcat directory.
 6. Install the client certificate `misc/scripts/pki/artifacts/clients/<Fullname>.p12` into a browser in order to access the web application.
