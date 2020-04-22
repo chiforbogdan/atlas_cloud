@@ -37,7 +37,7 @@ sudo apt-get install libapr1 libapr1-dev libtcnative-1
 
  - MongoDB
 ```
-    sudo apt-get install mongodb
+sudo apt-get install mongodb
 ```
  - Mosquitto MQTT broker 1.6.8+. In order to install the required version, the following repository must be added (Mosquitto version can be verified using `/usr/sbin/mosquitto -v`):
 ```

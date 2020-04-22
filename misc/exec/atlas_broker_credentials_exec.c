@@ -7,7 +7,7 @@
 which needs root permission in order to send a SIGHUP signal to the cloud mosquitto broker (to reload config) */
 int main(int argc, char **argv)
 {
-    /* argv[1] indicates the path to the newly created (tenporary) mosquitto credentials file*/
+    /* argv[1] indicates the path to the newly created (temporary) mosquitto credentials file*/
     char *args[] = {"/usr/local/sbin/atlas_broker_credentials.sh", argv[1], NULL};
 
     /* Set UID to root */
