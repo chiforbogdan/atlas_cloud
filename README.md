@@ -2,9 +2,9 @@
 
 # ATLAS IoT Security Platform - general information
 ATLAS consists in a 3-tier IoT security platform which offers the following modules:
-* A lightweight software client which runs on the IoT device ([Atlas_client])
-* A gateway software which runs on the network edge and manages all the clients from the network ([Atlas_gateway])
-* A cloud platform which allows managing the gateways and the clients ([Atlas_cloud])
+* A lightweight software client which runs on the IoT device ([ATLAS_Client])
+* A gateway software which runs on the network edge and manages all the clients from the network ([ATLAS_Gateway])
+* A cloud platform which allows managing the gateways and the clients ([ATLAS_Cloud])
 
 ATLAS provides security management for a fleet of IoT devices and enables a reputation based Sensing-as-a-service platform. It also offers the capability to inspect the IoT device telemetry values and supports the CoAP lightweight protocol for the communication between the IoT device and the gateway.
 On the IoT data plane layer, ATLAS provides an API which can be integrated with a user application and offers the following capabilities:
@@ -12,8 +12,8 @@ On the IoT data plane layer, ATLAS provides an API which can be integrated with 
 * Send packet statistics to the gateway and cloud
 * Get the device with the most trusted reputation within a category and provide reputation feedback
 
-## ATLAS IoT Security Cloud
-ATLAS IoT Security Cloud is a SaaS portal used to manage ATLAS gateways and ATLAS client devices. The portal permits visualizing gateways and IoT client device telemetry data in **real-time**. More specifically, the portal allows the following main functions:
+## ATLAS Cloud
+ATLAS Cloud is a SaaS portal used to manage ATLAS gateways and ATLAS client devices. The portal permits visualizing gateways and IoT client device telemetry data in **real-time**. More specifically, the portal allows the following main functions:
 * add gateways to the platform using a unique identity and a pre-shared key
 * visualize the gateway connection health
 * visualize the IoT clients connected to the gateway
@@ -128,8 +128,8 @@ GNU General Public License v3.0 or later.
 
 See LICENSE file to read the full text.
 
-[Atlas_client]: https://github.com/chiforbogdan/atlas_client
-[Atlas_gateway]: https://github.com/chiforbogdan/atlas_gateway
-[Atlas_cloud]: https://github.com/chiforbogdan/atlas_cloud
+[ATLAS_Client]: https://github.com/chiforbogdan/atlas_client
+[ATLAS_Gateway]: https://github.com/chiforbogdan/atlas_gateway
+[ATLAS_Cloud]: https://github.com/chiforbogdan/atlas_cloud
 [UEFISCDI]: https://uefiscdi.gov.ro/
 

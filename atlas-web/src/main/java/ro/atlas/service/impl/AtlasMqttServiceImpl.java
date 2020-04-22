@@ -77,15 +77,6 @@ public class AtlasMqttServiceImpl implements AtlasMqttService, IMqttMessageListe
 	@Override
 	public void connectionLost(Throwable cause) {
 		LOG.info("Connection to server is lost: " + cause.getMessage());
-
-		// TODO remove this code
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		System.exit(1);
 	}
 
 	@Override
