@@ -4,18 +4,36 @@
         	<button type="button" class="btn btn-dark" ng-click="gotoClientsList()">&laquo; Back to clients list</button>
 			<div class="card w-100">
 				<div class="card-header">
-					<span class="lead"><i class="fas fa-info-circle mr-1"></i>
-						Telemetry </span>
-					<div>
-						<span id="aliasLabel"><b>Device alias:&nbsp;</b></span>
-						<input type="text" data-toggle="tooltip" title="Edit device alias"
-							id="clientAlias" name="clientAlias" ng-model="alias"
-							ng-change="setEditAliasSelected()" placeholder="Enter the client device alias"
-							size="36" maxlength="36">
-						<button type="button" class="btn btn-dark  btn-sm"
-							ng-show="editAliasSelected" ng-click="aliasFieldChanged(alias)"
-							ng-disabled="alias.length == 0">Save alias</button>
-					</div>
+					<table style="width: 100%;">
+						<tr>
+							<td><span class="lead"><i
+									class="fas fa-info-circle mr-1"></i> Telemetry </span>
+								<div>
+									<span id="aliasLabel"><b>Device alias:&nbsp;</b></span> <input
+										type="text" data-toggle="tooltip" title="Edit device alias"
+										id="clientAlias" name="clientAlias" ng-model="alias"
+										ng-change="setEditAliasSelected()"
+										placeholder="Enter the client device alias" size="36"
+										maxlength="36">
+									<button type="button" class="btn btn-dark  btn-sm"
+										ng-show="editAliasSelected"
+										ng-click="aliasFieldChanged(alias)"
+										ng-disabled="alias.length == 0">Save alias</button>
+								</div></td>
+							<td align="right"><span
+								class="dropdown dropdown-append-to-body" align="right"
+								style="display: inline">
+									<button type="button" dropdown-toggle
+										class="btn btn-dark btn-primary dropdown-toggle" data-toggle="dropdown">
+										Actions <span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu" role="menu">
+										<li ng-click="actionCommand('restart')">Restart</li>
+										<li ng-click="actionCommand('shutdown')">Shutdown</li>
+									</ul>
+							</span></td>
+						</tr>
+					</table>
 				</div>
 				<div class="container-fluid">
 					<div class="row w-100 p-0 m-0">

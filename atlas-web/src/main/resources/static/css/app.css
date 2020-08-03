@@ -169,3 +169,7 @@ select {
 	font-size: 15px;
 }
 
+li:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
