@@ -22,8 +22,12 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ro.atlas.commands.AtlasCommand;
-import ro.atlas.commands.AtlasCommandType;
+import ro.atlas.commands.AtlasClientCommand;
+import ro.atlas.commands.AtlasClientCommandState;
+import ro.atlas.commands.AtlasClientCommandType;
+import ro.atlas.commands.AtlasExternalClientCommand;
+import ro.atlas.commands.AtlasGatewayCommand;
+import ro.atlas.commands.AtlasGatewayCommandType;
 import ro.atlas.dto.AtlasClientSummaryDto;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.dto.AtlasUsernamePassDto;
@@ -31,6 +35,7 @@ import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
 import ro.atlas.entity.sample.AtlasFirewallSample;
 import ro.atlas.entity.sample.AtlasReputationSample;
+import ro.atlas.exception.ClientCommandInvalid;
 import ro.atlas.exception.ClientNotFoundException;
 import ro.atlas.exception.GatewayDuplicateKeyException;
 import ro.atlas.exception.GatewayNotFoundException;
@@ -112,17 +117,17 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         /* Parse message */
         try {
             JSONObject jsonObject = new JSONObject(new String(payload));
-            String cmdType = jsonObject.getString(AtlasCommandType.ATLAS_CMD_TYPE_FIELDNAME);
+            String cmdType = jsonObject.getString(AtlasGatewayCommandType.ATLAS_CMD_TYPE_FIELDNAME);
 
             /* Check command type */
-            if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_CLIENT_INFO_UPDATE.getCommandType())) {
+            if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT_INFO_UPDATE.getCommandType())) {
                 LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a device update command");
-                String cmdPayload = jsonObject.getString(AtlasCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
+                String cmdPayload = jsonObject.getString(AtlasGatewayCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
                 updateCommand(gateway, cmdPayload);
-            } else if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_REGISTER.getCommandType())) {
+            } else if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_REGISTER.getCommandType())) {
                 LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a register command");
                 registerNow(gateway);
-            } else if (cmdType.equalsIgnoreCase(AtlasCommandType.ATLAS_CMD_GATEWAY_KEEPALIVE.getCommandType())) {
+            } else if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_KEEPALIVE.getCommandType())) {
                 LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a keep-alive command");
                 keepaliveNow(gateway);
             }
@@ -238,6 +243,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         if (client == null) {
             /* Set empty history queues */
             clientInfo.initHistorySamples();
+            /* Set empty command queues */
+            clientInfo.initCommands();
             /* Set initial alias, client's identity field */
             clientInfo.setAlias(clientInfo.getIdentity());
 
@@ -322,8 +329,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway = gatewayRepository.save(gateway);
 
         /* Request a registration from gateway */
-        AtlasCommand cmd = new AtlasCommand();
-        cmd.setCommandType(AtlasCommandType.ATLAS_CMD_GATEWAY_REGISTER_REQUEST);
+        AtlasGatewayCommand cmd = new AtlasGatewayCommand();
+        cmd.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_REGISTER_REQUEST);
         ObjectMapper mapper = new ObjectMapper();
         try {
             String jsonCmd = mapper.writeValueAsString(cmd);
@@ -353,8 +360,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             throw new GatewayNotRegisteredException(gateway.getIdentity());
         }
 
-        AtlasCommand cmd = new AtlasCommand();
-        cmd.setCommandType(AtlasCommandType.ATLAS_CMD_GATEWAY_GET_ALL_DEVICES);
+        AtlasGatewayCommand cmd = new AtlasGatewayCommand();
+        cmd.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_GET_ALL_DEVICES);
         ObjectMapper mapper = new ObjectMapper();
         try {
             String jsonCmd = mapper.writeValueAsString(cmd);
@@ -480,6 +487,11 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     @Override
     public synchronized void updateClientAlias(String gatewayIdentity, String clientIdentity, String alias) {
         AtlasGateway gateway = getGateway(gatewayIdentity);
+		if (gateway == null) {
+			LOG.debug("There are no gateways with identity: " + gatewayIdentity);
+			throw new GatewayNotFoundException(gatewayIdentity);
+		}
+        
         AtlasClient client = gateway.getClients().get(clientIdentity);
         if (client == null) {
             LOG.debug("There are no client with identity " + clientIdentity + " within gateway with identity " + clientIdentity);
@@ -490,4 +502,78 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gatewayRepository.save(gateway);
     }
 
+	@Override
+	public synchronized void sendCommandToClient(String gatewayIdentity, String clientIdentity, String command) {
+		AtlasGateway gateway = getGateway(gatewayIdentity);
+		if (gateway == null) {
+			LOG.debug("There are no gateways with identity: " + gatewayIdentity);
+			throw new GatewayNotFoundException(gatewayIdentity);
+		}
+		
+		AtlasClient client = gateway.getClients().get(clientIdentity);
+        if (client == null) {
+            LOG.debug("There are no client with identity " + clientIdentity + " within gateway with identity " + clientIdentity);
+            throw new ClientNotFoundException(clientIdentity);
+        }
+        
+        AtlasClientCommand cmd = new AtlasClientCommand();
+        
+        /* Set command type */
+        if (AtlasClientCommandType.ATLAS_CMD_CLIENT_RESTART.toString().equalsIgnoreCase(command)) {
+        	LOG.debug("Client command for device with identity " + clientIdentity + " is " + AtlasClientCommandType.ATLAS_CMD_CLIENT_RESTART.toString());
+        	cmd.setType(AtlasClientCommandType.ATLAS_CMD_CLIENT_RESTART);
+        } else if (AtlasClientCommandType.ATLAS_CMD_CLIENT_SHUTDOWN.toString().equalsIgnoreCase(command)) {
+        	LOG.debug("Client command for device with identity " + clientIdentity + " is " + AtlasClientCommandType.ATLAS_CMD_CLIENT_SHUTDOWN.toString());
+        	cmd.setType(AtlasClientCommandType.ATLAS_CMD_CLIENT_SHUTDOWN);
+        } else {
+        	LOG.debug("Command " + command + " is invalid!");
+        	throw new ClientCommandInvalid(command);
+        }
+        /* Set command creation date */
+        cmd.setCreationTime(new Date());
+        /* Set command state */
+        cmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_GATEWAY);
+        /* Set empty payload */
+        cmd.setPayload("");
+        /* Set command identifier */
+        cmd.setIdentifier(client.getLastCommandIdentifier() + 1);
+        client.setLastCommandIdentifier(client.getLastCommandIdentifier() + 1);
+        /* Add command to client pending command list */
+        client.getPendingCommands().add(cmd);
+        
+        gatewayRepository.save(gateway);
+	
+        /* If gateway is online and this is the only client command in the queue, then try to send it right now */
+        if (client.getPendingCommands().size() == 1)
+			sendClientCommand(gateway, client, cmd);
+        else
+        	LOG.debug("Enqueue client command with identifier " + cmd.getIdentifier() + " for a deffered transmission");
+	}
+	
+	public void sendClientCommand(AtlasGateway gateway, AtlasClient client, AtlasClientCommand cmd) {
+		LOG.debug("Try to send command " + cmd.getType().toString() + " to gateway with identity "
+				+ gateway.getIdentity() + " for client with identity " + client.getIdentity());
+	
+		if (!gateway.isRegistered()) {
+			LOG.debug("Cannot send command with identifier " + cmd.getIdentifier() + " to gateway with identity "
+					+ gateway.getIdentity() + " because the gateway is offline!");
+			return;
+		}
+		
+		/* Encapsulate the client command in a gateway command */
+		AtlasGatewayCommand gatewayCommand = new AtlasGatewayCommand();
+		gatewayCommand.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT);
+		/* Set gateway command payload */
+		AtlasExternalClientCommand extCmd = new AtlasExternalClientCommand(client.getIdentity(), cmd);
+		gatewayCommand.setCommandPayload(extCmd);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+            String jsonCmd = mapper.writeValueAsString(gatewayCommand);
+            System.out.println(jsonCmd);
+            mqttService.publish(gateway.getPsk() + ATLAS_TO_GATEWAY_TOPIC, jsonCmd);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+	}
 }

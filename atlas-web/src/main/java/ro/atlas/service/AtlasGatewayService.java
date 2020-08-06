@@ -94,6 +94,17 @@ public interface AtlasGatewayService {
 
     /**
      * Edit client's alias
+     * @param gatewayIdentity Gateway identity
+     * @param clientIdentity Client identity
+     * @param alias New client alias
      */
     void updateClientAlias(String gatewayIdentity, String clientIdentity, String alias);
+    
+    /**
+     * Send command to client
+     * @param gatewayIdentity Gateway identity
+     * @param clientIdentity Client identity
+     * @param command Command type
+     */
+    void sendCommandToClient(String gatewayIdentity, String clientIdentity, String command);
 }

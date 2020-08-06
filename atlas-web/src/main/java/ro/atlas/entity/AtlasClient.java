@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import ro.atlas.commands.AtlasClientCommand;
 import ro.atlas.entity.sample.AtlasFirewallSample;
 import ro.atlas.entity.sample.AtlasReputationSample;
 
@@ -65,6 +66,15 @@ public class AtlasClient {
     /* Firewall egress */
     private LinkedList<AtlasFirewallSample> egressFirewallHistory;
 
+    /* Pending client commands */
+    private LinkedList<AtlasClientCommand> pendingCommands;
+ 
+    /* Executed client commands */
+    private LinkedList<AtlasClientCommand> executedCommands;
+    
+    /* Last client command identifier*/
+    private int lastCommandIdentifier;
+    
     public String getSysinfoLoad1() {
         return sysinfoLoad1;
     }
@@ -432,6 +442,11 @@ public class AtlasClient {
         this.setIngressFirewallHistory(new LinkedList<>());
         this.setEgressFirewallHistory(new LinkedList<>());
     }
+    
+    public void initCommands() {
+    	this.setPendingCommands(new LinkedList<>());
+        this.setExecutedCommands(new LinkedList<>());
+    }
 
 	public LinkedList<AtlasFirewallSample> getIngressFirewallHistory() {
 		return ingressFirewallHistory;
@@ -456,4 +471,28 @@ public class AtlasClient {
     public void setAlias(String alias) {
         this.alias = alias;
     }
+
+	public LinkedList<AtlasClientCommand> getPendingCommands() {
+		return pendingCommands;
+	}
+
+	public LinkedList<AtlasClientCommand> getExecutedCommands() {
+		return executedCommands;
+	}
+
+	public void setPendingCommands(LinkedList<AtlasClientCommand> pendingCommands) {
+		this.pendingCommands = pendingCommands;
+	}
+
+	public void setExecutedCommands(LinkedList<AtlasClientCommand> executedCommands) {
+		this.executedCommands = executedCommands;
+	}
+
+	public int getLastCommandIdentifier() {
+		return lastCommandIdentifier;
+	}
+
+	public void setLastCommandIdentifier(int lastCommandIdentifier) {
+		this.lastCommandIdentifier = lastCommandIdentifier;
+	}
 }

@@ -1,15 +1,17 @@
 package ro.atlas.commands;
 
-public class AtlasCommand {
-	private AtlasCommandType commandType;
+public class AtlasGatewayCommand {
+	/* Command type */
+	private AtlasGatewayCommandType commandType;
 	
+	/* Command payload */
 	private Object commandPayload;
 
-	public AtlasCommandType getCommandType() {
+	public AtlasGatewayCommandType getCommandType() {
 		return commandType;
 	}
 
-	public void setCommandType(AtlasCommandType commandType) {
+	public void setCommandType(AtlasGatewayCommandType commandType) {
 		this.commandType = commandType;
 	}
 

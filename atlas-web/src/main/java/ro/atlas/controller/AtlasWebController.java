@@ -57,7 +57,7 @@ public class AtlasWebController {
 
     @GetMapping(path = "gateway/clients/{gateway_identity}")
     public ResponseEntity<List<AtlasClientSummaryDto>> getGatewayClientsList(@PathVariable("gateway_identity") String gatewayIdentity) {
-        LOG.debug("Fetching clients for gateway with identity: " + gatewayIdentity);
+        LOG.info("Fetching clients for gateway with identity: " + gatewayIdentity);
 
         List<AtlasClientSummaryDto> clients = gatewayService.getAllClientsSummary(gatewayIdentity);
         if (clients == null) {
@@ -70,7 +70,7 @@ public class AtlasWebController {
 
     @GetMapping(path = "gateway/client/{gateway_identity}/{client_identity}")
     public ResponseEntity<AtlasClient> getClientDetails(@PathVariable("gateway_identity") String gatewayIdentity, @PathVariable("client_identity") String clientIdentity) {
-        LOG.debug("Fetching details for client with identity: " + clientIdentity);
+        LOG.info("Fetching details for client with identity: " + clientIdentity);
 
         AtlasClient client = gatewayService.getClient(gatewayIdentity, clientIdentity);
 
@@ -89,7 +89,7 @@ public class AtlasWebController {
 
     @DeleteMapping(path = "gateways/{gateway_identity}")
     public ResponseEntity<AtlasGateway> deleteGateway(@PathVariable("gateway_identity") String gatewayIdentity) {
-        LOG.debug("Deleting gateway with identity: " + gatewayIdentity + " from database!");
+        LOG.info("Deleting gateway with identity: " + gatewayIdentity + " from database!");
 
         AtlasGateway gateway = gatewayService.getGateway(gatewayIdentity);
         gatewayService.deleteGateway(gateway);
@@ -99,7 +99,7 @@ public class AtlasWebController {
 
     @DeleteMapping(path = "gateway/client/{gateway_identity}/{client_identity}")
     public ResponseEntity<AtlasClient> deleteGateway(@PathVariable("gateway_identity") String gatewayIdentity, @PathVariable("client_identity") String clientIdentity) {
-        LOG.debug("Deleting client with identity: " + clientIdentity + " from database!");
+        LOG.info("Deleting client with identity: " + clientIdentity + " from database!");
 
         AtlasGateway gateway = gatewayService.getGateway(gatewayIdentity);
         gatewayService.deleteClient(gateway, clientIdentity);
@@ -109,11 +109,17 @@ public class AtlasWebController {
 
     @PutMapping("gateway/client/{gateway_identity}/{client_identity}/{edited_alias}")
     public ResponseEntity<?> updateClientAlias(@PathVariable("gateway_identity") String gatewayIdentity, @PathVariable("client_identity") String clientIdentity, @PathVariable("edited_alias") String editedAlias) {
-        LOG.debug("Edit alias client with identity: " + clientIdentity + "with the new value " + editedAlias);
+        LOG.info("Edit alias client with identity: " + clientIdentity + "with the new value " + editedAlias);
         gatewayService.updateClientAlias(gatewayIdentity, clientIdentity, editedAlias);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PutMapping("gateway/client/command/{gateway_identity}/{client_identity}/{command}")
+    public ResponseEntity<?> sendClientCommand(@PathVariable("gateway_identity") String gatewayIdentity, @PathVariable("client_identity") String clientIdentity, @PathVariable("command") String command) {
+        LOG.info("Send command " + command + " to client with identity: " + clientIdentity + " (gateway identity: " + gatewayIdentity + ")");
+        gatewayService.sendCommandToClient(gatewayIdentity, clientIdentity, command);
 
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

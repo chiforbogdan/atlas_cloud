@@ -20,8 +20,12 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
         $scope.editAliasSelected = false;
     };
     
-    $scope.actionCommand = function(command) {
-    	console.log(command);
+    $scope.actionRestart = function(command) {
+        GatewayService.sendClientCommand($scope.gw_identity, $scope.cl_identity, 'ATLAS_CMD_CLIENT_RESTART');
+    }
+    
+    $scope.actionShutdown = function(command) {
+        GatewayService.sendClientCommand($scope.gw_identity, $scope.cl_identity, 'ATLAS_CMD_CLIENT_SHUTDOWN');
     }
 
     function convertSecondsToTime(seconds) {

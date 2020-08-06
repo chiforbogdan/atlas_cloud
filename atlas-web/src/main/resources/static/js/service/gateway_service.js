@@ -13,7 +13,8 @@ atlas_app.factory('GatewayService', ['$http', '$q', '$location', function ($http
         deleteGateway: deleteGateway,
         deleteClient: deleteClient,
         forceSync: forceSync,
-        updateClientAlias: updateClientAlias
+        updateClientAlias: updateClientAlias,
+        sendClientCommand: sendClientCommand
     };
 
     return factory;
@@ -132,6 +133,23 @@ atlas_app.factory('GatewayService', ['$http', '$q', '$location', function ($http
                 },
                 function (errResponse) {
                     console.error('Error while updating client alias!');
+                    deferred.reject(errResponse);
+                }
+            );
+        return deferred.promise;
+    }
+    
+    function sendClientCommand(gw_identity, cl_identity, command) {
+    	console.log("Send cmd2222: " + command);
+    	var deferred = $q.defer();
+        $http.put(REST_SERVICE_URI_GATEWAY + 'client/command/' + gw_identity + '/' + cl_identity + '/' + command)
+            .then(
+                function (response) {
+                	console.log("Send cmd33333: " + command);
+                    deferred.resolve(response.data);
+                },
+                function (errResponse) {
+                    console.error('Error while sending command to client!');
                     deferred.reject(errResponse);
                 }
             );
