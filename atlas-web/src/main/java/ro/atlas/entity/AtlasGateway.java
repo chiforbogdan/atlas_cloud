@@ -1,10 +1,13 @@
 package ro.atlas.entity;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import ro.atlas.commands.AtlasGatewayCommand;
 
 @Document
 public class AtlasGateway {
@@ -39,6 +42,12 @@ public class AtlasGateway {
     /* Client information */
     private HashMap<String, AtlasClient> clients;
 
+    /* Pending gateway commands list */
+    private LinkedList<AtlasGatewayCommand> pendingCommands;
+
+    /* Client command global identifier (sequence number) */
+    private int globalCmdIdentifier;
+    
     public String getIdentity() {
         return identity;
     }
@@ -101,5 +110,21 @@ public class AtlasGateway {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+    
+    public LinkedList<AtlasGatewayCommand> getPendingCommands() {
+    	return pendingCommands;
+    }
+
+    public void setPendingCommands(LinkedList<AtlasGatewayCommand> cmds) {
+    	pendingCommands = cmds;
+    }
+    
+    public int getGlobalCommandIdentifier() {
+    	return globalCmdIdentifier;
+    }
+    
+    public void setGlobalCommandIdentifier(int cmdIdentifier) {
+    	globalCmdIdentifier = cmdIdentifier;
     }
 }

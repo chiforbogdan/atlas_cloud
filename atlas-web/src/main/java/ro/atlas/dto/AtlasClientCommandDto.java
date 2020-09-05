@@ -1,6 +1,9 @@
-package ro.atlas.commands;
+package ro.atlas.dto;
 
-public class AtlasExternalClientCommand {
+import ro.atlas.commands.AtlasClientCommand;
+import ro.atlas.commands.AtlasClientCommandType;
+
+public class AtlasClientCommandDto {
 	/* Client identity */
 	private String clientIdentity;
 	/* Command type */
@@ -10,7 +13,10 @@ public class AtlasExternalClientCommand {
 	/* Command identifier */
 	private int identifier;
 
-	public AtlasExternalClientCommand(String clientIdentity, AtlasClientCommand clientCommand) {
+	public AtlasClientCommandDto() {	
+	}
+	
+	public AtlasClientCommandDto(String clientIdentity, AtlasClientCommand clientCommand) {
 		this.clientIdentity = clientIdentity;
 		this.type = clientCommand.getType();
 		this.payload = clientCommand.getPayload();

@@ -25,10 +25,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ro.atlas.commands.AtlasClientCommand;
 import ro.atlas.commands.AtlasClientCommandState;
 import ro.atlas.commands.AtlasClientCommandType;
-import ro.atlas.commands.AtlasExternalClientCommand;
 import ro.atlas.commands.AtlasGatewayCommand;
 import ro.atlas.commands.AtlasGatewayCommandType;
 import ro.atlas.dto.AtlasClientSummaryDto;
+import ro.atlas.dto.AtlasClientCommandDto;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.dto.AtlasUsernamePassDto;
 import ro.atlas.entity.AtlasClient;
@@ -70,6 +70,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setIdentity(gatewayAddDto.getIdentity());
         gateway.setPsk(gatewayAddDto.getPsk());
         gateway.setClients(new HashMap<>());
+        gateway.setPendingCommands(new LinkedList<>());
+        gateway.setGlobalCommandIdentifier(0);
 
         try {
             /* Add gateway to database */
@@ -536,41 +538,47 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         /* Set empty payload */
         cmd.setPayload("");
         /* Set command identifier */
-        cmd.setIdentifier(client.getLastCommandIdentifier() + 1);
-        client.setLastCommandIdentifier(client.getLastCommandIdentifier() + 1);
+        cmd.setIdentifier(gateway.getGlobalCommandIdentifier());
+        gateway.setGlobalCommandIdentifier(gateway.getGlobalCommandIdentifier() + 1);
         /* Add command to client pending command list */
-        client.getPendingCommands().add(cmd);
+        client.getTransmittedCommands().add(cmd);
+        
+        /* Add command to the gateway queue. Encapsulate the client command in a gateway command. */
+		AtlasGatewayCommand gatewayCommand = new AtlasGatewayCommand();
+		gatewayCommand.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT);
+		/* Set gateway command payload */
+		AtlasClientCommandDto clientCmdDto = new AtlasClientCommandDto(client.getIdentity(), cmd);
+		gatewayCommand.setCommandPayload(clientCmdDto);
+		gateway.getPendingCommands().add(gatewayCommand);
         
         gatewayRepository.save(gateway);
 	
-        /* If gateway is online and this is the only client command in the queue, then try to send it right now */
-        if (client.getPendingCommands().size() == 1)
-			sendClientCommand(gateway, client, cmd);
-        else
-        	LOG.debug("Enqueue client command with identifier " + cmd.getIdentifier() + " for a deffered transmission");
+        /* If this is the only client command in the queue, then try to send it right now */
+        //if (gateway.getPendingCommands().size() == 1)
+			sendGatewayCommand(gateway);
+        //else
+        	//LOG.debug("Enqueue gateway client command with identifier " + cmd.getIdentifier() + " for a deffered transmission");
 	}
 	
-	public void sendClientCommand(AtlasGateway gateway, AtlasClient client, AtlasClientCommand cmd) {
-		LOG.debug("Try to send command " + cmd.getType().toString() + " to gateway with identity "
-				+ gateway.getIdentity() + " for client with identity " + client.getIdentity());
+	private void sendGatewayCommand(AtlasGateway gateway) {
+		LOG.info("Try to send command to gateway with identity " + gateway.getIdentity());
 	
 		if (!gateway.isRegistered()) {
-			LOG.debug("Cannot send command with identifier " + cmd.getIdentifier() + " to gateway with identity "
-					+ gateway.getIdentity() + " because the gateway is offline!");
+			LOG.debug("Cannot send command to gateway with identity " + gateway.getIdentity() + " because the gateway is offline!");
 			return;
 		}
 		
 		/* Encapsulate the client command in a gateway command */
-		AtlasGatewayCommand gatewayCommand = new AtlasGatewayCommand();
-		gatewayCommand.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT);
-		/* Set gateway command payload */
-		AtlasExternalClientCommand extCmd = new AtlasExternalClientCommand(client.getIdentity(), cmd);
-		gatewayCommand.setCommandPayload(extCmd);
+		if (gateway.getPendingCommands().size() == 0) {
+			LOG.info("Gateway with identity " + gateway.getIdentity() + " has not pending commands!");
+			return;
+		}
 		
+		/* Get the first command */
+		AtlasGatewayCommand gatewayCommand = gateway.getPendingCommands().get(0);
 		ObjectMapper mapper = new ObjectMapper();
 		try {
             String jsonCmd = mapper.writeValueAsString(gatewayCommand);
-            System.out.println(jsonCmd);
             mqttService.publish(gateway.getPsk() + ATLAS_TO_GATEWAY_TOPIC, jsonCmd);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

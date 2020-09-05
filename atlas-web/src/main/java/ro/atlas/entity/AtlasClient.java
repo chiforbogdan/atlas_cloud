@@ -66,14 +66,8 @@ public class AtlasClient {
     /* Firewall egress */
     private LinkedList<AtlasFirewallSample> egressFirewallHistory;
 
-    /* Pending client commands */
-    private LinkedList<AtlasClientCommand> pendingCommands;
- 
-    /* Executed client commands */
-    private LinkedList<AtlasClientCommand> executedCommands;
-    
-    /* Last client command identifier*/
-    private int lastCommandIdentifier;
+    /* Transmitted client commands (are either executed by the client or sent to the gateway) */
+    private LinkedList<AtlasClientCommand> transmittedCommands;
     
     public String getSysinfoLoad1() {
         return sysinfoLoad1;
@@ -444,8 +438,7 @@ public class AtlasClient {
     }
     
     public void initCommands() {
-    	this.setPendingCommands(new LinkedList<>());
-        this.setExecutedCommands(new LinkedList<>());
+    	transmittedCommands = new LinkedList<>();
     }
 
 	public LinkedList<AtlasFirewallSample> getIngressFirewallHistory() {
@@ -472,27 +465,8 @@ public class AtlasClient {
         this.alias = alias;
     }
 
-	public LinkedList<AtlasClientCommand> getPendingCommands() {
-		return pendingCommands;
-	}
 
-	public LinkedList<AtlasClientCommand> getExecutedCommands() {
-		return executedCommands;
-	}
-
-	public void setPendingCommands(LinkedList<AtlasClientCommand> pendingCommands) {
-		this.pendingCommands = pendingCommands;
-	}
-
-	public void setExecutedCommands(LinkedList<AtlasClientCommand> executedCommands) {
-		this.executedCommands = executedCommands;
-	}
-
-	public int getLastCommandIdentifier() {
-		return lastCommandIdentifier;
-	}
-
-	public void setLastCommandIdentifier(int lastCommandIdentifier) {
-		this.lastCommandIdentifier = lastCommandIdentifier;
+	public LinkedList<AtlasClientCommand> getTransmittedCommands() {
+		return transmittedCommands;
 	}
 }
