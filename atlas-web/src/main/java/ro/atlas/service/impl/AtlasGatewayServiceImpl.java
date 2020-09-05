@@ -28,6 +28,7 @@ import ro.atlas.commands.AtlasClientCommandType;
 import ro.atlas.commands.AtlasGatewayCommand;
 import ro.atlas.commands.AtlasGatewayCommandType;
 import ro.atlas.dto.AtlasClientSummaryDto;
+import ro.atlas.dto.AtlasClientCommandAckDto;
 import ro.atlas.dto.AtlasClientCommandDto;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.dto.AtlasUsernamePassDto;
@@ -71,7 +72,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setPsk(gatewayAddDto.getPsk());
         gateway.setClients(new HashMap<>());
         gateway.setPendingCommands(new LinkedList<>());
-        gateway.setGlobalCommandIdentifier(0);
+        gateway.setGlobalCommandIdentifier(1);
 
         try {
             /* Add gateway to database */
@@ -132,12 +133,66 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             } else if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_KEEPALIVE.getCommandType())) {
                 LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a keep-alive command");
                 keepaliveNow(gateway);
+            } else if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT_ACK.getCommandType())) {
+            	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a client command ACK");
+            	String cmdPayload = jsonObject.getString(AtlasGatewayCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
+            	handleClientCommandAck(gateway, cmdPayload);
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
     }
 
+    private void handleClientCommandAck(AtlasGateway gateway, String cmdPayload) {
+    	LOG.info("Handle client command ACK for gateway with identity " + gateway.getIdentity());
+    	
+    	 ObjectMapper mapper = new ObjectMapper();
+         AtlasClientCommandAckDto clientCmdAck = null;
+
+         try {
+        	 clientCmdAck = mapper.readValue(cmdPayload.getBytes(), AtlasClientCommandAckDto.class);
+         } catch (IOException e) {
+             e.printStackTrace();
+             return;
+         }
+         
+         LOG.info("Received ACK for client command with sequence number: " + clientCmdAck.getIdentifier() +" from gateway with identity " + gateway.getIdentity());
+    
+         if (gateway.getPendingCommands().size() == 0) {
+        	 LOG.info("Gateway with identity " + gateway.getIdentity() + " does not have pending commands. Discarding ACK...");
+        	 return;
+         }
+         
+         /* The client command which received an ACK should be the first pending command in the list */
+         AtlasClientCommandDto clientCmdDto = (AtlasClientCommandDto) gateway.getPendingCommands().get(0).getCommandPayload();
+         if (clientCmdDto.getIdentifier() != clientCmdAck.getIdentifier()) {
+        	 LOG.info("Gateway with identity " + gateway.getIdentity() + " has a different sequence number than the received ACK. Discarding ACK...");
+        	 return;
+         }
+         
+         AtlasClient client = gateway.getClients().get(clientCmdDto.getClientIdentity());
+         if (client == null) {
+             LOG.debug("There is no client with identity " + clientCmdDto.getClientIdentity() + " within gateway with identity " + gateway.getIdentity());
+             return;
+         }
+         
+         client.getTransmittedCommands().forEach(command -> {
+        	 if (command.getIdentifier() == clientCmdDto.getIdentifier()) {
+        		 command.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_CLIENT);
+        	 }
+         });
+
+         /* Remove pending command and update the command status in the client list */
+         gateway.getPendingCommands().remove(0);
+
+         LOG.debug("Command with sequence number: " + clientCmdAck.getIdentifier() + " was deleted from the gateway pending list for gateway with identity: " + gateway.getIdentity());
+         
+         gatewayRepository.save(gateway);
+         
+         /* Try to send the next pending command */
+         sendGatewayCommand(gateway);
+    }
+    
     @Override
     public List<AtlasGateway> getAllGateways() {
         List<AtlasGateway> gateways = null;
@@ -275,6 +330,9 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 
         /* When gateway is registered also simulate a keep-alive command */
         keepaliveNow(gateway);
+        
+        /* Try to flush existing pending commands */
+        sendGatewayCommand(gateway);
     }
 
     private void keepaliveNow(AtlasGateway gateway) {
