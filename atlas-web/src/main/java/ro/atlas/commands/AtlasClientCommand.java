@@ -18,8 +18,8 @@ public class AtlasClientCommand {
 	/* Command state */
 	private AtlasClientCommandState state;
 	
-	/* Command identifier (must be incrementally set). This is also used as sequence number. */
-	private int identifier;
+	/* Command sequence number (must be incrementally set) */
+	private int seqNo;
 	
 	public AtlasClientCommandType getType() {
 		return type;
@@ -61,11 +61,11 @@ public class AtlasClientCommand {
 		this.state = state;
 	}
 
-	public int getIdentifier() {
-		return identifier;
+	public int getSeqNo() {
+		return seqNo;
 	}
 
-	public void setIdentifier(int identifier) {
-		this.identifier = identifier;
+	public void setSeqNo(int seqNo) {
+		this.seqNo = seqNo;
 	}
 }

@@ -1,14 +1,14 @@
 package ro.atlas.dto;
 
 public class AtlasClientCommandAckDto {
-	/* Command identifier */
-	private int identifier;
+	/* Command sequence number */
+	private int seqNo;
 
-	public int getIdentifier() {
-		return identifier;
+	public int getSeqNo() {
+		return seqNo;
 	}
 
-	public void setIdentifier(int identifier) {
-		this.identifier = identifier;
+	public void setSeqNo(int seqNo) {
+		this.seqNo = seqNo;
 	}
 }

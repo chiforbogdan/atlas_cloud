@@ -11,120 +11,120 @@ import ro.atlas.commands.AtlasGatewayCommand;
 
 @Document
 public class AtlasGateway {
-    /* Document id */
-    @Id
-    private String id;
+	/* Document id */
+	@Id
+	private String id;
 
-    /* Gateway unique identifier */
-    @Indexed(unique = true)
-    private String identity;
+	/* Gateway unique identifier */
+	@Indexed(unique = true)
+	private String identity;
 
-    /* Gateway pre-shared key */
-    @Indexed(unique = true)
-    private String psk;
+	/* Gateway pre-shared key */
+	@Indexed(unique = true)
+	private String psk;
 
-    /* Gateway's alias */
-    @Indexed(unique = true)
-    private String alias;
+	/* Gateway's alias */
+	@Indexed(unique = true)
+	private String alias;
 
-    /* Indicates if the gateway is registered */
-    private boolean registered;
+	/* Indicates if the gateway is registered */
+	private boolean registered;
 
-    /* Holds the last registration time */
-    private String lastRegistertTime;
+	/* Holds the last registration time */
+	private String lastRegistertTime;
 
-    /* Holds the last keep-alive time */
-    private String lastKeepaliveTime;
+	/* Holds the last keep-alive time */
+	private String lastKeepaliveTime;
 
-    /* Holds the keep-alive counter to detect inactive gateways */
-    private int keepaliveCounter;
+	/* Holds the keep-alive counter to detect inactive gateways */
+	private int keepaliveCounter;
 
-    /* Client information */
-    private HashMap<String, AtlasClient> clients;
+	/* Client information */
+	private HashMap<String, AtlasClient> clients;
 
-    /* Pending gateway commands list */
-    private LinkedList<AtlasGatewayCommand> pendingCommands;
+	/* Pending gateway commands list */
+	private LinkedList<AtlasGatewayCommand> pendingCommands;
 
-    /* Client command global identifier (sequence number) */
-    private int globalCmdIdentifier;
-    
-    public String getIdentity() {
-        return identity;
-    }
+	/* Client command global sequence number */
+	private int globalCmdSeqNo;
 
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
+	public String getIdentity() {
+		return identity;
+	}
 
-    public String getPsk() {
-        return psk;
-    }
+	public void setIdentity(String identity) {
+		this.identity = identity;
+	}
 
-    public void setPsk(String psk) {
-        this.psk = psk;
-    }
+	public String getPsk() {
+		return psk;
+	}
 
-    public HashMap<String, AtlasClient> getClients() {
-        return clients;
-    }
+	public void setPsk(String psk) {
+		this.psk = psk;
+	}
 
-    public void setClients(HashMap<String, AtlasClient> clients) {
-        this.clients = clients;
-    }
+	public HashMap<String, AtlasClient> getClients() {
+		return clients;
+	}
 
-    public boolean isRegistered() {
-        return registered;
-    }
+	public void setClients(HashMap<String, AtlasClient> clients) {
+		this.clients = clients;
+	}
 
-    public void setRegistered(boolean registered) {
-        this.registered = registered;
-    }
+	public boolean isRegistered() {
+		return registered;
+	}
 
-    public String getLastRegistertTime() {
-        return lastRegistertTime;
-    }
+	public void setRegistered(boolean registered) {
+		this.registered = registered;
+	}
 
-    public void setLastRegistertTime(String lastRegistertTime) {
-        this.lastRegistertTime = lastRegistertTime;
-    }
+	public String getLastRegistertTime() {
+		return lastRegistertTime;
+	}
 
-    public String getLastKeepaliveTime() {
-        return lastKeepaliveTime;
-    }
+	public void setLastRegistertTime(String lastRegistertTime) {
+		this.lastRegistertTime = lastRegistertTime;
+	}
 
-    public void setLastKeepaliveTime(String lastKeepaliveTime) {
-        this.lastKeepaliveTime = lastKeepaliveTime;
-    }
+	public String getLastKeepaliveTime() {
+		return lastKeepaliveTime;
+	}
 
-    public int getKeepaliveCounter() {
-        return keepaliveCounter;
-    }
+	public void setLastKeepaliveTime(String lastKeepaliveTime) {
+		this.lastKeepaliveTime = lastKeepaliveTime;
+	}
 
-    public void setKeepaliveCounter(int keepaliveCounter) {
-        this.keepaliveCounter = keepaliveCounter;
-    }
+	public int getKeepaliveCounter() {
+		return keepaliveCounter;
+	}
 
-    public String getAlias() {
-        return alias;
-    }
+	public void setKeepaliveCounter(int keepaliveCounter) {
+		this.keepaliveCounter = keepaliveCounter;
+	}
 
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-    
-    public LinkedList<AtlasGatewayCommand> getPendingCommands() {
-    	return pendingCommands;
-    }
+	public String getAlias() {
+		return alias;
+	}
 
-    public void setPendingCommands(LinkedList<AtlasGatewayCommand> cmds) {
-    	pendingCommands = cmds;
-    }
-    
-    public int getGlobalCommandIdentifier() {
-    	return globalCmdIdentifier;
-    }
-    
-    public void setGlobalCommandIdentifier(int cmdIdentifier) {
-    	globalCmdIdentifier = cmdIdentifier;
-    }
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	public LinkedList<AtlasGatewayCommand> getPendingCommands() {
+		return pendingCommands;
+	}
+
+	public void setPendingCommands(LinkedList<AtlasGatewayCommand> cmds) {
+		pendingCommands = cmds;
+	}
+
+	public int getGlobalCommandSeqNo() {
+		return globalCmdSeqNo;
+	}
+
+	public void setGlobalCommandSeqNo(int cmdSeqNo) {
+		globalCmdSeqNo = cmdSeqNo;
+	}
 }

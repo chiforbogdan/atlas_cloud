@@ -10,17 +10,17 @@ public class AtlasClientCommandDto {
 	private AtlasClientCommandType type;
 	/* Command payload */
 	private String payload;
-	/* Command identifier */
-	private int identifier;
+	/* Command sequence number */
+	private int seqNo;
 
-	public AtlasClientCommandDto() {	
+	public AtlasClientCommandDto() {
 	}
-	
+
 	public AtlasClientCommandDto(String clientIdentity, AtlasClientCommand clientCommand) {
 		this.clientIdentity = clientIdentity;
 		this.type = clientCommand.getType();
 		this.payload = clientCommand.getPayload();
-		this.identifier = clientCommand.getIdentifier();
+		this.seqNo = clientCommand.getSeqNo();
 	}
 
 	public String getClientIdentity() {
@@ -35,7 +35,7 @@ public class AtlasClientCommandDto {
 		return payload;
 	}
 
-	public int getIdentifier() {
-		return identifier;
+	public int getSeqNo() {
+		return seqNo;
 	}
 }

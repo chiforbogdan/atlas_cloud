@@ -72,7 +72,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setPsk(gatewayAddDto.getPsk());
         gateway.setClients(new HashMap<>());
         gateway.setPendingCommands(new LinkedList<>());
-        gateway.setGlobalCommandIdentifier(1);
+        gateway.setGlobalCommandSeqNo(1);
 
         try {
             /* Add gateway to database */
@@ -156,7 +156,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
              return;
          }
          
-         LOG.info("Received ACK for client command with sequence number: " + clientCmdAck.getIdentifier() +" from gateway with identity " + gateway.getIdentity());
+         LOG.info("Received ACK for client command with sequence number: " + clientCmdAck.getSeqNo() +" from gateway with identity " + gateway.getIdentity());
     
          if (gateway.getPendingCommands().size() == 0) {
         	 LOG.info("Gateway with identity " + gateway.getIdentity() + " does not have pending commands. Discarding ACK...");
@@ -165,7 +165,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
          
          /* The client command which received an ACK should be the first pending command in the list */
          AtlasClientCommandDto clientCmdDto = (AtlasClientCommandDto) gateway.getPendingCommands().get(0).getCommandPayload();
-         if (clientCmdDto.getIdentifier() != clientCmdAck.getIdentifier()) {
+         if (clientCmdDto.getSeqNo() != clientCmdAck.getSeqNo()) {
         	 LOG.info("Gateway with identity " + gateway.getIdentity() + " has a different sequence number than the received ACK. Discarding ACK...");
         	 return;
          }
@@ -177,7 +177,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
          }
          
          client.getTransmittedCommands().forEach(command -> {
-        	 if (command.getIdentifier() == clientCmdDto.getIdentifier()) {
+        	 if (command.getSeqNo() == clientCmdDto.getSeqNo()) {
         		 command.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_CLIENT);
         	 }
          });
@@ -185,7 +185,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
          /* Remove pending command and update the command status in the client list */
          gateway.getPendingCommands().remove(0);
 
-         LOG.debug("Command with sequence number: " + clientCmdAck.getIdentifier() + " was deleted from the gateway pending list for gateway with identity: " + gateway.getIdentity());
+         LOG.debug("Command with sequence number: " + clientCmdAck.getSeqNo() + " was deleted from the gateway pending list for gateway with identity: " + gateway.getIdentity());
          
          gatewayRepository.save(gateway);
          
@@ -596,8 +596,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         /* Set empty payload */
         cmd.setPayload("");
         /* Set command identifier */
-        cmd.setIdentifier(gateway.getGlobalCommandIdentifier());
-        gateway.setGlobalCommandIdentifier(gateway.getGlobalCommandIdentifier() + 1);
+        cmd.setSeqNo(gateway.getGlobalCommandSeqNo());
+        gateway.setGlobalCommandSeqNo(gateway.getGlobalCommandSeqNo() + 1);
         /* Add command to client pending command list */
         client.getTransmittedCommands().add(cmd);
         
@@ -612,10 +612,10 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gatewayRepository.save(gateway);
 	
         /* If this is the only client command in the queue, then try to send it right now */
-        //if (gateway.getPendingCommands().size() == 1)
+        if (gateway.getPendingCommands().size() == 1)
 			sendGatewayCommand(gateway);
-        //else
-        	//LOG.debug("Enqueue gateway client command with identifier " + cmd.getIdentifier() + " for a deffered transmission");
+        else
+        	LOG.debug("Enqueue gateway client command with sequence number " + cmd.getSeqNo() + " for a deffered transmission");
 	}
 	
 	private void sendGatewayCommand(AtlasGateway gateway) {
