@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -29,6 +30,7 @@ import ro.atlas.commands.AtlasGatewayCommand;
 import ro.atlas.commands.AtlasGatewayCommandType;
 import ro.atlas.dto.AtlasClientSummaryDto;
 import ro.atlas.dto.AtlasClientCommandAckDto;
+import ro.atlas.dto.AtlasClientCommandDoneDto;
 import ro.atlas.dto.AtlasClientCommandDto;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.dto.AtlasUsernamePassDto;
@@ -137,6 +139,10 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a client command ACK");
             	String cmdPayload = jsonObject.getString(AtlasGatewayCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
             	handleClientCommandAck(gateway, cmdPayload);
+            } else if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT_DONE.getCommandType())) {
+            	LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a client command DONE");
+            	String cmdPayload = jsonObject.getString(AtlasGatewayCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
+            	handleClientCommandDone(gateway, cmdPayload);
             }
         } catch (JSONException e1) {
             e1.printStackTrace();
@@ -191,6 +197,56 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
          
          /* Try to send the next pending command */
          sendGatewayCommand(gateway);
+    }
+    
+    private void handleClientCommandDone(AtlasGateway gateway, String cmdPayload) {
+    	LOG.info("Handle client command DONE for gateway with identity " + gateway.getIdentity());
+    	
+    	 ObjectMapper mapper = new ObjectMapper();
+         AtlasClientCommandDoneDto clientCmdDone = null;
+
+         try {
+        	 clientCmdDone = mapper.readValue(cmdPayload.getBytes(), AtlasClientCommandDoneDto.class);
+         } catch (IOException e) {
+             e.printStackTrace();
+             return;
+         }
+         
+         LOG.info("Received DONE for client command with sequence number: " + clientCmdDone.getSeqNo() + " and client identity " + clientCmdDone.getClientIdentity() + " from gateway with identity " + gateway.getIdentity());
+    
+         AtlasClient client = gateway.getClients().get(clientCmdDone.getClientIdentity());
+         if (client == null) {
+        	 LOG.info("Cannot find client with identity " + clientCmdDone.getClientIdentity() + " on gateway with identity " + gateway.getIdentity());
+        	 return;
+         }
+         
+         ListIterator<AtlasClientCommand> listIterator = client.getTransmittedCommands().listIterator(client.getTransmittedCommands().size());
+         boolean cmdFound = false;
+         while (listIterator.hasPrevious()) {
+        	 AtlasClientCommand clientCmd = listIterator.previous();
+        	 /* Verify sequence number */
+        	 if (clientCmd.getSeqNo() != clientCmdDone.getSeqNo())
+        		 continue;
+        	 
+        	 if (clientCmd.getState() == AtlasClientCommandState.ATLAS_CMD_CLIENT_EXECUTED_BY_CLIENT) {
+        		 LOG.info("Command with sequence number: " + clientCmdDone.getSeqNo() + " and client identity " + clientCmdDone.getClientIdentity() + " from gateway with identity " + gateway.getIdentity() + " was already marked as DONE (executed by the client)");
+        		 /* Send client command DONE ACK to gateway */
+        		 sendGatewayCommandDONEAck(gateway, client, clientCmdDone.getSeqNo());
+        		 break;
+        	 } else {
+        		 clientCmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_EXECUTED_BY_CLIENT);
+        		 clientCmd.setExecutionTime(new Date());
+        		 cmdFound = true;
+        		 LOG.info("Command with sequence number: " + clientCmdDone.getSeqNo() + " and client identity " + clientCmdDone.getClientIdentity() + " from gateway with identity " + gateway.getIdentity() + " was marked as DONE (executed by the client)");
+        		 break;
+        	 }
+         }
+         
+         if (cmdFound) {
+        	 gatewayRepository.save(gateway);
+        	 /* Send client command DONE ACK to gateway */
+        	 sendGatewayCommandDONEAck(gateway, client, clientCmdDone.getSeqNo());
+         }
     }
     
     @Override
@@ -579,12 +635,12 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         AtlasClientCommand cmd = new AtlasClientCommand();
         
         /* Set command type */
-        if (AtlasClientCommandType.ATLAS_CMD_CLIENT_RESTART.toString().equalsIgnoreCase(command)) {
-        	LOG.debug("Client command for device with identity " + clientIdentity + " is " + AtlasClientCommandType.ATLAS_CMD_CLIENT_RESTART.toString());
-        	cmd.setType(AtlasClientCommandType.ATLAS_CMD_CLIENT_RESTART);
-        } else if (AtlasClientCommandType.ATLAS_CMD_CLIENT_SHUTDOWN.toString().equalsIgnoreCase(command)) {
-        	LOG.debug("Client command for device with identity " + clientIdentity + " is " + AtlasClientCommandType.ATLAS_CMD_CLIENT_SHUTDOWN.toString());
-        	cmd.setType(AtlasClientCommandType.ATLAS_CMD_CLIENT_SHUTDOWN);
+        if (AtlasClientCommandType.ATLAS_CMD_CLIENT_DEVICE_RESTART.toString().equalsIgnoreCase(command)) {
+        	LOG.debug("Client command for device with identity " + clientIdentity + " is " + AtlasClientCommandType.ATLAS_CMD_CLIENT_DEVICE_RESTART.toString());
+        	cmd.setType(AtlasClientCommandType.ATLAS_CMD_CLIENT_DEVICE_RESTART);
+        } else if (AtlasClientCommandType.ATLAS_CMD_CLIENT_DEVICE_SHUTDOWN.toString().equalsIgnoreCase(command)) {
+        	LOG.debug("Client command for device with identity " + clientIdentity + " is " + AtlasClientCommandType.ATLAS_CMD_CLIENT_DEVICE_SHUTDOWN.toString());
+        	cmd.setType(AtlasClientCommandType.ATLAS_CMD_CLIENT_DEVICE_SHUTDOWN);
         } else {
         	LOG.debug("Command " + command + " is invalid!");
         	throw new ClientCommandInvalid(command);
@@ -637,6 +693,32 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
             String jsonCmd = mapper.writeValueAsString(gatewayCommand);
+            mqttService.publish(gateway.getPsk() + ATLAS_TO_GATEWAY_TOPIC, jsonCmd);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+	}
+	
+	private void sendGatewayCommandDONEAck(AtlasGateway gateway, AtlasClient client, int cmdSeqNo) {
+		LOG.info("Try to send command DONE ACK to gateway with identity " + gateway.getIdentity() + " for client with identity: " + client.getIdentity() + ". Command sequence number: " + cmdSeqNo);
+	
+		if (!gateway.isRegistered()) {
+			LOG.debug("Cannot send command DONE ACK to gateway with identity " + gateway.getIdentity() + " because the gateway is offline!");
+			return;
+		}
+		
+		AtlasClientCommandDoneDto cmdDoneAck = new AtlasClientCommandDoneDto();
+		cmdDoneAck.setSeqNo(cmdSeqNo);
+		cmdDoneAck.setClientIdentity(client.getIdentity());
+		
+		AtlasGatewayCommand gatewayCommand = new AtlasGatewayCommand();
+		gatewayCommand.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT_DONE_ACK);
+		gatewayCommand.setCommandPayload(cmdDoneAck);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+            String jsonCmd = mapper.writeValueAsString(gatewayCommand);
+            LOG.info("Sending command DONE ACK to gateway with identity " + gateway.getIdentity() + " for client with identity: " + client.getIdentity() + ". Command sequence number: " + cmdSeqNo);
             mqttService.publish(gateway.getPsk() + ATLAS_TO_GATEWAY_TOPIC, jsonCmd);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

@@ -21,11 +21,11 @@ atlas_app.controller('ClientDetailsController',[ '$scope', '$interval', '$route'
     };
     
     $scope.actionRestart = function(command) {
-        GatewayService.sendClientCommand($scope.gw_identity, $scope.cl_identity, 'ATLAS_CMD_CLIENT_RESTART');
+        GatewayService.sendClientCommand($scope.gw_identity, $scope.cl_identity, 'ATLAS_CMD_CLIENT_DEVICE_RESTART');
     }
     
     $scope.actionShutdown = function(command) {
-        GatewayService.sendClientCommand($scope.gw_identity, $scope.cl_identity, 'ATLAS_CMD_CLIENT_SHUTDOWN');
+        GatewayService.sendClientCommand($scope.gw_identity, $scope.cl_identity, 'ATLAS_CMD_CLIENT_DEVICE_SHUTDOWN');
     }
 
     function convertSecondsToTime(seconds) {
