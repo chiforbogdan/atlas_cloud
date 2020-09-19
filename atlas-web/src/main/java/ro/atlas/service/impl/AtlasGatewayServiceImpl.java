@@ -46,6 +46,7 @@ import ro.atlas.exception.GatewayNotRegisteredException;
 import ro.atlas.properties.AtlasProperties;
 import ro.atlas.repository.AtlasGatewayRepository;
 import ro.atlas.service.AtlasGatewayService;
+import ro.atlas.service.AtlasOwnerService;
 
 @Component
 public class AtlasGatewayServiceImpl implements AtlasGatewayService {
@@ -62,6 +63,8 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     AtlasMqttServiceImpl mqttService;
     private @Autowired
     AtlasProperties properties;
+    private @Autowired
+    AtlasOwnerService ownerService;
 
     @Override
     public synchronized void addGateway(AtlasGatewayAddDto gatewayAddDto) {
@@ -73,7 +76,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setIdentity(gatewayAddDto.getIdentity());
         gateway.setPsk(gatewayAddDto.getPsk());
         gateway.setClients(new HashMap<>());
-        gateway.setPendingCommands(new LinkedList<>());
+        gateway.setGatewayPendingCmds(new LinkedList<>());
         gateway.setGlobalCommandSeqNo(1);
 
         try {
@@ -164,13 +167,13 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
          
          LOG.info("Received ACK for client command with sequence number: " + clientCmdAck.getSeqNo() +" from gateway with identity " + gateway.getIdentity());
     
-         if (gateway.getPendingCommands().size() == 0) {
+         if (gateway.getGatewayPendingCmds().size() == 0) {
         	 LOG.info("Gateway with identity " + gateway.getIdentity() + " does not have pending commands. Discarding ACK...");
         	 return;
          }
          
          /* The client command which received an ACK should be the first pending command in the list */
-         AtlasClientCommandDto clientCmdDto = (AtlasClientCommandDto) gateway.getPendingCommands().get(0).getCommandPayload();
+         AtlasClientCommandDto clientCmdDto = (AtlasClientCommandDto) gateway.getGatewayPendingCmds().get(0).getCommandPayload();
          if (clientCmdDto.getSeqNo() != clientCmdAck.getSeqNo()) {
         	 LOG.info("Gateway with identity " + gateway.getIdentity() + " has a different sequence number than the received ACK. Discarding ACK...");
         	 return;
@@ -189,7 +192,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
          });
 
          /* Remove pending command and update the command status in the client list */
-         gateway.getPendingCommands().remove(0);
+         gateway.getGatewayPendingCmds().remove(0);
 
          LOG.debug("Command with sequence number: " + clientCmdAck.getSeqNo() + " was deleted from the gateway pending list for gateway with identity: " + gateway.getIdentity());
          
@@ -647,8 +650,6 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         }
         /* Set command creation date */
         cmd.setCreationTime(new Date());
-        /* Set command state */
-        cmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_GATEWAY);
         /* Set empty payload */
         cmd.setPayload("");
         /* Set command identifier */
@@ -657,21 +658,38 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         /* Add command to client pending command list */
         client.getTransmittedCommands().add(cmd);
         
-        /* Add command to the gateway queue. Encapsulate the client command in a gateway command. */
-		AtlasGatewayCommand gatewayCommand = new AtlasGatewayCommand();
-		gatewayCommand.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT);
-		/* Set gateway command payload */
-		AtlasClientCommandDto clientCmdDto = new AtlasClientCommandDto(client.getIdentity(), cmd);
-		gatewayCommand.setCommandPayload(clientCmdDto);
-		gateway.getPendingCommands().add(gatewayCommand);
+        /* If gateway has an owner, then send the command to owner for approval */
+        AtlasClientCommandDto clientCmdDto = new AtlasClientCommandDto(client.getIdentity(), cmd);
+        if (gateway.getOwner() != null) {
+        	LOG.debug("Client command for device with identity {} and gateway with identity {} will be sent to owner for approval",
+        			client.getIdentity(), gateway.getIdentity());
+        	
+        	/* Set command state */
+            cmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_OWNER_FOR_APPROVAL);
+        	
+        	ownerService.enqueueOwnerCommand(gateway.getIdentity(), "owner1", clientCmdDto);
+        } else {
+        	LOG.debug("Client command for device with identity {} and gateway with identity {} will be sent directly to gateway (no owner)",
+        			client.getIdentity(), gateway.getIdentity());
+        	
+        	/* Set command state */
+            cmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_GATEWAY);
+        	
+        	/* Add command to the gateway queue. Encapsulate the client command in a gateway command. */
+    		AtlasGatewayCommand gatewayCommand = new AtlasGatewayCommand();
+    		gatewayCommand.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT);
+    		/* Set gateway command payload */
+    		gatewayCommand.setCommandPayload(clientCmdDto);
+    		gateway.getGatewayPendingCmds().add(gatewayCommand);
+    		
+            /* If this is the only client command in the queue, then try to send it right now */
+            if (gateway.getGatewayPendingCmds().size() == 1)
+    			sendGatewayCommand(gateway);
+            else
+            	LOG.debug("Enqueue gateway client command with sequence number " + cmd.getSeqNo() + " for a deffered transmission");
+        }
         
         gatewayRepository.save(gateway);
-	
-        /* If this is the only client command in the queue, then try to send it right now */
-        if (gateway.getPendingCommands().size() == 1)
-			sendGatewayCommand(gateway);
-        else
-        	LOG.debug("Enqueue gateway client command with sequence number " + cmd.getSeqNo() + " for a deffered transmission");
 	}
 	
 	private void sendGatewayCommand(AtlasGateway gateway) {
@@ -683,13 +701,13 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 		}
 		
 		/* Encapsulate the client command in a gateway command */
-		if (gateway.getPendingCommands().size() == 0) {
+		if (gateway.getGatewayPendingCmds().size() == 0) {
 			LOG.info("Gateway with identity " + gateway.getIdentity() + " has not pending commands!");
 			return;
 		}
 		
 		/* Get the first command */
-		AtlasGatewayCommand gatewayCommand = gateway.getPendingCommands().get(0);
+		AtlasGatewayCommand gatewayCommand = gateway.getGatewayPendingCmds().get(0);
 		ObjectMapper mapper = new ObjectMapper();
 		try {
             String jsonCmd = mapper.writeValueAsString(gatewayCommand);
@@ -723,5 +741,55 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+	}
+
+	@Override
+	public synchronized boolean sendApprovedCommandToClient(String gatewayIdentity,
+			AtlasClientCommandDto clientCommand) {
+		if (gatewayIdentity == null || gatewayIdentity.isEmpty()) {
+			LOG.error("Cannot send approved client command to gateway: empty gateway identity");
+			return false;
+		}
+		
+		if (clientCommand == null) {
+			LOG.error("Cannot send approved client command to gateway: empty client command");
+			return false;
+		}
+		
+		AtlasGateway gateway = gatewayRepository.findByIdentity(gatewayIdentity);
+		if (gateway == null) {
+			LOG.error("Cannot find gateway with identity {}", gatewayIdentity);
+			return false;
+		}
+		
+		AtlasClient client = gateway.getClients().get(clientCommand.getClientIdentity());
+		if (client == null) {
+			LOG.error("Cannot find client with identity {}", clientCommand.getClientIdentity());
+			return false;
+		}
+		
+		/* Update status for the client command */
+		client.getTransmittedCommands().forEach(cmd -> {
+			if (cmd.getSeqNo() == clientCommand.getSeqNo()) {
+				cmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_GATEWAY);
+			}
+		});
+		
+		 /* Add command to the gateway queue. Encapsulate the client command in a gateway command. */
+		AtlasGatewayCommand gatewayCommand = new AtlasGatewayCommand();
+		gatewayCommand.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT);
+		/* Set gateway command payload */
+		gatewayCommand.setCommandPayload(clientCommand);
+		gateway.getGatewayPendingCmds().add(gatewayCommand);
+		gateway = gatewayRepository.save(gateway);
+		
+        /* If this is the only client command in the queue, then try to send it right now */
+        if (gateway.getGatewayPendingCmds().size() == 1)
+			sendGatewayCommand(gateway);
+        else
+        	LOG.debug("Enqueue gateway client command with sequence number {}  for a deffered transmission");
+
+        
+		return true;
 	}
 }

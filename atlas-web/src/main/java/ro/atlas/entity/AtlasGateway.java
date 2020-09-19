@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import ro.atlas.commands.AtlasGatewayCommand;
+import ro.atlas.dto.AtlasClientCommandDto;
 
 @Document
 public class AtlasGateway {
@@ -43,10 +44,13 @@ public class AtlasGateway {
 	private HashMap<String, AtlasClient> clients;
 
 	/* Pending gateway commands list */
-	private LinkedList<AtlasGatewayCommand> pendingCommands;
+	private LinkedList<AtlasGatewayCommand> gatewayPendingCmds;
 
 	/* Client command global sequence number */
 	private int globalCmdSeqNo;
+	
+	/* Holds the owner identifier */
+	private String owner;
 
 	public String getIdentity() {
 		return identity;
@@ -112,19 +116,27 @@ public class AtlasGateway {
 		this.alias = alias;
 	}
 
-	public LinkedList<AtlasGatewayCommand> getPendingCommands() {
-		return pendingCommands;
+	public LinkedList<AtlasGatewayCommand> getGatewayPendingCmds() {
+		return gatewayPendingCmds;
 	}
 
-	public void setPendingCommands(LinkedList<AtlasGatewayCommand> cmds) {
-		pendingCommands = cmds;
+	public void setGatewayPendingCmds(LinkedList<AtlasGatewayCommand> cmds) {
+		gatewayPendingCmds = cmds;
 	}
-
+	
 	public int getGlobalCommandSeqNo() {
 		return globalCmdSeqNo;
 	}
 
 	public void setGlobalCommandSeqNo(int cmdSeqNo) {
 		globalCmdSeqNo = cmdSeqNo;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 }

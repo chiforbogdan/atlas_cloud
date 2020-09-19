@@ -12,6 +12,8 @@ public class AtlasClientCommandDto {
 	private String payload;
 	/* Command sequence number */
 	private int seqNo;
+	/* Command owner signature */
+	private String signature;
 
 	public AtlasClientCommandDto() {
 	}
@@ -37,5 +39,13 @@ public class AtlasClientCommandDto {
 
 	public int getSeqNo() {
 		return seqNo;
+	}
+
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
 	}
 }

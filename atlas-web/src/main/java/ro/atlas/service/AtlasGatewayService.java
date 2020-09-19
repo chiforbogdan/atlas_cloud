@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import ro.atlas.dto.AtlasClientCommandDto;
 import ro.atlas.dto.AtlasClientSummaryDto;
 import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.entity.AtlasClient;
@@ -107,4 +108,12 @@ public interface AtlasGatewayService {
      * @param command Command type
      */
     void sendCommandToClient(String gatewayIdentity, String clientIdentity, String command);
+    
+    /**
+     * Send approved client command to gateway
+     * @param gatewayIdentity Gateway identity
+     * @param clientCommand Client command
+     * @return True if the approved command was inserted in the queue, false otherwise
+     */
+    boolean sendApprovedCommandToClient(String gatewayIdentity, AtlasClientCommandDto clientCommand);
 }
