@@ -49,8 +49,8 @@ public class AtlasGateway {
 	/* Client command global sequence number */
 	private int globalCmdSeqNo;
 	
-	/* Holds the owner identifier */
-	private String owner;
+	/* Holds the gateway information */
+	private AtlasGatewayInfo gatewayInfo;
 
 	public String getIdentity() {
 		return identity;
@@ -132,11 +132,11 @@ public class AtlasGateway {
 		globalCmdSeqNo = cmdSeqNo;
 	}
 
-	public String getOwner() {
-		return owner;
+	public AtlasGatewayInfo getGatewayInfo() {
+		return gatewayInfo;
 	}
 
-	public void setOwner(String owner) {
-		this.owner = owner;
+	public void setGatewayInfo(AtlasGatewayInfo gatewayInfo) {
+		this.gatewayInfo = gatewayInfo;
 	}
 }

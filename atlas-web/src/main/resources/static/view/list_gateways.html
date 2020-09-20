@@ -11,8 +11,7 @@
                             <th width="20%">Alias</th>
                             <th width="30%">Identity</th>
                             <th width="30%">PSK</th>
-                            <th width="5%">Status</th>
-                            <th width="5%">
+                            <th width="10%">Status</th>
                             <th width="5%">
                         </tr>
                         </thead>
@@ -51,7 +50,7 @@
                             <td><span> <b>Last registered time:</b> {{g.lastRegistertTime == null ? 'N/A' : g.lastRegistertTime}}</span></td>
                             <td><span> <b>Last keep-alive time:</b> {{g.lastKeepaliveTime == null ? 'N/A' : g.lastKeepaliveTime}}</span></td>
                             <td><span> <b>Keep-alive counter:</b>  {{g.keepaliveCounter == null ? 'N/A' : g.keepaliveCounter}}</span></td>
-                            <td></td>
+                            <td><span> <b>Claimed:</b>  {{(g.gatewayInfo.owner == null || g.gatewayInfo.owner == "") ? 'No' : 'Yes'}}</span></td>
                         </tr>
                         </tbody>
                     </table>

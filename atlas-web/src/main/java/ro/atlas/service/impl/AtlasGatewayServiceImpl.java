@@ -36,6 +36,7 @@ import ro.atlas.dto.AtlasGatewayAddDto;
 import ro.atlas.dto.AtlasUsernamePassDto;
 import ro.atlas.entity.AtlasClient;
 import ro.atlas.entity.AtlasGateway;
+import ro.atlas.entity.AtlasGatewayInfo;
 import ro.atlas.entity.sample.AtlasFirewallSample;
 import ro.atlas.entity.sample.AtlasReputationSample;
 import ro.atlas.exception.ClientCommandInvalid;
@@ -78,6 +79,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gateway.setClients(new HashMap<>());
         gateway.setGatewayPendingCmds(new LinkedList<>());
         gateway.setGlobalCommandSeqNo(1);
+        gateway.setGatewayInfo(new AtlasGatewayInfo());
 
         try {
             /* Add gateway to database */
@@ -128,10 +130,15 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
             String cmdType = jsonObject.getString(AtlasGatewayCommandType.ATLAS_CMD_TYPE_FIELDNAME);
 
             /* Check command type */
+            if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_INFO_UPDATE.getCommandType())) {
+                LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a gateway update command");
+                String cmdPayload = jsonObject.getString(AtlasGatewayCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
+                updateGatewayCommand(gateway, cmdPayload);
+            } else
             if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT_INFO_UPDATE.getCommandType())) {
                 LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a device update command");
                 String cmdPayload = jsonObject.getString(AtlasGatewayCommandType.ATLAS_CMD_PAYLOAD_FIELDNAME);
-                updateCommand(gateway, cmdPayload);
+                updateClientCommand(gateway, cmdPayload);
             } else if (cmdType.equalsIgnoreCase(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_REGISTER.getCommandType())) {
                 LOG.info("Gateway with identity " + gateway.getIdentity() + " sent a register command");
                 registerNow(gateway);
@@ -342,7 +349,29 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         gatewayRepository.save(gateway);
     }
 
-    private void updateCommand(AtlasGateway gateway, String cmdPayload) {
+    private void updateGatewayCommand(AtlasGateway gateway, String cmdPayload) {
+        LOG.info("Update information for gateway with identity {}", gateway.getIdentity());
+        
+        ObjectMapper mapper = new ObjectMapper();
+        AtlasGatewayInfo gatewayInfo = null;
+
+        try {
+            gatewayInfo = mapper.readValue(cmdPayload.getBytes(), AtlasGatewayInfo.class);
+            if (gatewayInfo == null) {
+                LOG.info("Cannot deserialize information for gateway with identity {}", gateway.getIdentity());            	
+            	return;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        
+        gateway.getGatewayInfo().updateInfo(gatewayInfo);
+        
+        gatewayRepository.save(gateway);
+    }
+    
+    private void updateClientCommand(AtlasGateway gateway, String cmdPayload) {
         LOG.info("Update device for gateway with identity " + gateway.getIdentity());
 
         ObjectMapper mapper = new ObjectMapper();
@@ -660,7 +689,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         
         /* If gateway has an owner, then send the command to owner for approval */
         AtlasClientCommandDto clientCmdDto = new AtlasClientCommandDto(client.getIdentity(), cmd);
-        if (gateway.getOwner() != null) {
+        if (gateway.getGatewayInfo().getOwner() != null && !gateway.getGatewayInfo().getOwner().isEmpty()) {
         	LOG.debug("Client command for device with identity {} and gateway with identity {} will be sent to owner for approval",
         			client.getIdentity(), gateway.getIdentity());
         	
