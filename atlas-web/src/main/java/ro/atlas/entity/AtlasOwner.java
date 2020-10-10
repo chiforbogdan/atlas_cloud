@@ -20,6 +20,9 @@ public class AtlasOwner {
 	@Indexed(unique = true)
 	private String ownerIdentity;
 	
+	/* Owner Android firebase token (used to notify the Android application) */
+	private String firebaseToken;
+	
 	/* Indicates if the user should be notified or not */
 	private boolean notifyUser;
 	
@@ -60,6 +63,14 @@ public class AtlasOwner {
 
 	public void setNotifyUser(boolean notifyUser) {
 		this.notifyUser = notifyUser;
+	}
+
+	public String getFirebaseToken() {
+		return firebaseToken;
+	}
+
+	public void setFirebaseToken(String firebaseToken) {
+		this.firebaseToken = firebaseToken;
 	}
 
 }

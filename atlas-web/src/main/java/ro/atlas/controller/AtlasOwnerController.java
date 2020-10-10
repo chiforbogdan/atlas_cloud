@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ro.atlas.dto.AtlasClientCommandDto;
 import ro.atlas.dto.AtlasOwnerCommandDto;
+import ro.atlas.dto.AtlasOwnerFirebaseDto;
 import ro.atlas.service.AtlasOwnerService;
 
 @RestController
@@ -57,5 +58,15 @@ public class AtlasOwnerController {
 		boolean result = ownerService.setOwnerCommandStatus(ownerIdentity, ownerCommand);
 
 		return result ? new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	}
+	
+	@PostMapping(path = "firebase/{owner_identity}")
+	public ResponseEntity<?> setOwnerFirebaseToken(@PathVariable("owner_identity") String ownerIdentity,
+			@RequestBody AtlasOwnerFirebaseDto ownerFirebase) {
+		LOG.info("Set firebase token for owner with identity {}", ownerIdentity);
+
+		ownerService.updateFirebaseToken(ownerIdentity, ownerFirebase);
+
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

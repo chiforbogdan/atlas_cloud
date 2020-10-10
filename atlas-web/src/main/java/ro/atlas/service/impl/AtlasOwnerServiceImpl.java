@@ -1,9 +1,7 @@
 package ro.atlas.service.impl;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import ro.atlas.dto.AtlasClientCommandDto;
 import ro.atlas.dto.AtlasOwnerCommandDto;
+import ro.atlas.dto.AtlasOwnerFirebaseDto;
 import ro.atlas.entity.AtlasOwner;
 import ro.atlas.repository.AtlasOwnerRepository;
 import ro.atlas.service.AtlasGatewayService;
@@ -180,5 +179,30 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 		ownerRepository.save(owner);
 
 		return true;
+	}
+
+	@Override
+	public void updateFirebaseToken(String ownerIdentity, AtlasOwnerFirebaseDto ownerFirebase) {
+		/* Sanity check */
+		if (ownerIdentity == null || ownerIdentity.isEmpty()) {
+			LOG.error("Empty owner identity!");
+			return;
+		}
+		if (ownerFirebase == null || ownerFirebase.getFirebaseToken() == null || ownerFirebase.getFirebaseToken().isEmpty()) {
+			LOG.error("Empty firebase token!");
+			return;
+		}
+
+		/* Save owner command to database */
+		AtlasOwner owner = ownerRepository.findByOwnerIdentity(ownerIdentity);
+		if (owner == null) {
+			owner = new AtlasOwner();
+			owner.setOwnerIdentity(ownerIdentity);
+			owner.setOwnerCommands(new HashMap<String, LinkedList<AtlasClientCommandDto>>());
+			owner = ownerRepository.insert(owner);
+		}
+		
+		owner.setFirebaseToken(ownerFirebase.getFirebaseToken());
+		ownerRepository.save(owner);
 	}
 }

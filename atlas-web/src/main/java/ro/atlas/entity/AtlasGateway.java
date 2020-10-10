@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import ro.atlas.commands.AtlasGatewayCommand;
-import ro.atlas.dto.AtlasClientCommandDto;
 
 @Document
 public class AtlasGateway {
@@ -48,7 +47,7 @@ public class AtlasGateway {
 
 	/* Client command global sequence number */
 	private int globalCmdSeqNo;
-	
+
 	/* Holds the gateway information */
 	private AtlasGatewayInfo gatewayInfo;
 
@@ -123,7 +122,7 @@ public class AtlasGateway {
 	public void setGatewayPendingCmds(LinkedList<AtlasGatewayCommand> cmds) {
 		gatewayPendingCmds = cmds;
 	}
-	
+
 	public int getGlobalCommandSeqNo() {
 		return globalCmdSeqNo;
 	}

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import ro.atlas.dto.AtlasClientCommandDto;
 import ro.atlas.dto.AtlasOwnerCommandDto;
+import ro.atlas.dto.AtlasOwnerFirebaseDto;
 
 @Service
 public interface AtlasOwnerService {
@@ -32,4 +33,11 @@ public interface AtlasOwnerService {
 	 * @param ownerCommand Owner command approved status
 	 */
 	public boolean setOwnerCommandStatus(String ownerIdentity, AtlasOwnerCommandDto ownerCommand);
+	
+	/**
+	 * Update firebase token for an owner
+	 * @param ownerIdentity Owner identity
+	 * @param ownerFirebase Firebase token
+	 */
+	public void updateFirebaseToken(String ownerIdentity, AtlasOwnerFirebaseDto ownerFirebase);
 }

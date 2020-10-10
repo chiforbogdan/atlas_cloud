@@ -696,7 +696,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         	/* Set command state */
             cmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_OWNER_FOR_APPROVAL);
         	
-        	ownerService.enqueueOwnerCommand(gateway.getIdentity(), "owner1", clientCmdDto);
+        	ownerService.enqueueOwnerCommand(gateway.getIdentity(), gateway.getGatewayInfo().getOwner(), clientCmdDto);
         } else {
         	LOG.debug("Client command for device with identity {} and gateway with identity {} will be sent directly to gateway (no owner)",
         			client.getIdentity(), gateway.getIdentity());
