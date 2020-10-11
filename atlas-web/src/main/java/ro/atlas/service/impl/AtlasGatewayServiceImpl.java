@@ -688,7 +688,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         client.getTransmittedCommands().add(cmd);
         
         /* If gateway has an owner, then send the command to owner for approval */
-        AtlasClientCommandDto clientCmdDto = new AtlasClientCommandDto(client.getIdentity(), cmd);
+        AtlasClientCommandDto clientCmdDto = new AtlasClientCommandDto(client.getIdentity(), client.getAlias(), cmd);
         if (gateway.getGatewayInfo().getOwner() != null && !gateway.getGatewayInfo().getOwner().isEmpty()) {
         	LOG.debug("Client command for device with identity {} and gateway with identity {} will be sent to owner for approval",
         			client.getIdentity(), gateway.getIdentity());

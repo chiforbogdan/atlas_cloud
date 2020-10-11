@@ -27,6 +27,9 @@ public class AtlasProperties {
 
 	/* The max number of samples in history lists */
 	private int maxHistorySamples;
+	
+	/* Holds the firebase configuration file */
+	private String firebaseConfigurationFile;
 
 	public String getBroker() {
 		return broker;
@@ -90,5 +93,13 @@ public class AtlasProperties {
 
 	public void setCredentialsReloadExec(String credentialsReloadExec) {
 		this.credentialsReloadExec = credentialsReloadExec;
+	}
+
+	public String getFirebaseConfigurationFile() {
+		return firebaseConfigurationFile;
+	}
+
+	public void setFirebaseConfigurationFile(String firebaseConfigurationFile) {
+		this.firebaseConfigurationFile = firebaseConfigurationFile;
 	}
 }

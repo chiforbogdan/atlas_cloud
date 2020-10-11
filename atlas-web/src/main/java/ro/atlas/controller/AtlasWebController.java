@@ -57,7 +57,7 @@ public class AtlasWebController {
 
     @GetMapping(path = "gateway/clients/{gateway_identity}")
     public ResponseEntity<List<AtlasClientSummaryDto>> getGatewayClientsList(@PathVariable("gateway_identity") String gatewayIdentity) {
-        LOG.info("Fetching clients for gateway with identity: " + gatewayIdentity);
+        LOG.debug("Fetching clients for gateway with identity: " + gatewayIdentity);
 
         List<AtlasClientSummaryDto> clients = gatewayService.getAllClientsSummary(gatewayIdentity);
         if (clients == null) {
@@ -70,7 +70,7 @@ public class AtlasWebController {
 
     @GetMapping(path = "gateway/client/{gateway_identity}/{client_identity}")
     public ResponseEntity<AtlasClient> getClientDetails(@PathVariable("gateway_identity") String gatewayIdentity, @PathVariable("client_identity") String clientIdentity) {
-        LOG.info("Fetching details for client with identity: " + clientIdentity);
+        LOG.debug("Fetching details for client with identity: " + clientIdentity);
 
         AtlasClient client = gatewayService.getClient(gatewayIdentity, clientIdentity);
 

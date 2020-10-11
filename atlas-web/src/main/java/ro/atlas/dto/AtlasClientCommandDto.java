@@ -6,6 +6,8 @@ import ro.atlas.commands.AtlasClientCommandType;
 public class AtlasClientCommandDto {
 	/* Client identity */
 	private String clientIdentity;
+	/* Client alias */
+	private String clientAlias;
 	/* Command type */
 	private AtlasClientCommandType type;
 	/* Command payload */
@@ -18,8 +20,9 @@ public class AtlasClientCommandDto {
 	public AtlasClientCommandDto() {
 	}
 
-	public AtlasClientCommandDto(String clientIdentity, AtlasClientCommand clientCommand) {
+	public AtlasClientCommandDto(String clientIdentity, String clientAlias, AtlasClientCommand clientCommand) {
 		this.clientIdentity = clientIdentity;
+		this.setClientAlias(clientAlias);
 		this.type = clientCommand.getType();
 		this.payload = clientCommand.getPayload();
 		this.seqNo = clientCommand.getSeqNo();
@@ -47,5 +50,13 @@ public class AtlasClientCommandDto {
 
 	public void setSignature(String signature) {
 		this.signature = signature;
+	}
+
+	public String getClientAlias() {
+		return clientAlias;
+	}
+
+	public void setClientAlias(String clientAlias) {
+		this.clientAlias = clientAlias;
 	}
 }

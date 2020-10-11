@@ -24,6 +24,8 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 	private @Autowired AtlasOwnerRepository ownerRepository;
 
 	private @Autowired AtlasGatewayService gatewayService;
+	
+	private @Autowired FirebaseServiceImpl firebaseService;
 
 	@Override
 	public synchronized void enqueueOwnerCommand(String gatewayIdentity, String ownerIdentity,
@@ -62,7 +64,10 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 				gatewayIdentity);
 
 		/* Save owner information */
-		ownerRepository.save(owner);
+		owner = ownerRepository.save(owner);
+		
+		/* Send firebase notification to owner */
+		sendFirebaseNotification(owner);
 	}
 
 	@Override
@@ -204,5 +209,16 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 		
 		owner.setFirebaseToken(ownerFirebase.getFirebaseToken());
 		ownerRepository.save(owner);
+	}
+	
+	private void sendFirebaseNotification(AtlasOwner owner) {
+		LOG.info("Sending firebase notification to owner with identity {}", owner.getOwnerIdentity());
+		
+		if (owner.getFirebaseToken() == null || owner.getFirebaseToken().isEmpty()) {
+			LOG.error("Cannot send firebase notification to empty token");
+			return;
+		}
+		
+		firebaseService.sendPushNotification(owner.getFirebaseToken());
 	}
 }
