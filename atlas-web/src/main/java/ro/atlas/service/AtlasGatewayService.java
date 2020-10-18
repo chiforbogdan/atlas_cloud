@@ -116,4 +116,12 @@ public interface AtlasGatewayService {
      * @return True if the approved command was inserted in the queue, false otherwise
      */
     boolean sendApprovedCommandToClient(String gatewayIdentity, AtlasClientCommandDto clientCommand);
+    
+    /**
+     * Mark client command as rejected by owner
+     * @param gatewayIdentity Gateway identity
+     * @param clientCommand Client command
+     * @return True if the client command was marked as rejected, false otherwise
+     */
+    boolean markCommandAsRejected(String gatewayIdentity, AtlasClientCommandDto clientCommand);
 }

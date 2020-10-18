@@ -88,7 +88,7 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 	}
 
 	@Override
-	public boolean setOwnerCommandStatus(String ownerIdentity, AtlasOwnerCommandDto ownerCommand) {
+	public synchronized boolean setOwnerCommandStatus(String ownerIdentity, AtlasOwnerCommandDto ownerCommand) {
 		if (ownerIdentity == null || ownerIdentity.isEmpty()) {
 			LOG.error("Cannot process owner status command with empty owner identity!");
 			return false;
@@ -110,8 +110,8 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 
 		LinkedList<AtlasClientCommandDto> commands = owner.getOwnerCommands().get(ownerCommand.getGatewayIdentity());
 		if (commands == null || commands.isEmpty()) {
-			LOG.error("Cannot find command list for gateway with identity {}", ownerCommand.getGatewayIdentity());
-			return false;
+			LOG.info("Cannot find command list for gateway with identity {}. Seems like an already processed command. Send success to owner...", ownerCommand.getGatewayIdentity());
+			return true;
 		}
 
 		/*
@@ -130,7 +130,7 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 			return true;
 		}
 
-		if (clientCommand.getSeqNo() < ownerCommand.getSeqNo()) {
+		if (clientCommand.getSeqNo() != ownerCommand.getSeqNo()) {
 			LOG.error(
 					"Status command for owner with identity {} and gateway with identity {} is be rejected: sequence number mismatch",
 					ownerIdentity, ownerCommand.getGatewayIdentity());
@@ -173,6 +173,13 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 			LOG.info(
 					"Deleting rejected command with sequence number {} for owner with identity {} and gateway with identity {}",
 					ownerCommand.getSeqNo(), ownerIdentity, ownerCommand.getGatewayIdentity());
+			
+			if (!gatewayService.markCommandAsRejected(ownerCommand.getGatewayIdentity(), clientCommand)) {
+				LOG.error(
+						"Cannot mark command as rejected for owner with identity {} and gateway with identity {}",
+						ownerIdentity, ownerCommand.getGatewayIdentity());
+				return false;
+			}
 		}
 
 		/* Remove command from the owner list */
@@ -187,7 +194,7 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 	}
 
 	@Override
-	public void updateFirebaseToken(String ownerIdentity, AtlasOwnerFirebaseDto ownerFirebase) {
+	public synchronized void updateFirebaseToken(String ownerIdentity, AtlasOwnerFirebaseDto ownerFirebase) {
 		/* Sanity check */
 		if (ownerIdentity == null || ownerIdentity.isEmpty()) {
 			LOG.error("Empty owner identity!");

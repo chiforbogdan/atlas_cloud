@@ -796,15 +796,16 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 			LOG.error("Cannot find client with identity {}", clientCommand.getClientIdentity());
 			return false;
 		}
-		
+				
 		/* Update status for the client command */
-		client.getTransmittedCommands().forEach(cmd -> {
+		for (AtlasClientCommand cmd : client.getTransmittedCommands()) {
 			if (cmd.getSeqNo() == clientCommand.getSeqNo()) {
 				cmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_DELIVERING_TO_GATEWAY);
+				break;
 			}
-		});
+		}
 		
-		 /* Add command to the gateway queue. Encapsulate the client command in a gateway command. */
+		/* Add command to the gateway queue. Encapsulate the client command in a gateway command. */
 		AtlasGatewayCommand gatewayCommand = new AtlasGatewayCommand();
 		gatewayCommand.setCommandType(AtlasGatewayCommandType.ATLAS_CMD_GATEWAY_CLIENT);
 		/* Set gateway command payload */
@@ -816,9 +817,45 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         if (gateway.getGatewayPendingCmds().size() == 1)
 			sendGatewayCommand(gateway);
         else
-        	LOG.debug("Enqueue gateway client command with sequence number {}  for a deffered transmission");
+        	LOG.debug("Enqueue gateway client command with sequence number {} for a deffered transmission", clientCommand.getSeqNo());
 
-        
 		return true;
+	}
+
+	@Override
+	public synchronized boolean markCommandAsRejected(String gatewayIdentity, AtlasClientCommandDto clientCommand) {
+		if (gatewayIdentity == null || gatewayIdentity.isEmpty()) {
+			LOG.error("Cannot mark client command as rejected: empty gateway identity");
+			return false;
+		}
+		
+		if (clientCommand == null) {
+			LOG.error("Cannot mark client command as rejected: empty client command");
+			return false;
+		}
+		
+		AtlasGateway gateway = gatewayRepository.findByIdentity(gatewayIdentity);
+		if (gateway == null) {
+			LOG.error("Cannot find gateway with identity {}", gatewayIdentity);
+			return false;
+		}
+		
+		AtlasClient client = gateway.getClients().get(clientCommand.getClientIdentity());
+		if (client == null) {
+			LOG.error("Cannot find client with identity {}", clientCommand.getClientIdentity());
+			return false;
+		}
+				
+		/* Update status for the client command */
+		for (AtlasClientCommand cmd : client.getTransmittedCommands()) {
+			if (cmd.getSeqNo() == clientCommand.getSeqNo()) {
+				cmd.setState(AtlasClientCommandState.ATLAS_CMD_CLIENT_REJECTED_BY_OWNER);
+				gatewayRepository.save(gateway);
+				
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }
