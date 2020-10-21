@@ -10,4 +10,9 @@ public interface CronService {
      * Update reputation samples with a sampling period of 5 min
      */
     public void updateReputationSamplesTask();
+    
+    /**
+     * Firebase retry task
+     */
+    public void firebaseRetryTask();
 }

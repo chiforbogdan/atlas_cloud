@@ -2,6 +2,8 @@ package ro.atlas.service.impl;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -29,7 +31,13 @@ import ro.atlas.service.FirebaseService;
 public class FirebaseServiceImpl implements FirebaseService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasOwnerServiceImpl.class);
+	
+	private static final int ATLAS_FIREBASE_CONNECT_TIMEOUT_MS = 45 * 1000;
+	private static final int ATLAS_FIREBASE_READ_TIMEOUT_MS = 45 * 1000;
+	
 	private static final String FIREBASE_NOTIFICATION_TITLE = "ATLAS Commands are waiting for approval";
+	private Set<String> retrySet = new HashSet<>();
+	private Object lock = new Object();
 
 	@Autowired
 	private AtlasProperties properties;
@@ -39,6 +47,8 @@ public class FirebaseServiceImpl implements FirebaseService {
 		try {
 			FirebaseOptions options = FirebaseOptions.builder().setCredentials(GoogleCredentials
 					.fromStream(new ClassPathResource(properties.getFirebaseConfigurationFile()).getInputStream()))
+					.setConnectTimeout(ATLAS_FIREBASE_CONNECT_TIMEOUT_MS)
+					.setReadTimeout(ATLAS_FIREBASE_READ_TIMEOUT_MS)
 					.build();
 
 			if (FirebaseApp.getApps().isEmpty()) {
@@ -75,8 +85,25 @@ public class FirebaseServiceImpl implements FirebaseService {
 		} catch (FirebaseMessagingException e) {
 			LOG.error("Firebase exception: {}", e.getMessage());
 			e.printStackTrace();
+		} finally {
+			LOG.info("Firebase response: {}", response);
+			if (response == null) {
+				LOG.info("Adding firebase token {} to retry set", response);
+				synchronized (lock) {
+					retrySet.add(firebaseToken);
+				}
+			}			
 		}
+	}
 
-		LOG.info("Firebase response: {}", response);
+	@Override
+	public void sendRetryNotifications() {
+		LOG.info("Execute Firebase sendRetryNotifications");
+		synchronized (lock) {
+			retrySet.forEach((firebaseToken) -> {
+				sendPushNotification(firebaseToken);
+			});
+			retrySet.clear();
+		}
 	}
 }

@@ -10,5 +10,10 @@ public interface FirebaseService {
 	 * @param firebaseToken Firebase token
 	 */
 	void sendPushNotification(String firebaseToken);
+	
+	/**
+	 * Send retry notifications to android devices
+	 */
+	void sendRetryNotifications();
 }
 
