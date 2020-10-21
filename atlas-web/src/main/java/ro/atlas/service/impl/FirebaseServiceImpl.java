@@ -9,17 +9,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.AndroidConfig.Priority;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import com.google.firebase.messaging.AndroidConfig.Priority;
 
 import ro.atlas.properties.AtlasProperties;
 import ro.atlas.service.FirebaseService;
@@ -53,9 +54,10 @@ public class FirebaseServiceImpl implements FirebaseService {
 		}
 	}
 
+	@Async
 	@Override
 	public void sendPushNotification(String firebaseToken) {
-		LOG.info("Sending firebase notification to token: {}", firebaseToken);
+		LOG.info("Sending firebase notification to token: {} on thread {}", firebaseToken, Thread.currentThread().getName());
 
 		Notification notification = new Notification(FIREBASE_NOTIFICATION_TITLE, new Date().toString());
 		AndroidConfig androidConfig = AndroidConfig.builder()
