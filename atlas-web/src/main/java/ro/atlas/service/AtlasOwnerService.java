@@ -13,6 +13,11 @@ import ro.atlas.dto.AtlasOwnerFirebaseDto;
 public interface AtlasOwnerService {
 
 	/**
+	 * Init owners service
+	 */
+	public void initOwners();
+	
+	/**
 	 * Enqueue owner command. This method saves the owner command in a list and
 	 * transmits the command to the owner via push notifications.
 	 * @param gatewayIdentity Gateway identity 

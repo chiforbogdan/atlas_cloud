@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import ro.atlas.service.AtlasGatewayService;
 import ro.atlas.service.AtlasMqttService;
+import ro.atlas.service.AtlasOwnerService;
 
 
 @Component
@@ -19,6 +20,7 @@ public class ApplicationInit implements ApplicationRunner {
  
 	private @Autowired AtlasMqttService mqttService;
 	private @Autowired AtlasGatewayService gatewayService;
+	private @Autowired AtlasOwnerService ownerService;
 	
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -29,5 +31,8 @@ public class ApplicationInit implements ApplicationRunner {
         
         /* Init gateways */
         gatewayService.initGateways();
+        
+        /* Init owners */
+        ownerService.initOwners();
     }
 }

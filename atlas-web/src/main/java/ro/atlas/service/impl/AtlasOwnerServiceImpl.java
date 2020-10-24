@@ -2,10 +2,13 @@ package ro.atlas.service.impl;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import ro.atlas.dto.AtlasClientCommandDto;
@@ -22,11 +25,22 @@ public class AtlasOwnerServiceImpl implements AtlasOwnerService {
 	private static final Logger LOG = LoggerFactory.getLogger(AtlasOwnerServiceImpl.class);
 
 	private @Autowired AtlasOwnerRepository ownerRepository;
-
 	private @Autowired AtlasGatewayService gatewayService;
-	
 	private @Autowired FirebaseServiceImpl firebaseService;
 
+	@Override
+	public void initOwners() {
+		LOG.debug("Init owners service");
+
+		/* Send a notification to each owner which has at least one pending command */
+		List<AtlasOwner> owners = ownerRepository.findAll();
+		owners.forEach((owner) -> {
+			if (owner.getOwnerCommands() != null && !owner.getOwnerCommands().isEmpty()) {
+				sendFirebaseNotification(owner);
+			}
+		});
+	}
+	
 	@Override
 	public synchronized void enqueueOwnerCommand(String gatewayIdentity, String ownerIdentity,
 			AtlasClientCommandDto clientCommand) {
