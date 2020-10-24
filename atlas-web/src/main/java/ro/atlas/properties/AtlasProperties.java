@@ -30,6 +30,12 @@ public class AtlasProperties {
 	
 	/* Holds the firebase configuration file */
 	private String firebaseConfigurationFile;
+	
+	/* Holds the owner restricted port. If this port is accessed, the client can query only the owner web controller */
+	private int ownerRestrictedPort;
+	
+	/* Holds the owner web controller path prefix */
+	private String ownerRestrictedPathPrefix;
 
 	public String getBroker() {
 		return broker;
@@ -101,5 +107,21 @@ public class AtlasProperties {
 
 	public void setFirebaseConfigurationFile(String firebaseConfigurationFile) {
 		this.firebaseConfigurationFile = firebaseConfigurationFile;
+	}
+
+	public int getOwnerRestrictedPort() {
+		return ownerRestrictedPort;
+	}
+
+	public void setOwnerRestrictedPort(int ownerRestrictedPort) {
+		this.ownerRestrictedPort = ownerRestrictedPort;
+	}
+
+	public String getOwnerRestrictedPathPrefix() {
+		return ownerRestrictedPathPrefix;
+	}
+
+	public void setOwnerRestrictedPathPrefix(String ownerRestrictedPathPrefix) {
+		this.ownerRestrictedPathPrefix = ownerRestrictedPathPrefix;
 	}
 }

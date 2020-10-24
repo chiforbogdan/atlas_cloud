@@ -64,6 +64,18 @@
         </SSLHostConfig>
     </Connector>
 
+    <Connector port="8888" protocol="org.apache.coyote.http11.Http11AprProtocol"
+               maxThreads="150" SSLEnabled="true">
+        <UpgradeProtocol className="org.apache.coyote.http2.Http2Protocol" />
+        <SSLHostConfig>
+            <Certificate certificateChainFile="conf/server.chain.pem"
+                         certificateKeyFile="conf/server.key.pem"
+                         certificateFile="conf/server.crt.pem"
+                         type="RSA" />
+        </SSLHostConfig>
+    </Connector>
+
+
     <!-- An Engine represents the entry point (within Catalina) that processes
          every request.  The Engine implementation for Tomcat stand alone
          analyzes the HTTP headers included with the request, and passes them
