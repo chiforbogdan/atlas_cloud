@@ -690,7 +690,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         /* If gateway has an owner, then send the command to owner for approval */
         AtlasClientCommandDto clientCmdDto = new AtlasClientCommandDto(client.getIdentity(), client.getAlias(), cmd);
         if (gateway.getGatewayInfo().getOwner() != null && !gateway.getGatewayInfo().getOwner().isEmpty()) {
-        	LOG.debug("Client command for device with identity {} and gateway with identity {} will be sent to owner for approval",
+        	LOG.info("Client command for device with identity {} and gateway with identity {} will be sent to owner for approval",
         			client.getIdentity(), gateway.getIdentity());
         	
         	/* Set command state */
@@ -698,7 +698,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
         	
         	ownerService.enqueueOwnerCommand(gateway.getIdentity(), gateway.getGatewayInfo().getOwner(), clientCmdDto);
         } else {
-        	LOG.debug("Client command for device with identity {} and gateway with identity {} will be sent directly to gateway (no owner)",
+        	LOG.info("Client command for device with identity {} and gateway with identity {} will be sent directly to gateway (no owner)",
         			client.getIdentity(), gateway.getIdentity());
         	
         	/* Set command state */
@@ -710,12 +710,13 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
     		/* Set gateway command payload */
     		gatewayCommand.setCommandPayload(clientCmdDto);
     		gateway.getGatewayPendingCmds().add(gatewayCommand);
-    		
+    		LOG.info("Gateway pending size is:" + gateway.getGatewayPendingCmds().size());
             /* If this is the only client command in the queue, then try to send it right now */
-            if (gateway.getGatewayPendingCmds().size() == 1)
+            if (gateway.getGatewayPendingCmds().size() == 1) {
     			sendGatewayCommand(gateway);
-            else
+            } else {
             	LOG.debug("Enqueue gateway client command with sequence number " + cmd.getSeqNo() + " for a deffered transmission");
+            }
         }
         
         gatewayRepository.save(gateway);
@@ -731,7 +732,7 @@ public class AtlasGatewayServiceImpl implements AtlasGatewayService {
 		
 		/* Encapsulate the client command in a gateway command */
 		if (gateway.getGatewayPendingCmds().size() == 0) {
-			LOG.info("Gateway with identity " + gateway.getIdentity() + " has not pending commands!");
+			LOG.info("Gateway with identity " + gateway.getIdentity() + " has no pending commands!");
 			return;
 		}
 		
